@@ -2,4 +2,4 @@
 
 source ~/kivy_venv/bin/activate
 
-python client/main.py
+python ~/Podco_Metal_Detections/client/main.py
