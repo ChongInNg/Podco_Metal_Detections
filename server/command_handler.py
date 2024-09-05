@@ -52,6 +52,7 @@ class CommandHandler:
 
     def create_ws_message(self, command: BaseCommand) -> BaseWsMessage:
         if isinstance(command, BypassCommand):
+            LogManager.instance().set_current_bypass(command.bypass)
             return NotifyByPassMessage.create_message(bypass=command.bypass)
         elif isinstance(command, CalibrationCommand):
             return NotifyCalibrationMessage.create_message(

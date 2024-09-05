@@ -8,6 +8,7 @@ from config.config import ConfigManager
 from screens.flip_screen_manager import FlippedScreenManager
 from controller.idle_controller import IdleController
 from log.logger import Logger
+from controller.role_manager import RoleManager
 
 import asyncio
 import sys
@@ -40,13 +41,15 @@ class MetalDetectionApp(App):
         else:
             sm = ScreenManager()
 
+        self.idle_controller = IdleController(
+            ConfigManager.instance().idle_seconds, 
+            self.switch_to_logo_screen,
+        )
         self.joystick = None
         # Add LogoScreen first, then other screens
         self.logo_screen = LogoScreen(name="logo")
         self.main_screen = MainScreen(name="main")
-        self.logo_screen.set_recover_func(
-            callback=self.main_screen.get_stack_widget().show_popups_when_exit_idle
-        )
+
         sm.add_widget(self.logo_screen) 
         sm.add_widget(self.main_screen)
         
@@ -65,10 +68,7 @@ class MetalDetectionApp(App):
             Window.bind(on_key_down=self.handle_keyboard)
             Logger.info("start listening keyboard input.")
 
-        if ConfigManager.instance().is_enable_idle_checking():
-            self.start_idle_handling()
-            Logger.info("start idle handling thread.")
-
+        self._start_idle_handling()
         self.start_websocket()
         return sm
 
@@ -78,7 +78,7 @@ class MetalDetectionApp(App):
 
     def monitor_joystick(self):
         from controller.joystick import JoyStick
-        self.joystick = JoyStick(callback=self.handle_signal)
+        self.joystick = JoyStick(callback=self.handle_signal_by_clock)
         if ConfigManager.instance().is_keypad_mode():
             self.joystick.setup(
                 up=ConfigManager.instance().keypad_pins.up,
@@ -104,19 +104,30 @@ class MetalDetectionApp(App):
     def stop(self):
         self._stop_joystick()
 
-    def start_idle_handling(self):
-        idle_seconds = ConfigManager.instance().idle_seconds
-        self.idle_controller = IdleController(idle_seconds, self.switch_to_logo_screen)
-        self.idle_controller.start()
+    def _start_idle_handling(self):
+        if ConfigManager.instance().is_enable_idle_checking():   
+            self.idle_controller.start()
 
     def _stop_idle_handling(self):
-        if self.idle_controller is not None:
+        if ConfigManager.instance().is_enable_idle_checking():
             self.idle_controller.stop()
 
     def switch_to_logo_screen(self):
         if self.root.current != "logo":
             self.root.current = "logo"
-        self.main_screen.get_stack_widget().hide_popups_when_idle()
+            #only the user can go to the logo screen
+            RoleManager.instance().logout()
+            self._stop_idle_handling()
+            self.main_screen.get_stack_widget().hide_popups_when_idle()
+
+    def switch_to_main_screen(self):
+        if self.root.current != "main":
+            self.root.current = "main"
+            if RoleManager.instance().is_admin():
+                self.main_screen.get_stack_widget().update_ui_when_admin_login()
+            else:
+                self._start_idle_handling()
+                self.main_screen.get_stack_widget().update_ui_when_user_login()
 
     def handle_signal(self, direction: str):
         Logger.debug(f"Received direction signal: {direction}")
@@ -138,7 +149,9 @@ class MetalDetectionApp(App):
             logo_screen.handle_direction(direction)
         Logger.debug(f"Handle direction signal done: {direction}")
 
-    
+    def handle_signal_by_clock(self, direction: str):
+        Clock.schedule_once(lambda dt: self.handle_signal(direction))
+
     def start_websocket(self):
         if not self.event_loop.is_running():
             raise RuntimeError("Event loop is not running.. make sure it running first")
@@ -162,7 +175,8 @@ class MetalDetectionApp(App):
             274: "down",
             276: "left",
             275: "right",
-            13: "center"
+            13: "center",
+            48: "left_right"
         }
 
         if key in key_mapping:
@@ -178,7 +192,7 @@ if __name__ == "__main__":
         log_file_level=40, # only write the error log of server
         max_bytes=1024*1024*50, # 50M for server.log file size
         backup_count=10, # 10 server.log file can keep
-        print_log_level=20
+        print_log_level=10
     )
 
     Logger.error(f"Podco Metal Detection Client started...")

@@ -1,6 +1,6 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
-from kivy.properties import StringProperty, NumericProperty, ListProperty
+from kivy.properties import StringProperty, NumericProperty, ListProperty, BooleanProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
 from screens.loading_screen import LoadingScreen
@@ -26,10 +26,17 @@ class SettingScreen(Screen):
     brightness = NumericProperty(0)
     bypass_status = NumericProperty(0)
     bypass_status_value = StringProperty("OFF")
-    component_ids = component_ids = [
+    log_hidden = BooleanProperty(True)
+    admin_component_ids = [
         ("brightness_slider", "slider"),
         ("reset_factory_btn", "button"),
         ("copy_log_btn", "button"),
+        ("back_btn", "button"),
+    ]
+
+    user_component_ids = [
+        ("brightness_slider", "slider"),
+        ("reset_factory_btn", "button"),
         ("back_btn", "button"),
     ]
 
@@ -45,7 +52,9 @@ class SettingScreen(Screen):
         self.brightness_step = ConfigManager.instance().brightness_step
         self.bypass = 1
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
-     
+
+        self.component_ids = SettingScreen.admin_component_ids
+
         self.response_received = False
         self.current_component_id = ""
         self.bg_pwm = None
@@ -64,7 +73,6 @@ class SettingScreen(Screen):
     def reset_data(self):
         self.reset_popup.reset_state()
         self.common_popup.reset_state()
-
         self.clear_focus()
         self.current_component_id = "brightness_slider"
         self.highlight_slider() # default make slider high light
@@ -341,9 +349,33 @@ class SettingScreen(Screen):
         elif self.reset_popup.is_showing():
             self.reset_popup.opacity = 1
 
+    def dismiss_popups(self):
+        if self.common_popup.is_showing():
+            self.common_popup.opacity = 1
+            self.common_popup.handle_dismiss()
+        elif self.reset_popup.is_showing():
+            self.reset_popup.opacity = 1
+            self.reset_popup.handle_dismiss()
+
     def update_loading_screen_text_while_copying(self, message: str):
         Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))
 
     def handle_copy_files_progress(self, filename: str, complete_count: int):
         message = f"Total need copy: {self.total_files_need_to_copy}\nCurrent completed: {complete_count}"
         Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))
+
+    def _hide_log_backup(self):
+        self.log_hidden = True
+        self.ids.log_backup_layout.opacity = 0
+
+    def _show_log_backup(self):
+        self.log_hidden = False
+        self.ids.log_backup_layout.opacity = 1
+
+    def update_ui_when_admin_login(self):
+        self._show_log_backup()
+        self.component_ids = SettingScreen.admin_component_ids
+
+    def update_ui_when_user_login(self):
+        self._hide_log_backup()
+        self.component_ids = SettingScreen.user_component_ids

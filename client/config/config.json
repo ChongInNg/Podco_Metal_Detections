@@ -33,5 +33,6 @@
     "src_folders": [
         "/home/podco/Podco_Metal_Detections/server/system_logs"
     ],
-    "need_copy_files_suffix": ["json", "log"]
+    "need_copy_files_suffix": ["json", "log"],
+    "keep_pressing_seconds": 2
 }

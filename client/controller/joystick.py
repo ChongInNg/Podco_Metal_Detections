@@ -2,9 +2,8 @@ import RPi.GPIO as GPIO
 import time
 import threading
 from typing import Callable
-from kivy.clock import Clock
 from log.logger import Logger
-
+from config.config import ConfigManager
 class JoyStick:
     def __init__(self, callback: Callable[[str], None]):
         self.joystick_thread = None
@@ -17,6 +16,8 @@ class JoyStick:
             "RIGHT": 19,
             "CENTER": 26
         }
+
+        self.keep_pressing_seconds = ConfigManager.instance().keep_pressing_seconds
 
     def setup(self, up: int, down: int, left: int, right: int, center: int):
         self.JOYSTICK_PINS["UP"] = up
@@ -39,21 +40,42 @@ class JoyStick:
         self.joystick_thread = threading.Thread(target=self.monitor_joystick)
         self.joystick_thread.start()
 
+    def check_press_left_right(self):
+        if (GPIO.input(self.JOYSTICK_PINS["LEFT"]) == GPIO.LOW and 
+            GPIO.input(self.JOYSTICK_PINS["RIGHT"]) == GPIO.LOW):
+            start_time = time.time()
+            while (GPIO.input(self.JOYSTICK_PINS["LEFT"]) == GPIO.LOW and 
+                   GPIO.input(self.JOYSTICK_PINS["RIGHT"]) == GPIO.LOW):
+                if time.time() - start_time >= self.keep_pressing_seconds:
+                    return True
+                time.sleep(0.01)
+            return False
+        return False
+
     def monitor_joystick(self):
         Logger.debug("monitor_joystick running..........")
         while self.running:
+            if self.check_press_left_right():
+                Logger.debug("Press left right in the same time over 3 seconds.")
+                self.callback("left_right")
+                time.sleep(0.3)
+                continue
+            
+            direction = ""
             if GPIO.input(self.JOYSTICK_PINS["LEFT"]) == GPIO.LOW:
-                Clock.schedule_once(lambda dt: self.callback("left"))
-                time.sleep(0.3)
+                direction = "left"
             elif GPIO.input(self.JOYSTICK_PINS["RIGHT"]) == GPIO.LOW:
-                Clock.schedule_once(lambda dt: self.callback("right"))
-                time.sleep(0.3)
+                direction = "right"
             elif GPIO.input(self.JOYSTICK_PINS["UP"]) == GPIO.LOW:
-                Clock.schedule_once(lambda dt: self.callback("up"))
-                time.sleep(0.3)
+                direction = "up"
             elif GPIO.input(self.JOYSTICK_PINS["DOWN"]) == GPIO.LOW:
-                Clock.schedule_once(lambda dt: self.callback("down"))
-                time.sleep(0.3)
+                direction = "down"
             elif GPIO.input(self.JOYSTICK_PINS["CENTER"]) == GPIO.LOW:
-                Clock.schedule_once(lambda dt: self.callback("center"))
+                direction = "center"
+
+            if len(direction) > 0:
+                self.callback(direction)
                 time.sleep(0.3)
+
+            time.sleep(0.01)
+

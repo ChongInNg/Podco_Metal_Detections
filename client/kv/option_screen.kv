@@ -18,10 +18,12 @@
 
             # "Detections"
             BoxLayout:
+                id: detection_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: 1
-
+                size_hint_y: None if root.detection_hidden else 1
+                height: 0 if root.detection_hidden else self.height
+                
                 Image:
                     source: "assets/detection_icon.png"
                     size_hint: None, None
@@ -34,7 +36,6 @@
                     text: "Detections"
                     on_release: root.on_detection_btn_click()
                     font_size: "26sp"
-                   
 
             # "Calibrations"
             BoxLayout:
@@ -57,9 +58,11 @@
 
             # "Analyzer"
             BoxLayout:
+                id: analyzer_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: 1
+                size_hint_y: None if root.analyzer_hidden else 1
+                height: 0 if root.analyzer_hidden else self.height
 
                 Image:
                     source: "assets/analyzer_icon.png"
@@ -93,3 +96,23 @@
                     on_release: root.on_setting_btn_click()
                     font_size: "26sp"
 
+            # "Exit"
+            BoxLayout:
+                id: exit_layout
+                orientation: "horizontal"
+                spacing: 5
+                size_hint_y: None if root.exit_hidden else 1
+                height: 0 if root.exit_hidden else self.height
+            
+                Image:
+                    source: "assets/exit_icon.png"
+                    size_hint: None, None
+                    size: 48, 48
+                    fit_mode: 'contain'
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    id: exit_btn
+                    text: "Exit"
+                    on_release: root.on_exit_btn_click()
+                    font_size: "26sp"

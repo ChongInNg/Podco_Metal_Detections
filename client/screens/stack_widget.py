@@ -13,6 +13,7 @@ from screens.screen_header import ScreenHeader
 from screens.setting_screen import SettingScreen
 from screens.common_popup import CommonPopup
 from log.logger import Logger
+from controller.role_manager import RoleManager
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -45,7 +46,10 @@ class StackWidget(Screen):
             if self.is_detection():
                 self.change_to_calibration_screen()
             elif self.is_calibration():
-                self.change_to_analyzer_screen()
+                if RoleManager.instance().is_admin():
+                    self.change_to_analyzer_screen()
+                else:
+                    self.change_to_option_screen()
             elif self.is_analyzer():
                 analyzer_screen = self.get_analyzer_screen()
                 is_handled = analyzer_screen.on_right_pressed()
@@ -105,7 +109,6 @@ class StackWidget(Screen):
                 Logger.debug(f"Not support center direction in this screen: {self.current_screen}")
         else:
             Logger.warning(f"Not support direction: {direction}")
-
 
     def change_to_screen_name(self, screen_name):
         if self.is_analyzer():
@@ -197,22 +200,40 @@ class StackWidget(Screen):
         self.common_popup.update_message(f"Reason: {reason_str}")
         self.common_popup.handle_open()
     
-    
     def hide_popups_when_idle(self):
         if self.is_analyzer():
             self.get_analyzer_screen().hide_popups()
         elif self.is_setting():
             self.get_setting_screen().hide_popups()
         else:
-            Logger.debug("no need to handle idle in current screen.")
+            Logger.debug("no need to handle hide popups in current screen.")
 
-    def show_popups_when_exit_idle(self):
+    def update_ui_when_user_login(self):
+        option_screen = self.get_option_screen()
+        option_screen.update_ui_when_user_login()
+        setting_screen = self.get_setting_screen()
+        setting_screen.update_ui_when_user_login()
+
         if self.common_popup.is_showing():
             self.common_popup.handle_dismiss(self)
-
         if self.is_analyzer():
             self.get_analyzer_screen().show_popups()
         elif self.is_setting():
-            self.get_setting_screen().show_popups()
+            setting_screen.show_popups()
         else:
-            Logger.debug("no need to handle idle in current screen.")
+            Logger.debug("no need to handle show popups in current screen.")
+
+    def update_ui_when_admin_login(self):
+        option_screen = self.get_option_screen()
+        option_screen.update_ui_when_admin_login()
+        setting_screen = self.get_setting_screen()
+        setting_screen.update_ui_when_admin_login()
+
+        if self.is_option():
+            option_screen.reset_data()
+        elif self.is_analyzer():
+            self.get_analyzer_screen().dismiss_popups()
+        elif self.is_setting():
+            setting_screen.dismiss_popups()
+        else:
+            Logger.debug("no need to handle dismiss popups in current screen.")

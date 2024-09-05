@@ -53,6 +53,7 @@ class ConfigManager:
         self.mount_point: str = ""
         self.src_folders: list[str] = []
         self.need_copy_files_suffix : list[str] = ""
+        self.keep_pressing_seconds: int = 0
 
     def to_dict(self):
         return {
@@ -76,7 +77,8 @@ class ConfigManager:
             "flip_screen": self.flip_screen,
             "mount_point": self.mount_point,
             "src_folders": self.src_folders,
-            "need_copy_files_suffix": self.need_copy_files_suffix
+            "need_copy_files_suffix": self.need_copy_files_suffix,
+            "keep_pressing_seconds": self.keep_pressing_seconds,
         }
     @classmethod
     def instance(cls) -> "ConfigManager":
@@ -135,7 +137,7 @@ class ConfigManager:
             self.src_folders = data.get("src_folders")
             self.mount_point = data.get("mount_point")
             self.need_copy_files_suffix = data.get("need_copy_files_suffix")
-
+            self.keep_pressing_seconds = data.get("keep_pressing_seconds")
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading config: {e}")
             raise e

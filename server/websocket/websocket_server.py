@@ -26,7 +26,7 @@ class WebSocketServer:
                 data = json.loads(message)
                 await self._handle_message(client_id, websocket, data)
         except websockets.exceptions.ConnectionClosedError as ex:
-            Logger.error("Client: {client_id} was closed", str(ex))
+            Logger.error(f"Client: {client_id} was closed", str(ex))
         finally:
             self._handle_disconnect(client_id)
     

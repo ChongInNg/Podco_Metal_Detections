@@ -21,6 +21,7 @@ class IdleController:
         if self._thread is None or not self._thread.is_alive():
             self._thread = threading.Thread(target=self._monitor_idle, daemon=True)
             self._thread.start()
+            Logger.info("start idle handling thread.")
 
     def checking_timeout(self):
         if self._is_skipped or self.last_clicked_at is None:
@@ -46,6 +47,8 @@ class IdleController:
     def stop(self):
         if self._thread is not None:
             self._stop_event.set()
-            self._thread.join()
+            self._thread.join() # don't join, for better user experience
             self._thread = None
+
+            Logger.info("stop idle handling thread.")
 
