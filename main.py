@@ -1,12 +1,15 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
+from kivy.lang import Builder
 
+from screens.screen_header import ScreenHeader
 from screens.main_screen import MainScreen
 from screens.detection_screen import DetectionScreen
 from screens.calibration_screen import CalibrationScreen
 from screens.analyzer_screen import AnalyzerScreen
-from screens.logo_screen import LogoScreen  # Import LogoScreen
+from screens.logo_screen import LogoScreen 
+
 
 from kivy.config import Config
 Config.set('graphics', 'width', '320')   # Your screen width

@@ -1,13 +1,29 @@
 <AnalyzerScreen>:
     BoxLayout:
         orientation: "vertical"
-        spacing: 10
-        padding: 10
+        spacing: 5
+        padding: 5
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.15, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        ScreenHeader:
+            title: root.title
+        
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            padding: 10
+            canvas.before:
+                Color:
+                    rgba: 0.15, 0.15, 0.2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
-        Label:
-            text: "Analyzer Screen"
-            font_size: "20sp"
-
-        Button:
-            text: "Back to Main"
-            on_release: app.root.current = "main"
+            Label:
+                text: "Analyzer Screen"
+                font_size: "20sp"
