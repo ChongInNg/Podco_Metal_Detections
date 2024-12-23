@@ -7,8 +7,12 @@ from screens.detection_screen import DetectionScreen
 from screens.calibration_screen import CalibrationScreen
 from screens.analyzer_screen import AnalyzerScreen
 
-# Set the screen resolution to fit a 2.4-inch display
-Window.size = (320, 240)
+from kivy.config import Config
+Config.set('graphics', 'width', '320')   # Your screen width
+Config.set('graphics', 'height', '240')  # Your screen height
+Config.set('graphics', 'resizable', False)
+Config.set('graphics', 'multisamples', '0')
+Config.set('graphics', 'dpi', '96')  
 
 class MetalDetectionApp(App):
     def build(self):
