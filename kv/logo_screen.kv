@@ -1,0 +1,20 @@
+<LogoScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 0
+        spacing: 0
+        size_hint: (1, 1)
+        
+        Image:
+            source: "assets/logo.jpeg"
+            size_hint: (1, 0.9)
+            allow_stretch: True
+            keep_ratio: False
+
+        # Version label at the bottom of the screen
+        Label:
+            text: "Version 1.0"
+            font_size: "10sp"
+            size_hint: (1, 0.1)
+            halign: "center"
+            valign: "middle"
