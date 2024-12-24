@@ -38,22 +38,27 @@ class MetalDetectionApp(App):
         return sm
 
     def monitor_joystick(self):
-        from controller.joystick import Joystick
+        from controller.joystick import JoyStick
         joystick = JoyStick(callback=self.handle_signal)
         joystick.run()
 
     def handle_signal(self, direction: str):
         print(f"Received direction signal: {direction}")
+
+        app = App.get_running_app()
+        stack_widget = app.root.get_screen("main").ids.stack_widget
+        
+
         if direction == "up":
             pass
         elif direction == "down":
-            pass
+            stack_widget.change_screen("analyzer")
         elif direction == "left":
-            pass
+            stack_widget.change_screen("detection")
         elif direction == "right":
-            pass
+            stack_widget.change_screen("calibration")
         elif direction == "center":
-            pass
+            stack_widget.change_screen("detection")
         else:
             print(f"Cannot handle this direction:{direction}")
 
