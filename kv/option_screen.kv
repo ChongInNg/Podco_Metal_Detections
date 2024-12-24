@@ -1,0 +1,76 @@
+<OptionScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 5
+        padding: 5
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            padding: 10
+            size_hint_y: 0.9  # Center the buttons and make them proportional
+            canvas.before:
+                Color:
+                    rgba: 0.15, 0.15, 0.2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            # Row for "Detections"
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 10
+                size_hint_y: 1
+
+                Image:
+                    source: "assets/detection_icon.png"
+                    size_hint: None, None
+                    size: 80, 80
+                    allow_stretch: True
+                    keep_ratio: True
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    text: "Detections"
+                    on_release: root.on_detection_btn_click()
+                    font_size: 30
+                   
+
+            # Row for "Calibrations"
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 10
+                size_hint_y: 1
+
+                Image:
+                    source: "assets/calibration_icon.png"
+                    size_hint: None, None
+                    size: 80, 80
+                    allow_stretch: True
+                    keep_ratio: True
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    text: "Calibrations"
+                    on_release: root.on_detection_btn_click()
+                    font_size: 30
+
+            # Row for "Analyzer"
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 10
+                size_hint_y: 1
+
+                Image:
+                    source: "assets/analyzer_icon.png"
+                    size_hint: None, None
+                    size: 80, 80
+                    allow_stretch: True
+                    keep_ratio: True
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    text: "Analyzer"
+                    on_release: root.on_analyzer_btn_click()
+                    font_size: 30
+

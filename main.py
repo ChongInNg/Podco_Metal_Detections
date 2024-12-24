@@ -4,10 +4,13 @@ from kivy.core.window import Window
 from kivy.lang import Builder
 
 from screens.screen_header import ScreenHeader
-from screens.main_screen import MainScreen
 from screens.detection_screen import DetectionScreen
 from screens.calibration_screen import CalibrationScreen
 from screens.analyzer_screen import AnalyzerScreen
+from screens.option_screen import OptionScreen
+from screens.stack_widget import StackWidget
+from screens.main_screen import MainScreen
+
 from screens.logo_screen import LogoScreen 
 
 
@@ -21,6 +24,8 @@ Config.set('graphics', 'dpi', '96')
 # test
 Window.size = (320, 240)
 Window.fullscreen = "auto"
+
+
 class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
@@ -28,9 +33,6 @@ class MetalDetectionApp(App):
         # Add LogoScreen first, then other screens
         sm.add_widget(LogoScreen(name="logo"))  # LogoScreen should be shown first
         sm.add_widget(MainScreen(name="main"))
-        sm.add_widget(DetectionScreen(name="detection"))
-        sm.add_widget(CalibrationScreen(name="calibration"))
-        sm.add_widget(AnalyzerScreen(name="analyzer"))
         
         return sm
 

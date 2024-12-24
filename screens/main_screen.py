@@ -5,4 +5,4 @@ from kivy.lang import Builder
 Builder.load_file("kv/main_screen.kv")
 
 class MainScreen(Screen):
-    title = StringProperty('Main Menu')
+    title = StringProperty("Main Menu")
