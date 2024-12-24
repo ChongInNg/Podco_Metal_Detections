@@ -8,6 +8,15 @@ Builder.load_file("kv/option_screen.kv")
 class OptionScreen(Screen):
     title = StringProperty('Main Menu')
 
+    def set_focus(self, focused_button_id):
+        # Reset all buttons to "normal" state
+        for button_id in ["detection_btn", "calibration_btn", "analyzer_btn"]:
+            button = self.ids[button_id]
+            button.state = "normal"
+
+        focused_button = self.ids[focused_button_id]
+        focused_button.state = "down"
+
     def navigate_to_screen(self, screen_name):
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget

@@ -31,6 +31,7 @@
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
                 Button:
+                    id: detection_btn
                     text: "Detections"
                     on_release: root.on_detection_btn_click()
                     font_size: 30
@@ -51,6 +52,7 @@
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
                 Button:
+                    id: calibration_btn
                     text: "Calibrations"
                     on_release: root.on_calibration_btn_click()
                     font_size: 30
@@ -70,6 +72,7 @@
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
                 Button:
+                    id: analyzer_btn
                     text: "Analyzer"
                     on_release: root.on_analyzer_btn_click()
                     font_size: 30

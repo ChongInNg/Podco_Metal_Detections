@@ -6,7 +6,7 @@ from kivy.lang import Builder
 Builder.load_file("kv/stack_widget.kv")
 
 class StackWidget(Screen):
-    current_screen = StringProperty('')
+    current_screen = StringProperty('option')
 
     def change_screen(self, direction):
         if direction == "left":
@@ -30,19 +30,22 @@ class StackWidget(Screen):
 
         elif direction == "up":
             if self.is_option():
-                pass
+                option_screen = self.ids.stack_manager.get_screen("option")
+                option_screen.set_focus("detection_btn")
             else:
                  print(f"Not support up direction in this screen: {self.current_screen}")
 
         elif direction == "down":
             if self.is_option():
-                pass
+                option_screen = self.ids.stack_manager.get_screen("option")
+                option_screen.set_focus("calibration_btn")
             else:
                  print(f"Not support down direction in this screen: {self.current_screen}")
 
         elif direction == "center":
             if self.is_option():
-                pass
+                option_screen = self.ids.stack_manager.get_screen("option")
+                option_screen.set_focus("analyzer_btn")
             else:
                  print(f"Not support center direction in this screen: {self.current_screen}")
         else:
