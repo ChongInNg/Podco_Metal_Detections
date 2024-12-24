@@ -34,7 +34,30 @@ class MetalDetectionApp(App):
         sm.add_widget(LogoScreen(name="logo"))  # LogoScreen should be shown first
         sm.add_widget(MainScreen(name="main"))
         
+        # self.monitor_joystick()
         return sm
+
+    def monitor_joystick(self):
+        from controller.joystick import Joystick
+        joystick = JoyStick(callback=self.handle_signal)
+        joystick.run()
+
+    def handle_signal(self, direction: str):
+        print(f"Received direction signal: {direction}")
+        if direction == "up":
+            pass
+        elif direction == "down":
+            pass
+        elif direction == "left":
+            pass
+        elif direction == "right":
+            pass
+        elif direction == "center":
+            pass
+        else:
+            print(f"Cannot handle this direction:{direction}")
+
+
 
 if __name__ == "__main__":
     MetalDetectionApp().run()
