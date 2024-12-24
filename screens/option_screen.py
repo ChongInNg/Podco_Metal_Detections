@@ -11,7 +11,7 @@ class OptionScreen(Screen):
     def navigate_to_screen(self, screen_name):
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
-        stack_widget.change_screen(screen_name)
+        stack_widget.change_to_screen_name(screen_name)
         print(f"Navigating to {screen_name}")
 
     def on_detection_btn_click(self):

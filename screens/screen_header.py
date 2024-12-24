@@ -24,28 +24,14 @@ class ScreenHeader(BoxLayout):
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         
-        if self.is_detection():
-            stack_widget.change_screen("option")
-        elif self.is_calibration():
-            stack_widget.change_screen("detection")
-        elif self.is_analyzer():
-            stack_widget.change_screen("calibration")
-        else:
-            print(f"Cannot handle back button click on this tiltle: {self.title}")
+        stack_widget.change_screen("left")
 
     def on_next_clicked(self):
         print(f"on_next_clicked {self.title}")
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         
-        if self.is_detection():
-            stack_widget.change_screen("calibration")
-        elif self.is_calibration():
-            stack_widget.change_screen("analyzer")
-        elif self.is_analyzer():
-            stack_widget.change_screen("option")
-        else:
-            print(f"Cannot handle next button click on this tiltle: {self.title}")
+        stack_widget.change_screen("right")
     
     def update_btn_state(self):
         if self.is_detection():

@@ -47,20 +47,8 @@ class MetalDetectionApp(App):
 
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
-        
-
-        if direction == "up":
-            pass
-        elif direction == "down":
-            stack_widget.change_screen("analyzer")
-        elif direction == "left":
-            stack_widget.change_screen("detection")
-        elif direction == "right":
-            stack_widget.change_screen("calibration")
-        elif direction == "center":
-            stack_widget.change_screen("detection")
-        else:
-            print(f"Cannot handle this direction:{direction}")
+        stack_widget.change_screen(direction)
+        print(f"Handle direction signal done: {direction}")
 
 
 
