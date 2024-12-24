@@ -20,7 +20,7 @@ Config.set('graphics', 'dpi', '96')
 
 # test
 Window.size = (320, 240)
-# Window.fullscreen = "auto"
+Window.fullscreen = "auto"
 class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
