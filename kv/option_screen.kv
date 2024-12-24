@@ -8,7 +8,7 @@
             orientation: "vertical"
             spacing: 10
             padding: 10
-            size_hint_y: 0.9  # Center the buttons and make them proportional
+            size_hint_y: 0.9
             canvas.before:
                 Color:
                     rgba: 0.15, 0.15, 0.2, 1
@@ -16,7 +16,7 @@
                     pos: self.pos
                     size: self.size
 
-            # Row for "Detections"
+            # "Detections"
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 10
@@ -36,7 +36,7 @@
                     font_size: 30
                    
 
-            # Row for "Calibrations"
+            # "Calibrations"
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 10
@@ -52,10 +52,10 @@
 
                 Button:
                     text: "Calibrations"
-                    on_release: root.on_detection_btn_click()
+                    on_release: root.on_calibration_btn_click()
                     font_size: 30
 
-            # Row for "Analyzer"
+            # "Analyzer"
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 10

@@ -9,7 +9,6 @@ class OptionScreen(Screen):
     title = StringProperty('Main Menu')
 
     def navigate_to_screen(self, screen_name):
-        """Navigate to the specified screen."""
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         stack_widget.change_screen(screen_name)
