@@ -46,8 +46,15 @@ class MetalDetectionApp(App):
         print(f"Received direction signal: {direction}")
 
         app = App.get_running_app()
-        stack_widget = app.root.get_screen("main").ids.stack_widget
-        stack_widget.change_screen(direction)
+
+        current_screen = app.root.current
+        if current_screen == "main":
+            stack_widget = app.root.get_screen("main").ids.stack_widget     
+            stack_widget.change_screen(direction)
+        else:
+            logo_screen = app.root.get_screen("logo").ids.logo_screen
+            print(f"1111111111111111111, {logo_screen}")
+            logo_screen.on_enter(direction)
         print(f"Handle direction signal done: {direction}")
 
 
