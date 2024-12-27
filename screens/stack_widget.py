@@ -54,9 +54,6 @@ class StackWidget(Screen):
 
 
     def change_to_screen_name(self, screen_name):
-        option_screen = self.get_option_screen()
-        option_screen.clear_focus()
-
         self.ids.stack_manager.current = screen_name
         self.current_screen = screen_name
         app = App.get_running_app()
