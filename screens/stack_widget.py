@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
 from kivy.lang import Builder
+from screens.option_screen import OptionScreen
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -30,22 +31,22 @@ class StackWidget(Screen):
 
         elif direction == "up":
             if self.is_option():
-                option_screen = self.ids.stack_manager.get_screen("option")
-                option_screen.set_focus("detection_btn")
+                option_screen = self.get_option_screen()
+                option_screen.set_focus(is_up = True)
             else:
                  print(f"Not support up direction in this screen: {self.current_screen}")
 
         elif direction == "down":
             if self.is_option():
-                option_screen = self.ids.stack_manager.get_screen("option")
-                option_screen.set_focus("calibration_btn")
+                option_screen = self.get_option_screen()
+                option_screen.set_focus(is_up = False)
             else:
                  print(f"Not support down direction in this screen: {self.current_screen}")
 
         elif direction == "center":
             if self.is_option():
-                option_screen = self.ids.stack_manager.get_screen("option")
-                option_screen.set_focus("analyzer_btn")
+                option_screen = self.get_option_screen()
+                option_screen.handle_enter()
             else:
                  print(f"Not support center direction in this screen: {self.current_screen}")
         else:
@@ -53,9 +54,11 @@ class StackWidget(Screen):
 
 
     def change_to_screen_name(self, screen_name):
+        option_screen = self.get_option_screen()
+        option_screen.clear_focus()
+
         self.ids.stack_manager.current = screen_name
         self.current_screen = screen_name
-
         app = App.get_running_app()
         main_screen = app.root.get_screen("main")
         screen_header = main_screen.ids.screen_header
@@ -91,3 +94,6 @@ class StackWidget(Screen):
     
     def is_option(self):
         return self.current_screen == "option"
+    
+    def get_option_screen(self) -> OptionScreen:
+        return self.ids.stack_manager.get_screen("option")

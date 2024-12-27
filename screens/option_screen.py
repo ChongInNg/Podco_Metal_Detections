@@ -7,16 +7,47 @@ Builder.load_file("kv/option_screen.kv")
 
 class OptionScreen(Screen):
     title = StringProperty('Main Menu')
+    current_button = StringProperty('')
+    button_ids = ["detection_btn", "calibration_btn", "analyzer_btn"]
+    
+    def set_focus(self, is_up: bool):
+        if is_up:
+            if self.current_button == "":
+                self.set_focus_button(self.button_ids[0])
+            else:
+                current_index = self.button_ids.index(self.current_button)
+                new_index = (current_index - 1) % len(self.button_ids)
+                self.set_focus_button(self.button_ids[new_index])
+        else:
+            if self.current_button == "":
+                self.set_focus_button(self.button_ids[len(self.button_ids) - 1])
+            else:
+                current_index = self.button_ids.index(self.current_button)
+                new_index = (current_index + 1) % len(self.button_ids)
+                self.set_focus_button(self.button_ids[new_index])
 
-    def set_focus(self, focused_button_id):
-        # Reset all buttons to "normal" state
-        for button_id in ["detection_btn", "calibration_btn", "analyzer_btn"]:
+    def clear_focus(self):
+        for button_id in self.button_ids:
             button = self.ids[button_id]
             button.state = "normal"
+
+    def set_focus_button(self, focused_button_id):
+        # Reset all buttons to "normal" state
+        self.clear_focus()
 
         focused_button = self.ids[focused_button_id]
         focused_button.state = "down"
 
+    def handle_enter(self):
+        if self.current_button == "detection_btn":
+            self.on_detection_btn_click()
+        elif self.current_button == "calibration_btn":
+            self.on_calibration_btn_click()
+        elif self.current_button == "analyzer_btn":
+            self.on_analyzer_btn_click()
+        else:
+            print("No button selected")
+            
     def navigate_to_screen(self, screen_name):
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
