@@ -13,7 +13,8 @@ class OptionScreen(Screen):
     def set_focus(self, is_up: bool):
         if is_up:
             if self.current_button == "":
-                self.set_focus_button(self.button_ids[0])
+                self.current_button = self.button_ids[0]
+                self.set_focus_button(self.current_button)
             else:
                 current_index = self.button_ids.index(self.current_button)
                 new_index = (current_index - 1) % len(self.button_ids)
@@ -21,7 +22,8 @@ class OptionScreen(Screen):
                 self.set_focus_button(self.current_button)
         else:
             if self.current_button == "":
-                self.set_focus_button(self.button_ids[len(self.button_ids) - 1])
+                self.current_button = self.button_ids[len(self.button_ids) - 1]
+                self.set_focus_button(self.current_button)
             else:
                 current_index = self.button_ids.index(self.current_button)
                 new_index = (current_index + 1) % len(self.button_ids)
@@ -51,6 +53,7 @@ class OptionScreen(Screen):
             print("No button selected")
             
         self.clear_focus()
+        self.current_button = ""
 
     def navigate_to_screen(self, screen_name):
         app = App.get_running_app()
