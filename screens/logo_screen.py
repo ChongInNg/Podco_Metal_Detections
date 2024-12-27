@@ -10,8 +10,9 @@ class LogoScreen(Screen):
             self.manager.current = "main"
         return super().on_touch_down(touch)
     
-    def on_enter(self, direction):
+    def handle_direction(self, direction):
         if direction != "center":
             print(f"Not support: {direction} in logo screen")
             return
         self.manager.current = "main"
+        print(f"logo screen handle {direction}")

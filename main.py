@@ -34,7 +34,7 @@ class MetalDetectionApp(App):
         sm.add_widget(LogoScreen(name="logo"))  # LogoScreen should be shown first
         sm.add_widget(MainScreen(name="main"))
         
-        # self.monitor_joystick()
+        self.monitor_joystick()
         return sm
 
     def monitor_joystick(self):
@@ -52,9 +52,8 @@ class MetalDetectionApp(App):
             stack_widget = app.root.get_screen("main").ids.stack_widget     
             stack_widget.change_screen(direction)
         else:
-            logo_screen = app.root.get_screen("logo").ids.logo_screen
-            print(f"1111111111111111111, {logo_screen}")
-            logo_screen.on_enter(direction)
+            logo_screen = app.root.get_screen("logo")
+            logo_screen.handle_direction(direction)
         print(f"Handle direction signal done: {direction}")
 
 
