@@ -56,10 +56,10 @@ class ScreenHeader(BoxLayout):
         next_button.disabled = not self.show_next
 
     def is_detection(self):
-        return self.title == "Detections"
+        return self.title == "Detection"
     
     def is_calibration(self):
-        return self.title == "Calibrations"
+        return self.title == "Calibration"
     
     def is_analyzer(self):
         return self.title == "Analyzer"

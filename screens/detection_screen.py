@@ -26,11 +26,16 @@ class DetectionScreen(Screen):
     current_CH1_N = StringProperty("0")
     current_CH2_P = StringProperty("0")
     current_CH2_N = StringProperty("0")
-
-
     current_index = NumericProperty(0)
     detections = []
 
+    def reset_data(self):
+        self.current_index = 0
+        self.update_current_values()
+
+    def get_title(self):
+        return self.title
+    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.detections = [

@@ -10,6 +10,13 @@ class OptionScreen(Screen):
     current_button = StringProperty('')
     button_ids = ["detection_btn", "calibration_btn", "analyzer_btn"]
     
+    def reset_data(self):
+        self.current_button = ""
+        self.clear_focus()
+
+    def get_title(self):
+        return self.title
+    
     def set_focus(self, is_up: bool):
         if is_up:
             if self.current_button == "":

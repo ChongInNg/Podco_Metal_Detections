@@ -26,3 +26,9 @@ class CalibrationScreen(Screen):
         self.current_CH2_P = "4321"
         self.current_CH2_N = "4321"
         self.current_CH2_M = "4321"
+
+    def reset_data(self):
+        pass
+
+    def get_title(self):
+        return self.title

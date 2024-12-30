@@ -4,6 +4,9 @@ from kivy.properties import StringProperty
 from kivy.lang import Builder
 from screens.option_screen import OptionScreen
 from screens.detection_screen import DetectionScreen
+from screens.calibration_screen import CalibrationScreen
+from screens.analyzer_screen import AnalyzerScreen
+from screens.screen_header import ScreenHeader
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -63,17 +66,25 @@ class StackWidget(Screen):
     def change_to_screen_name(self, screen_name):
         self.ids.stack_manager.current = screen_name
         self.current_screen = screen_name
-        app = App.get_running_app()
-        main_screen = app.root.get_screen("main")
-        screen_header = main_screen.ids.screen_header
+        title = ""
         if self.is_detection():
-            screen_header.update_header(title="Detections")
+            screen = self.get_detection_screen()
+            title = screen.get_title()
+            screen.reset_data()
         elif self.is_calibration():
-            screen_header.update_header(title="Calibrations")
+            screen = self.get_calibration_screen()
+            title = screen.get_title()
+            screen.reset_data()
         elif self.is_analyzer():
-            screen_header.update_header(title="Analyzer")
+            screen = self.get_analyzer_screen()
+            title = screen.get_title()
+            screen.reset_data()
         elif self.is_option():
-            screen_header.update_header(title="Main Menu")
+            screen = self.get_option_screen()
+            title = screen.get_title()
+            screen.reset_data()
+
+        self.get_screen_header().update_header(title)
 
     def change_to_option_screen(self):
         self.change_to_screen_name("option")
@@ -104,3 +115,14 @@ class StackWidget(Screen):
     
     def get_detection_screen(self)-> DetectionScreen:
         return self.ids.stack_manager.get_screen("detection")
+    
+    def get_calibration_screen (self)-> CalibrationScreen:
+        return self.ids.stack_manager.get_screen("calibration")
+    
+    def get_analyzer_screen(self)-> AnalyzerScreen:
+        return self.ids.stack_manager.get_screen("analyzer")
+    
+    def get_screen_header(self)-> ScreenHeader:
+        app = App.get_running_app()
+        main_screen = app.root.get_screen("main")
+        return main_screen.ids.screen_header
