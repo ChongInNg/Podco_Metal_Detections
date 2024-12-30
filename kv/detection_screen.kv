@@ -9,8 +9,8 @@
             spacing: 5
             size_hint_y: 0.1
             Label:
-                text: 'Page 1'
-                font_size: '20sp'
+                text: 'No. 1'
+                font_size: '30sp'
                 bold: True
 
             Label:
@@ -35,8 +35,8 @@
                 size_hint_x: 1
 
             Label:
-                text: '      '
-                font_size: '20sp'
+                text: '     '
+                font_size: '30sp'
                 bold: True
 
         BoxLayout:
@@ -48,22 +48,16 @@
             BoxLayout:
                 orientation: 'horizontal'
                 spacing: 5
-                canvas.before:
-                    Color:
-                        rgba: 0.8, 0.8, 0.8, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
+    
                 Label:
                     text: 'T'
-                    font_size: '16sp'
-                    bold: True
+                    font_size: '30sp'
                     size_hint_x: 0.3
                     width: 50
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 Label:
                     text: '500.1'
-                    font_size: '20sp'
+                    font_size: '30sp'
                     bold: True
                     size_hint_x: 0.7
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -71,22 +65,16 @@
             BoxLayout:
                 orientation: 'horizontal'
                 spacing: 5
-                canvas.before:
-                    Color:
-                        rgba: 0.8, 0.8, 0.8, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
+
                 Label:
                     text: 'D'
-                    font_size: '16sp'
-                    bold: True
-                    size_hint_x: 0.3
+                    font_size: '30sp'
                     width: 50
+                    size_hint_x: 0.3
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 Label:
                     text: '1234'
-                    font_size: '20sp'
+                    font_size: '30sp'
                     size_hint_x: 0.7
                     bold: True
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -104,39 +92,47 @@
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "CH1"
+                font_size: '30sp'
                 size_hint_x: 0.5
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "CH2"
+                font_size: '30sp'
                 size_hint_x: 0.5
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
             # Second row: P, value for CH1, value for CH2
             Label:
                 text: "P"
+                font_size: '30sp'
                 size_hint_x: None
                 width: 50
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "1234"
+                font_size: '30sp'
                 size_hint_x: 0.5
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "23456"
+                font_size: '30sp'
                 size_hint_x: 0.5
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
             # Third row: N, value for CH1, value for CH2
             Label:
                 text: "N"
+                font_size: '30sp'
                 size_hint_x: None
                 width: 50
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "2234"
+                font_size: '30sp'
                 size_hint_x: 0.5
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "3456"
+                font_size: '30sp'
                 size_hint_x: 0.5
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
