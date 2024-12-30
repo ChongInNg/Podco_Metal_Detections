@@ -83,7 +83,9 @@ class StackWidget(Screen):
             screen = self.get_option_screen()
             title = screen.get_title()
             screen.reset_data()
-
+        elif self.is_setting():
+            screen = self.get_setting_screen()
+            title = screen.get_title()
         self.get_screen_header().update_header(title)
 
     def change_to_option_screen(self):
@@ -110,6 +112,9 @@ class StackWidget(Screen):
     def is_option(self):
         return self.current_screen == "option"
     
+    def is_setting(self):
+        return self.current_screen == "setting"
+    
     def get_option_screen(self) -> OptionScreen:
         return self.ids.stack_manager.get_screen("option")
     
@@ -122,6 +127,9 @@ class StackWidget(Screen):
     def get_analyzer_screen(self)-> AnalyzerScreen:
         return self.ids.stack_manager.get_screen("analyzer")
     
+    def get_setting_screen(self)-> AnalyzerScreen:
+        return self.ids.stack_manager.get_screen("setting")
+
     def get_screen_header(self)-> ScreenHeader:
         app = App.get_running_app()
         main_screen = app.root.get_screen("main")

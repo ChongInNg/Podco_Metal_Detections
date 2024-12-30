@@ -7,6 +7,7 @@ from screens.screen_header import ScreenHeader
 from screens.detection_screen import DetectionScreen
 from screens.calibration_screen import CalibrationScreen
 from screens.analyzer_screen import AnalyzerScreen
+from screens.setting_screen import SettingScreen
 from screens.option_screen import OptionScreen
 from screens.stack_widget import StackWidget
 from screens.main_screen import MainScreen

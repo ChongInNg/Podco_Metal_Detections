@@ -77,3 +77,23 @@
                     on_release: root.on_analyzer_btn_click()
                     font_size: 30
 
+            # "Settings"
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 10
+                size_hint_y: 1
+
+                Image:
+                    source: "assets/setting_icon.png"
+                    size_hint: None, None
+                    size: 80, 80
+                    allow_stretch: True
+                    keep_ratio: True
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    id: setting_btn
+                    text: "Settings"
+                    on_release: root.on_setting_btn_click()
+                    font_size: 30
+

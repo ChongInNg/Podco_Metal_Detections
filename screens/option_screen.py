@@ -3,12 +3,13 @@ from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
 from kivy.lang import Builder
 
+
 Builder.load_file("kv/option_screen.kv")
 
 class OptionScreen(Screen):
     title = StringProperty('Main Menu')
     current_button = StringProperty('')
-    button_ids = ["detection_btn", "calibration_btn", "analyzer_btn"]
+    button_ids = ["detection_btn", "calibration_btn", "analyzer_btn", "setting_btn"]
     
     def reset_data(self):
         self.current_button = ""
@@ -56,6 +57,8 @@ class OptionScreen(Screen):
             self.on_calibration_btn_click()
         elif self.current_button == "analyzer_btn":
             self.on_analyzer_btn_click()
+        elif self.current_button == "setting_btn":
+            self.on_setting_btn_click()
         else:
             print("No button selected")
             
@@ -76,3 +79,7 @@ class OptionScreen(Screen):
 
     def on_analyzer_btn_click(self):
         self.navigate_to_screen("analyzer")
+
+    def on_setting_btn_click(self):
+        self.navigate_to_screen("setting")
+        

@@ -1,0 +1,44 @@
+<SettingScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 5
+        padding: 5
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.15, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            padding: 10
+            canvas.before:
+                Color:
+                    rgba: 0.15, 0.15, 0.2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Label:
+                text: "Setting Screen"
+                font_size: "40sp"
+                size_hint_y: 0.9
+
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 10
+                padding: 10
+                size_hint_y: 0.1
+                Label:
+                    text: ""
+                    size_hint_x: 1
+                Button:
+                    id: cancel_btn
+                    text: "Cancel"
+                    on_release: root.on_cancel_btn_click()
+                Button:
+                    id: confirm_btn
+                    text: "Confirm"
+                    on_release: root.on_confirm_btn_click()
