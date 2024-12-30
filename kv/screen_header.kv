@@ -9,30 +9,24 @@
             pos: self.pos
             size: self.size
     
-    Button:
+    ImageButton:
         id: back_button
-        text: 'Back'
-        font_size: 30
         size_hint_x: None
-        width: dp(100)
-        background_normal: ''
-        background_color: 0.3, 0.4, 0.5, 1
-        bold: True
+        size_hint_y: None
+        source: 'assets/left_icon.png'
         on_release: root.on_back_clicked()
-    
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
     Label:
         font_size: 30
         text: root.title
         bold: True
         color: 0.9, 0.9, 1, 1
         
-    Button:
+    ImageButton:
         id: next_button
-        text: 'Next'
-        font_size: 30
         size_hint_x: None
-        width: dp(100)
-        background_normal: ''
-        background_color: 0.3, 0.4, 0.5, 1
-        bold: True
+        size_hint_y: None
+        source: 'assets/right_icon.png'
         on_release: root.on_next_clicked()
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}

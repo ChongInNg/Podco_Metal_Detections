@@ -23,7 +23,7 @@ Config.set('graphics', 'dpi', '96')
 
 # test
 Window.size = (320, 240)
-Window.fullscreen = "auto"
+# Window.fullscreen = "auto"
 
 
 class MetalDetectionApp(App):
@@ -31,10 +31,10 @@ class MetalDetectionApp(App):
         sm = ScreenManager()
         
         # Add LogoScreen first, then other screens
-        sm.add_widget(LogoScreen(name="logo"))  # LogoScreen should be shown first
+        sm.add_widget(LogoScreen(name="logo")) 
         sm.add_widget(MainScreen(name="main"))
         
-        self.monitor_joystick()
+        # self.monitor_joystick()
         return sm
 
     def monitor_joystick(self):

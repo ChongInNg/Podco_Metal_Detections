@@ -1,26 +1,142 @@
 <DetectionScreen>:
     BoxLayout:
-        orientation: "vertical"
+        orientation: 'vertical'
         spacing: 5
         padding: 5
-        canvas.before:
-            Color:
-                rgba: 0.1, 0.1, 0.15, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        
+
         BoxLayout:
-            orientation: "vertical"
-            spacing: 10
-            padding: 10
-            canvas.before:
-                Color:
-                    rgba: 0.15, 0.15, 0.2, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+            orientation: 'horizontal'
+            spacing: 5
+            size_hint_y: 0.1
+            Label:
+                text: 'Page 1'
+                font_size: '20sp'
+                bold: True
 
             Label:
-                text: "Detections Screen"
-                font_size: "20sp"
+                size_hint_x: 1
+            
+            
+            ImageButton:
+                size_hint_x: None
+                size_hint_y: None
+                source: 'assets/up_icon.png'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release: root.on_up_pressed()
+
+            ImageButton:
+                size_hint_x: None
+                size_hint_y: None
+                source: 'assets/down_icon.png'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release: root.on_down_pressed()
+
+            Label:
+                size_hint_x: 1
+
+            Label:
+                text: '      '
+                font_size: '20sp'
+                bold: True
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            spacing: 5
+            padding: [10, 10, 10, 10]
+            
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 5
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    text: 'T'
+                    font_size: '16sp'
+                    bold: True
+                    size_hint_x: 0.3
+                    width: 50
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                Label:
+                    text: '500.1'
+                    font_size: '20sp'
+                    bold: True
+                    size_hint_x: 0.7
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 5
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    text: 'D'
+                    font_size: '16sp'
+                    bold: True
+                    size_hint_x: 0.3
+                    width: 50
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                Label:
+                    text: '1234'
+                    font_size: '20sp'
+                    size_hint_x: 0.7
+                    bold: True
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        GridLayout:
+            cols: 3
+            spacing: [10, 10] 
+            padding: [10, 10, 10, 10] 
+
+            # First row: Empty, CH1, CH2
+            Label:
+                text: ""
+                size_hint_x: None
+                width: 50  
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            Label:
+                text: "CH1"
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            Label:
+                text: "CH2"
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+            # Second row: P, value for CH1, value for CH2
+            Label:
+                text: "P"
+                size_hint_x: None
+                width: 50
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            Label:
+                text: "1234"
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            Label:
+                text: "23456"
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+            # Third row: N, value for CH1, value for CH2
+            Label:
+                text: "N"
+                size_hint_x: None
+                width: 50
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            Label:
+                text: "2234"
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            Label:
+                text: "3456"
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
