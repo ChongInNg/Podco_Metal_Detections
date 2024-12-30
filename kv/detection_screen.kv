@@ -4,18 +4,25 @@
         spacing: 5
         padding: 5
 
+        # Header Section
         BoxLayout:
             orientation: 'horizontal'
             spacing: 5
             size_hint_y: 0.1
+            canvas.before:
+                Color:
+                    rgba: 0.2, 0.3, 0.4, 1  # Background color for header
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
             Label:
                 text: 'No. 1'
                 font_size: '30sp'
                 bold: True
+                color: 1, 1, 1, 1  # White text
 
             Label:
                 size_hint_x: 1
-            
             
             ImageButton:
                 size_hint_x: None
@@ -37,23 +44,31 @@
             Label:
                 text: '     '
                 font_size: '30sp'
-                bold: True
 
+        # Data Section
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
+            height: dp(60)  # Fixed height
             spacing: 5
             padding: [10, 10, 10, 10]
+            canvas.before:
+                Color:
+                    rgba: 0.8, 0.8, 0.8, 1  # Light gray background for data section
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
             
             BoxLayout:
                 orientation: 'horizontal'
                 spacing: 5
-    
                 Label:
                     text: 'T'
                     font_size: '30sp'
                     size_hint_x: 0.3
                     width: 50
+                    bold: True
+                    color: 0.2, 0.4, 0.8, 1  # Blue text
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 Label:
                     text: '500.1'
@@ -65,12 +80,13 @@
             BoxLayout:
                 orientation: 'horizontal'
                 spacing: 5
-
                 Label:
                     text: 'D'
                     font_size: '30sp'
                     width: 50
                     size_hint_x: 0.3
+                    bold: True
+                    color: 0.2, 0.4, 0.8, 1  # Blue text
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 Label:
                     text: '1234'
@@ -79,26 +95,37 @@
                     bold: True
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
+        # Grid Section
         GridLayout:
             cols: 3
-            spacing: [10, 10] 
-            padding: [10, 10, 10, 10] 
+            spacing: [10, 10]
+            padding: [10, 10, 10, 10]
+            canvas.before:
+                Color:
+                    rgba: 0.9, 0.9, 0.9, 1  # Very light gray background
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
             # First row: Empty, CH1, CH2
             Label:
                 text: ""
                 size_hint_x: None
-                width: 50  
+                width: 50
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "CH1"
                 font_size: '30sp'
+                bold: True
                 size_hint_x: 0.5
+                color: 0.2, 0.6, 0.2, 1  # Green text
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "CH2"
                 font_size: '30sp'
+                bold: True
                 size_hint_x: 0.5
+                color: 0.2, 0.6, 0.2, 1  # Green text
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
             # Second row: P, value for CH1, value for CH2
@@ -107,16 +134,19 @@
                 font_size: '30sp'
                 size_hint_x: None
                 width: 50
+                color: 0.8, 0.2, 0.2, 1  # Red text
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "1234"
                 font_size: '30sp'
                 size_hint_x: 0.5
+                bold: True
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "23456"
                 font_size: '30sp'
                 size_hint_x: 0.5
+                bold: True
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
             # Third row: N, value for CH1, value for CH2
@@ -125,14 +155,17 @@
                 font_size: '30sp'
                 size_hint_x: None
                 width: 50
+                color: 0.8, 0.2, 0.2, 1  # Red text
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "2234"
                 font_size: '30sp'
                 size_hint_x: 0.5
+                bold: True
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 text: "3456"
                 font_size: '30sp'
                 size_hint_x: 0.5
+                bold: True
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
