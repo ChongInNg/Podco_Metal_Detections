@@ -3,6 +3,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
 from kivy.lang import Builder
 from screens.option_screen import OptionScreen
+from screens.detection_screen import DetectionScreen
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -33,22 +34,28 @@ class StackWidget(Screen):
             if self.is_option():
                 option_screen = self.get_option_screen()
                 option_screen.set_focus(is_up = True)
+            elif self.is_detection():
+                detection_screen = self.get_detection_screen()
+                detection_screen.on_up_pressed()
             else:
-                 print(f"Not support up direction in this screen: {self.current_screen}")
+                print(f"Not support up direction in this screen: {self.current_screen}")
 
         elif direction == "down":
             if self.is_option():
                 option_screen = self.get_option_screen()
                 option_screen.set_focus(is_up = False)
+            elif self.is_detection():
+                detection_screen = self.get_detection_screen()
+                detection_screen.on_down_pressed()
             else:
-                 print(f"Not support down direction in this screen: {self.current_screen}")
+                print(f"Not support down direction in this screen: {self.current_screen}")
 
         elif direction == "center":
             if self.is_option():
                 option_screen = self.get_option_screen()
                 option_screen.handle_enter()
             else:
-                 print(f"Not support center direction in this screen: {self.current_screen}")
+                print(f"Not support center direction in this screen: {self.current_screen}")
         else:
             print(f"Not support direction: {direction}")
 
@@ -94,3 +101,6 @@ class StackWidget(Screen):
     
     def get_option_screen(self) -> OptionScreen:
         return self.ids.stack_manager.get_screen("option")
+    
+    def get_detection_screen(self)-> DetectionScreen:
+        return self.ids.stack_manager.get_screen("detection")
