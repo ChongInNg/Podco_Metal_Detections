@@ -16,20 +16,26 @@ class AnalyzerScreen(Screen):
     title = "Analyzer"
 
     def reset_data(self):
-        pass
+        self.start_time = time.time() 
+        self.data = []  
+        self.count = 0 
+        self.plot.points = []
+        self.threshold_plot.points = []
+        self.event = Clock.schedule_interval(self.update_graph, 0.1)
 
     def get_title(self):
         return self.title
+
+    def stop(self):
+        Clock.unschedule(self.update_graph)
+        self.event.cancel()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self._create_graph()
-        self.start_time = time.time() 
-        self.data = []  
-        self.count = 0 
-        Clock.schedule_interval(self.update_graph, 0.1)
-
+        
+        
     def _create_graph(self):
         self.graph = Graph(
             xlabel="Time (s)",

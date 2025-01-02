@@ -64,6 +64,12 @@ class StackWidget(Screen):
 
 
     def change_to_screen_name(self, screen_name):
+        if self.is_analyzer():
+            # need to stop the analyzer thread first before switching to another screen
+            screen = self.get_analyzer_screen()
+            screen.stop()
+            print(f"Stop the analyzer thread before switching to another screen: {screen_name}")
+
         self.ids.stack_manager.current = screen_name
         self.current_screen = screen_name
         title = ""
