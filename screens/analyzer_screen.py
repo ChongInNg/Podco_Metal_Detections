@@ -1,6 +1,6 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
-from kivy.garden.graph import Graph, LinePlot
+from kivy_garden.graph import Graph, LinePlot
 from kivy.clock import Clock
 import random
 import time

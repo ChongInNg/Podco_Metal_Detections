@@ -18,4 +18,6 @@ python3 -m pip install kivy[base] kivy_examples
 
 sudo apt install python3-rpi.gpio
 
+
+pip install kivy-garden.graph
 ```
