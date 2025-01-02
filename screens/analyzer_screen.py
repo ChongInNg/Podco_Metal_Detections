@@ -45,17 +45,17 @@ class AnalyzerScreen(Screen):
             ymin=0,
             ymax=3000, 
             padding=5,
+            label_options={"color": [1, 1, 1, 1], "bold": True}
         )
 
         self.plot = LinePlot(color=[0, 1, 0, 1])
         self.plot.points = []
 
-        self.threshold_plot = LinePlot(color=[1, 0, 0, 1])
+        self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
         self.threshold_plot.points = []
 
         self.graph.add_plot(self.plot)
         self.graph.add_plot(self.threshold_plot)
-
         self.add_widget(self.graph)
 
     def update_graph(self, dt):
