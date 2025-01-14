@@ -1,0 +1,60 @@
+2.960s dev-mmcblk0p2.device
+2.673s cups.service
+1.783s raspi-config.service
+1.141s e2scrub_reap.service
+1.080s avahi-daemon.service
+1.055s polkit.service
+1.046s user@1000.service
+ 999ms systemd-journal-flush.service
+ 874ms dphys-swapfile.service
+ 868ms systemd-logind.service
+ 857ms keyboard-setup.service
+ 853ms glamor-test.service
+ 846ms gldriver-test.service
+ 811ms rng-tools-debian.service
+ 621ms systemd-tmpfiles-setup-dev.service
+ 620ms rsyslog.service
+ 572ms systemd-udev-trigger.service
+ 555ms networking.service
+ 541ms systemd-timesyncd.service
+ 537ms ModemManager.service
+ 527ms systemd-rfkill.service
+ 440ms systemd-udevd.service
+ 438ms systemd-fsck-root.service
+ 384ms systemd-fsck@dev-disk-by\x2dpartuuid-2c99047f\x2d01.service
+ 350ms systemd-journald.service
+ 326ms dev-mqueue.mount
+ 323ms run-rpc_pipefs.mount
+ 322ms colord.service
+ 321ms modprobe@drm.service
+ 320ms sys-kernel-debug.mount
+ 315ms sys-kernel-tracing.mount
+ 303ms triggerhappy.service
+ 293ms fake-hwclock.service
+ 284ms systemd-remount-fs.service
+ 281ms modprobe@configfs.service
+ 277ms kmod-static-nodes.service
+ 273ms rpi-eeprom-update.service
+ 264ms modprobe@fuse.service
+ 238ms systemd-modules-load.service
+ 183ms systemd-tmpfiles-setup.service
+ 123ms systemd-random-seed.service
+ 120ms systemd-update-utmp.service
+ 119ms systemd-sysusers.service
+ 118ms rc-local.service
+ 113ms systemd-user-sessions.service
+ 100ms systemd-sysctl.service
+  88ms nfs-config.service
+  78ms plymouth-start.service
+  75ms alsa-restore.service
+  62ms plymouth-quit-wait.service
+  60ms console-setup.service
+  57ms user-runtime-dir@1000.service
+  55ms systemd-update-utmp-runlevel.service
+  50ms plymouth-read-write.service
+  48ms plymouth-quit.service
+  47ms boot.mount
+  46ms sys-fs-fuse-connections.mount
+  42ms sys-kernel-config.mount
+  22ms rtkit-daemon.service
+  21ms ifupdown-pre.service
