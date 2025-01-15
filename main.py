@@ -15,10 +15,11 @@ from screens.logo_screen import LogoScreen
 
 
 from kivy.config import Config
-Config.set('graphics', 'width', '320')   # Your screen width
-Config.set('graphics', 'height', '240')  # Your screen height
+Config.set('graphics', 'width', '320')  
+Config.set('graphics', 'height', '240') 
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'multisamples', '0')
+Config.set('graphics', 'fullscreen', '1')
 Config.set('graphics', 'dpi', '96')  
 
 # test
@@ -31,7 +32,7 @@ from kivy.core.window import Window
 class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
-        print(f"1111111111 window size: {Window.size}") 
+        print(f"Current window size: {Window.size}") 
         # Add LogoScreen first, then other screens
         sm.add_widget(LogoScreen(name="logo")) 
         sm.add_widget(MainScreen(name="main"))
