@@ -20,4 +20,15 @@ sudo apt install python3-rpi.gpio
 
 
 pip install kivy-garden.graph
+
+
+
+need to install xorg for xwindow
+path
+
+~/.xinit.rc
+
+/boot/config.txt
+
+
 ```
