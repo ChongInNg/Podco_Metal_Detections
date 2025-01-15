@@ -40,8 +40,12 @@ class MetalDetectionApp(App):
 
     def monitor_joystick(self):
         from controller.joystick import JoyStick
-        joystick = JoyStick(callback=self.handle_signal)
-        joystick.run()
+        self.joystick = JoyStick(callback=self.handle_signal)
+        self.joystick.run()
+
+    def stop_joystick(self):
+        if self.joystick is not None:
+            self.joystick.stop()
 
     def handle_signal(self, direction: str):
         print(f"Received direction signal: {direction}")
@@ -60,4 +64,7 @@ class MetalDetectionApp(App):
 
 
 if __name__ == "__main__":
-    MetalDetectionApp().run()
+    app = MetalDetectionApp()
+    app.run()
+    app.stop_joystick()
+

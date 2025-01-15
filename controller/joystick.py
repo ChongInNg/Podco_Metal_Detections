@@ -25,6 +25,13 @@ class JoyStick:
         for button, pin in JOYSTICK_PINS.items():
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+    def stop(self):
+        print("Stopping application...")
+        self.running = False
+        if self.joystick_thread is not None:
+            self.joystick_thread.join()
+        GPIO.cleanup() 
+        print("Application stopped cleanly.")
 
     def run(self):
         self.joystick_thread = threading.Thread(target=self.monitor_joystick)
