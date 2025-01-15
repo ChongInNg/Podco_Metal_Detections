@@ -50,7 +50,7 @@ class AnalyzerScreen(Screen):
             xmax=10,  
             ymin=0,
             ymax=3000, 
-            padding=5,
+            padding=1,
             label_options={"color": [1, 1, 1, 1], "bold": True}
         )
 

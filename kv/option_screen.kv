@@ -1,13 +1,13 @@
 <OptionScreen>:
     BoxLayout:
         orientation: "vertical"
-        spacing: 5
-        padding: 5
+        spacing: 1
+        padding: 1
 
         BoxLayout:
             orientation: "vertical"
-            spacing: 10
-            padding: 10
+            spacing: 1
+            padding: 5
             size_hint_y: 0.9
             canvas.before:
                 Color:
@@ -19,13 +19,13 @@
             # "Detections"
             BoxLayout:
                 orientation: "horizontal"
-                spacing: 10
+                spacing: 5
                 size_hint_y: 1
 
                 Image:
                     source: "assets/detection_icon.png"
                     size_hint: None, None
-                    size: 80, 80
+                    size: 48, 48
                     allow_stretch: True
                     keep_ratio: True
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -34,19 +34,19 @@
                     id: detection_btn
                     text: "Detections"
                     on_release: root.on_detection_btn_click()
-                    font_size: "40sp"
+                    font_size: "30sp"
                    
 
             # "Calibrations"
             BoxLayout:
                 orientation: "horizontal"
-                spacing: 10
+                spacing: 5
                 size_hint_y: 1
 
                 Image:
                     source: "assets/calibration_icon.png"
                     size_hint: None, None
-                    size: 80, 80
+                    size: 48, 48
                     allow_stretch: True
                     keep_ratio: True
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -55,18 +55,18 @@
                     id: calibration_btn
                     text: "Calibrations"
                     on_release: root.on_calibration_btn_click()
-                    font_size: "40sp"
+                    font_size: "30sp"
 
             # "Analyzer"
             BoxLayout:
                 orientation: "horizontal"
-                spacing: 10
+                spacing: 5
                 size_hint_y: 1
 
                 Image:
                     source: "assets/analyzer_icon.png"
                     size_hint: None, None
-                    size: 80, 80
+                    size: 48, 48
                     allow_stretch: True
                     keep_ratio: True
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -75,18 +75,18 @@
                     id: analyzer_btn
                     text: "Analyzer"
                     on_release: root.on_analyzer_btn_click()
-                    font_size: "40sp"
+                    font_size: "30sp"
 
             # "Settings"
             BoxLayout:
                 orientation: "horizontal"
-                spacing: 10
+                spacing: 5
                 size_hint_y: 1
 
                 Image:
                     source: "assets/setting_icon.png"
                     size_hint: None, None
-                    size: 80, 80
+                    size: 48, 48
                     allow_stretch: True
                     keep_ratio: True
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -95,5 +95,5 @@
                     id: setting_btn
                     text: "Settings"
                     on_release: root.on_setting_btn_click()
-                    font_size: "40sp"
+                    font_size: "30sp"
 

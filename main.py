@@ -1,6 +1,5 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-from kivy.core.window import Window
 from kivy.lang import Builder
 
 from screens.screen_header import ScreenHeader
@@ -23,19 +22,21 @@ Config.set('graphics', 'multisamples', '0')
 Config.set('graphics', 'dpi', '96')  
 
 # test
-Window.size = (320, 240)
-# Window.fullscreen = "auto"
+#Window.size = (640, 480)
+#Window.fullscreen = True
 
+
+from kivy.core.window import Window
 
 class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
-        
+        print(f"1111111111 window size: {Window.size}") 
         # Add LogoScreen first, then other screens
         sm.add_widget(LogoScreen(name="logo")) 
         sm.add_widget(MainScreen(name="main"))
         
-        # self.monitor_joystick()
+        self.monitor_joystick()
         return sm
 
     def monitor_joystick(self):
