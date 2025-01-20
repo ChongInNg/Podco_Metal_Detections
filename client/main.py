@@ -37,7 +37,7 @@ class MetalDetectionApp(App):
         sm.add_widget(LogoScreen(name="logo")) 
         sm.add_widget(MainScreen(name="main"))
         
-        self.monitor_joystick()
+        # self.monitor_joystick()
         return sm
 
     def monitor_joystick(self):
