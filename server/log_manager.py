@@ -41,6 +41,9 @@ class LogManager:
         self.thd.start()
         self.running = True
 
+    def log_message(self, message: str):
+        self.system_log.log_event(message=message)
+
     def close(self):
         if self.thd:
             self.thd.join()

@@ -23,8 +23,4 @@ class BaseLog:
             with open(self.file_name, "w") as f:
                 json.dump(data, f, indent=4)
 
-    def _check_and_rotate_file(self, index):
-        file_path = self._rotate_file(index)
-        if os.path.exists(file_path) and os.path.getsize(file_path) > self.max_file_size:
-            return index + 1
-        return index
+   

@@ -17,13 +17,9 @@ class SystemLog(BaseLog):
         if self._is_over_size():
             self._increase_index()
 
-        system_log = self._read_json()
-        system_log.setdefault("events", [])
-        system_log["events"].append({
-            "timestamp": datetime.now().isoformat(),
-            "message": message,
-        })
-        self._write_json(system_log)
+        with open(self.file_name, "a") as f:
+            timestamp = datetime.now().isoformat()
+            f.write(f"{timestamp} - {message}\n")
 
     def _is_over_size(self)->bool:
         if os.path.exists(self.file_name) and os.path.getsize(self.file_name) > self.max_file_size:
