@@ -3,6 +3,7 @@ import threading
 import queue
 import struct
 from command_handler import CommandHandler
+from log.logger import Logger
 
 class CommandData:
     def __init__(self, command_type: int, data_length: int, data: bytes):
@@ -39,11 +40,11 @@ class SerialServer:
         try:
             self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
             self.running = True
-            print(f"Serial connection established. port:{self.port}, baudrate: {self.baudrate}, timeout mode: {self.timeout}")
+            Logger.instance().info(f"Serial connection established. port:{self.port}, baudrate: {self.baudrate}, timeout mode: {self.timeout}")
             self.start()
             return True
         except Exception as e:
-            print(f"Failed to connect to Serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
+            Logger.instance().error(f"Failed to connect to Serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
             return False
 
     def start(self):
@@ -51,13 +52,13 @@ class SerialServer:
         self.proces_thread = threading.Thread(target=self._process_queue_data, daemon=True)
         self.read_thread.start()
         self.proces_thread.start()
-        print("Start read data and process data thread success.")
+        Logger.instance().info("Start read data and process data thread success.")
 
     def _read_data(self):
         while self.running:
   
             if self.serial.in_waiting:
-                print(f"There are data comming from serial, len:{self.serial.in_waiting}")
+                Logger.instance().info(f"There are data comming from serial, len:{self.serial.in_waiting}")
                 header = self.serial.read(2) 
                 if len(header) < 2: 
                     continue
@@ -65,22 +66,22 @@ class SerialServer:
                 command_type = header[0]
                 data_length = header[1]
 
-                print(f"command type hex: {hex(command_type)}, data_length: {data_length}")
+                Logger.instance().info(f"command type hex: {hex(command_type)}, data_length: {data_length}")
                 data = self.serial.read(data_length)
                 command_data = CommandData(command_type, data_length, data)
                 self.cmd_queue.put(command_data)
-                print(f"Read data from the serial port: {command_data.to_dict()}")
+                Logger.instance().info(f"Read data from the serial port: {command_data.to_dict()}")
 
     def _write_data(self, data: bytes):
         if self.serial and self.serial.is_open:
             self.serial.write(data)
-            print(f"Write to serial success. {data.hex()}")
+            Logger.instance().info(f"Write to serial success. {data.hex()}")
         else:
-            print(f"Didn't connect to serial port, cannot send. {data.hex()}")
+            Logger.instance().error(f"Didn't connect to serial port, cannot send. {data.hex()}")
 
     def _process_queue_data(self):
         while self.running:
-            print("waitting for the queue data.")
+            Logger.instance().info("waitting for the queue data.")
             command_data: CommandData = self.cmd_queue.get()
             try:
                 result = self.command_handler.handle_command(
@@ -88,21 +89,21 @@ class SerialServer:
                     data_length=command_data.data_length,
                     data=command_data.data,
                 )
-                print("Processed Command:", result)
+                Logger.instance().info("Processed Command:", result)
                 self._send_response(result["command_name"])
             except ValueError as e:
                 self._send_error_response(command_data.command_type)
-                print(f"Command handling error: {e}, raw_command:{command_data}")
+                Logger.instance().error(f"Command handling error: {e}, raw_command:{command_data}")
 
     def close(self):
         self.running = False
         if self.serial and self.serial.is_open:
             self.serial.close()
-            print("UART connection closed.")
+            Logger.instance().info("Serial connection closed.")
             self.read_thread.join()
-            print("Read queue thread closed.")
+            Logger.instance().info("Read queue thread closed.")
             self.proces_thread.join()
-            print("Process queue thread closed.")
+            Logger.instance().info("Process queue thread closed.")
 
     def _send_response(self, command_name: str):
         if command_name not in self.commands:
