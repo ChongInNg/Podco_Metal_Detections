@@ -4,11 +4,23 @@ import queue
 import struct
 from command_handler import CommandHandler
 
-class UartServer:
+class CommandData:
+    def __init__(self, command_type: int, data_length: int, data: bytes):
+        self.command_type = command_type
+        self.data_length = data_length
+        self.data = data
+    def to_dict(self):
+        return {
+            "command_type": hex(self.command_type) ,
+            "data_length": self.data_length,
+            "data": self.data.hex()
+        }
+    
+class SerialServer:
     def __init__(self, port, baudrate=115200, timeout=None):
         self.port = port
         self.baudrate = baudrate
-        self.timeout = timeout
+        self.timeout = timeout # None: means nonblcoking, it is good to handle a lot of data receiving
         self.serial = None
         self.bytes_endian = "big"
         self.cmd_queue = queue.Queue()
@@ -23,14 +35,16 @@ class UartServer:
             "bypass": 0x0F,
         }
 
-    def connect(self):
+    def connect(self) -> bool:
         try:
             self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
             self.running = True
-            print("UART connection established.")
+            print(f"Serial connection established. port:{self.port}, baudrate: {self.baudrate}, timeout mode: {self.timeout}")
             self.start()
+            return True
         except Exception as e:
-            print(f"Failed to connect to UART on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
+            print(f"Failed to connect to Serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
+            return False
 
     def start(self):
         self.read_thread = threading.Thread(target=self._read_data, daemon=True)
@@ -41,27 +55,44 @@ class UartServer:
 
     def _read_data(self):
         while self.running:
+  
             if self.serial.in_waiting:
-                data = self.serial.readline().decode('utf-8').strip()
-                self.cmd_queue.put(data)
+                print(f"There are data comming from serial, len:{self.serial.in_waiting}")
+                header = self.serial.read(2) 
+                if len(header) < 2: 
+                    continue
+
+                command_type = header[0]
+                data_length = header[1]
+
+                print(f"command type hex: {hex(command_type)}, data_length: {data_length}")
+                data = self.serial.read(data_length)
+                command_data = CommandData(command_type, data_length, data)
+                self.cmd_queue.put(command_data)
+                print(f"Read data from the serial port: {command_data.to_dict()}")
 
     def _write_data(self, data: bytes):
         if self.serial and self.serial.is_open:
-            self.serial.write(data.encode('utf-8'))
+            self.serial.write(data)
             print(f"Write to serial success. {data.hex()}")
         else:
             print(f"Didn't connect to serial port, cannot send. {data.hex()}")
 
     def _process_queue_data(self):
-        while not self.cmd_queue.empty():
-            raw_message = self.cmd_queue.get()
+        while self.running:
+            print("waitting for the queue data.")
+            command_data: CommandData = self.cmd_queue.get()
             try:
-                result = self.command_handler.handle_command(raw_message)
+                result = self.command_handler.handle_command(
+                    command_type=command_data.command_type,
+                    data_length=command_data.data_length,
+                    data=command_data.data,
+                )
                 print("Processed Command:", result)
                 self._send_response(result["command_name"])
             except ValueError as e:
-                self._send_error_response(raw_message[1])
-                print(f"Command handling error: {e}, raw_message:{raw_message}")
+                self._send_error_response(command_data.command_type)
+                print(f"Command handling error: {e}, raw_command:{command_data}")
 
     def close(self):
         self.running = False
@@ -78,8 +109,10 @@ class UartServer:
             raise ValueError(f"Invalid command name: {command_name}")
         command_type = self.commands[command_name]
         resp_value = 1
-        encoded = command_type.to_bytes(1, self.bytes_endian)
-        encoded += resp_value.to_bytes(1, self.bytes_endian)
+        encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
+        data_length = 1
+        encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
+        encoded += resp_value.to_bytes(1, self.bytes_endian) # data value
         
         self._write_data(encoded)
 

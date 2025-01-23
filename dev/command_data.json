@@ -1,0 +1,39 @@
+{
+    "commands": [
+        {
+            "name": "detection",
+            "command_type": "0x0A",
+            "data_length_bytes": 8,
+            "each_item_bytes": 2,
+            "data": [1234, 1235, 1236, 1237]
+        },
+        {
+            "name": "calibration",
+            "command_type": "0xA0",
+            "data_length_bytes": 14,
+            "each_item_bytes": 2,
+            "data": [2051, 2052, 2053, 2054, 2055, 2056, 2057]
+        },
+        {
+            "name": "raw_data",
+            "command_type": "0xAA",
+            "data_length_bytes": 12,
+            "each_item_bytes": 2,
+            "data": [2055, 2040, 1234, 0, 255, 30]
+        },
+        {
+            "name": "threshold",
+            "command_type": "0xF0",
+            "data_length_bytes": 2,
+            "each_item_bytes": 2,
+            "data": [1024]
+        },
+        {
+            "name": "bypass",
+            "command_type": "0x0F",
+            "data_length_bytes": 1,
+            "each_item_bytes": 1,
+            "data": [1]
+        }
+    ]
+}

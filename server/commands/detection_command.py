@@ -13,10 +13,10 @@ class DetectionCommand(BaseCommand):
     def process(self, data):
         self.validate(data)
 
-        self.ch1_area_p = self._convert_bytes_to_int(0, 2)
-        self.ch1_area_n = self._convert_bytes_to_int(2, 4)
-        self.ch2_area_p = self._convert_bytes_to_int(4, 6)
-        self.ch2_area_n = self._convert_bytes_to_int(6, 8)
+        self.ch1_area_p = self._convert_bytes_to_int(data, 0, 2)
+        self.ch1_area_n = self._convert_bytes_to_int(data, 2, 4)
+        self.ch2_area_p = self._convert_bytes_to_int(data, 4, 6)
+        self.ch2_area_n = self._convert_bytes_to_int(data, 6, 8)
 
     def to_dict(self):
         base_dict = super().to_dict()

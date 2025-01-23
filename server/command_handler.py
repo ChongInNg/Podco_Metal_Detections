@@ -16,17 +16,13 @@ class CommandHandler:
     def __init__(self):
         pass
 
-    def handle_command(self, message):
-        command = message[0]
-        size = message[1]
-        data = message[2:]
-        
-        if len(data) != size:
-            raise ValueError(f"Size mismatch: expected {size} bytes, got {len(data)} bytes from the controller")
+    def handle_command(self, command_type: int, data_length: int, data: bytes):     
+        if len(data) != data_length:
+            raise ValueError(f"Size mismatch: expected {data_length} bytes, got {len(data)} bytes from the controller")
 
-        command_class = self.COMMANDS.get(command)
+        command_class = self.COMMANDS.get(command_type)
         if not command_class:
-            raise ValueError(f"Unknown command: {hex(command)}")
+            raise ValueError(f"Unknown command: {hex(command_type)}")
 
         ins = command_class()
         ins.process(data)

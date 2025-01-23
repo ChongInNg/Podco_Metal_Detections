@@ -11,7 +11,7 @@ class BaseCommand:
             raise ValueError(f"Invalid data length for {self.name}, expected_len:{self.data_len}, actual_len:{len(data)}")
         
     
-    def _convert_bytes_to_int(data, start_pos:int, end_pos:int)->int:
+    def _convert_bytes_to_int(self, data: bytes, start_pos:int, end_pos:int)->int:
         return int.from_bytes(data[start_pos:end_pos], "big")
     
     def to_dict(self):

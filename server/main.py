@@ -1,9 +1,10 @@
-from uart_server import UartServer
+from serial_server import SerialServer
 from log_manager import LogManager
 import time
 if __name__ == "__main__":
-    server = UartServer(port='COM3', baudrate=115200, timeout=None)
-    server.connect()
+    server = SerialServer(port='COM2', baudrate=115200, timeout=None)
+    if not server.connect():
+        exit(100)
     # LogManager.instance().start()
     while True:
         time.sleep(1)
