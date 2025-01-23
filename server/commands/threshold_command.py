@@ -12,6 +12,8 @@ class ThresholdCommand(BaseCommand):
 
         self.area_threshold = self._convert_bytes_to_int(data, 0, 2)
 
+        self.log_to_file()
+
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({

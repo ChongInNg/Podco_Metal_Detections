@@ -18,6 +18,8 @@ class DetectionCommand(BaseCommand):
         self.ch2_area_p = self._convert_bytes_to_int(data, 4, 6)
         self.ch2_area_n = self._convert_bytes_to_int(data, 6, 8)
 
+        self.log_to_file()
+
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({

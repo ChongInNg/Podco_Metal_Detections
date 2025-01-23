@@ -19,3 +19,7 @@ class BaseCommand:
             "command_name": self.name,
             "data_len": self.data_len
         }
+    
+    def log_to_file(self):
+        from log_manager import LogManager
+        LogManager.instance().log_message(f"{self.to_dict()}")

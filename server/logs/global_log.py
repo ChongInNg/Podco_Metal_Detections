@@ -1,6 +1,6 @@
 from datetime import datetime
 from .base_log import BaseLog
-
+from log.logger import Logger
 
 class GlobalLogData:
     def __init__(self, first_connection, total_run_minutes, last_updated_at, reset_number, reset_at, log_index, max_file_size):
@@ -24,8 +24,8 @@ class GlobalLogData:
         }
     
 class GlobalLog(BaseLog):
-    def __init__(self, file_name="global_log.json"):
-        super().__init__(file_name=file_name)
+    def __init__(self, log_directory:str, file_name:str="global_log.json"):
+        super().__init__(log_directory=log_directory, file_name=file_name)
         self._init_data()
 
     def update_global_log(self):
@@ -36,6 +36,7 @@ class GlobalLog(BaseLog):
         global_log["last_updated_at"] = datetime.now().isoformat()
 
         self._write_json(global_log)
+        Logger.instance().info("Global log updated.")
 
     def _init_data(self):
         global_log = self._read_json()

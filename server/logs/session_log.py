@@ -1,10 +1,10 @@
 from datetime import datetime
 from .base_log import BaseLog
-
+from log.logger import Logger
 
 class SessionLog(BaseLog):
-    def __init__(self, file_name="session_log.json"):
-        super().__init__(file_name=file_name)
+    def __init__(self, log_directory:str, file_name:str="session_log.json"):
+        super().__init__(log_directory=log_directory, file_name=file_name)
         self.session_started_at = None
 
     def start_session(self):
@@ -23,7 +23,7 @@ class SessionLog(BaseLog):
 
         self._write_json(session_log)
 
-    def update_session_log(self, session_index):
+    def update_session_log(self):
         if not self.session_started_at:
             raise RuntimeError("Session has not started. Call start_session() first.")
         
@@ -31,8 +31,8 @@ class SessionLog(BaseLog):
 
         current_time = datetime.now()
         session_log["current_session"]["session_last_updated"] = current_time.isoformat()
-        session_log["current_session"]["total_run_minutes"] = (
-            (current_time - datetime.fromisoformat(session_log["current_session"]["session_started_at"])).total_seconds() // 60
-        )
+        total_runtime = (current_time -  datetime.fromisoformat(session_log["current_session"]["session_started_at"])).total_seconds() // 60
+        session_log["current_session"]["total_run_minutes"] = (int)(total_runtime)
 
         self._write_json(session_log)
+        Logger.instance().info("Session log updated.")

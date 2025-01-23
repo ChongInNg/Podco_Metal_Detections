@@ -22,6 +22,8 @@ class RawDataCommand(BaseCommand):
         self.ch2_area_p = self._convert_bytes_to_int(data, 8, 10)
         self.ch2_area_n = self._convert_bytes_to_int(data, 10, 12)
 
+        self.log_to_file()
+
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
