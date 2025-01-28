@@ -33,12 +33,11 @@ class NotifyMessageQueue:
 
 
     async def handle_message(self, message: BaseWsNotify):
-        device_identity = message.transmitter
-        connections = self.get_connections_callback(device_identity)
+        connections = self.get_connections_callback("only_one")
         if len(connections) == 0:
-            Logger.warning(f"No connection found for device: {device_identity}. Message: {message.to_dict()}")
+            Logger.warning(f"No connection found for the only one device. Message: {message.to_dict()}")
             return
 
-        Logger.debug(f"Sending message to device {device_identity}: {message.to_json()}")
+        Logger.debug(f"Sending message to device: {message.to_json()}")
         for connection in connections:
             await connection.send_notify_message(message)

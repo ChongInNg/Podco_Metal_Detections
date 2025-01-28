@@ -1,7 +1,10 @@
 from command_processor import CommandProcessor
 from serial_handler import SerialHandler, CommandData
 from log.logger import Logger
-import json
+import os
+
+def get_current_program_folder():
+  return os.path.dirname(os.path.abspath(__file__))
 
 def handle_response(command_name, command_data: CommandData):
     if command_data is None:
@@ -19,7 +22,7 @@ def handle_response(command_name, command_data: CommandData):
 
 if __name__ == "__main__":
     Logger.instance().info("Command Test Program started")
-    processor = CommandProcessor("command_data.json")
+    processor = CommandProcessor(f"{get_current_program_folder()}/command_data.json")
     serial_handler = SerialHandler(port="COM1", baudrate=115200, timeout=0.5)
     if not serial_handler.connect():
         Logger.instance().info("Command Test Program exited")

@@ -43,7 +43,12 @@ class ConnectionManager:
     def get_connections(self, device_identity: str) -> List[Connection]:
         connetions:List[Connection] = []
         with self._lock:
-            for client_id, connection in self._connections.items():
-                if connection.get_identity() == device_identity:
-                    connetions.append(connection)
+            if device_identity == "only_one":
+                if len(self._connections) > 0 :
+                    frist_conn = next(iter(self._connections.values()))
+                    connetions.append(frist_conn)
+            else:
+                for client_id, connection in self._connections.items():
+                    if connection.get_identity() == device_identity:
+                        connetions.append(connection)
         return connetions

@@ -10,10 +10,11 @@ class Connection:
         self.client_id = id(conn)
         self.status = Connection.Status_Registered
         self.registered_at = None
-        self.device_id = ""
-        self.domain = ""
-        self.device_identity = ""
+        self.device_id = None
 
+    def get_identity(self):
+        return self.device_id
+    
     async def handle_message(self, message: BaseWsMessage):
         try:
             if isinstance(message, RegistrationWsRequest):
@@ -28,21 +29,16 @@ class Connection:
             traceback.print_stack()
             await self.send_system_error("Handle message error:{e}")
             
-
-    def get_identity(self):
-        return self.device_identity
     
     async def handle_registration(self, message: RegistrationWsRequest):
         Logger.debug(f"Handling registration message: {message}")
         self.status = Connection.Status_Registered
         self.registered_at = datetime.now().isoformat()
-        self.device_identity = f"{message.domain}_{message.device_id}"
         self.device_id = message.device_id
-        self.domain = message.domain
 
         rsp = RegistrationWsResponse(
             id=message.id, code="success", message="register successfully",
-            data={"device_id": message.device_id, "domain": message.domain}
+            data={"device_id": message.device_id}
         )
 
         await self.conn.send(rsp.to_json())
