@@ -10,34 +10,36 @@ from screens.setting_screen import SettingScreen
 from screens.option_screen import OptionScreen
 from screens.stack_widget import StackWidget
 from screens.main_screen import MainScreen
-
 from screens.logo_screen import LogoScreen 
-
+from websocket.client import WebSocketClient
 
 from kivy.config import Config
 Config.set('graphics', 'width', '320')  
 Config.set('graphics', 'height', '240') 
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'multisamples', '0')
-Config.set('graphics', 'fullscreen', '1')
+Config.set('graphics', 'fullscreen', '0')
 Config.set('graphics', 'dpi', '96')  
 
 # test
-#Window.size = (640, 480)
-#Window.fullscreen = True
+
 
 
 from kivy.core.window import Window
-
+Window.size = (640, 480)
+#Window.fullscreen = True
 class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
         print(f"Current window size: {Window.size}") 
         # Add LogoScreen first, then other screens
-        sm.add_widget(LogoScreen(name="logo")) 
-        sm.add_widget(MainScreen(name="main"))
+        self.logo_screen = LogoScreen(name="logo")
+        self.main_screen = MainScreen(name="main")
+        sm.add_widget(self.logo_screen) 
+        sm.add_widget(self.main_screen)
         
         # self.monitor_joystick()
+        self.start_websocket()
         return sm
 
     def monitor_joystick(self):
@@ -64,6 +66,10 @@ class MetalDetectionApp(App):
         print(f"Handle direction signal done: {direction}")
 
 
+    def start_websocket(self):
+        stack_widget = self.main_screen.get_stack_widget()
+        self.client = WebSocketClient("ws://127.0.0.1:8765", stack_widget.handle_websocket_messages)
+        self.client.start()
 
 if __name__ == "__main__":
     app = MetalDetectionApp()

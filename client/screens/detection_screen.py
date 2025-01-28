@@ -38,17 +38,19 @@ class DetectionScreen(Screen):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.detections = [
-            DetectionData(
-                T_Value=str(i * 10),
-                D_Value=str(i * 20),
-                CH1_P=str(i * 30),
-                CH1_N=str(i * 40),
-                CH2_P=str(i * 50),
-                CH2_N=str(i * 60),
-            )
-            for i in range(1, 11)
-        ]
+        # self.detections = [
+        #     DetectionData(
+        #         T_Value=str(i * 10),
+        #         D_Value=str(i * 20),
+        #         CH1_P=str(i * 30),
+        #         CH1_N=str(i * 40),
+        #         CH2_P=str(i * 50),
+        #         CH2_N=str(i * 60),
+        #     )
+        #     for i in range(1, 11)
+        # ]
+
+        self.detections = []
 
     def on_kv_post(self, base_widget):
         self.update_current_values()
@@ -93,3 +95,12 @@ class DetectionScreen(Screen):
         else:
             down_btn.opacity = 1
             down_btn.disabled = False
+
+    def add_detection(self, detection_data: DetectionData):
+        if len(self.detections) >= 10:
+            del self.detections[0]
+            print(f"Popup the first detection")
+        
+        self.detections.append(detection_data)
+        self.current_index = 0
+        self.update_current_values()

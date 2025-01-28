@@ -1,12 +1,15 @@
+import json
+
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
 from kivy.lang import Builder
 from screens.option_screen import OptionScreen
-from screens.detection_screen import DetectionScreen
+from screens.detection_screen import DetectionScreen, DetectionData
 from screens.calibration_screen import CalibrationScreen
 from screens.analyzer_screen import AnalyzerScreen
 from screens.screen_header import ScreenHeader
+from kivy.clock import Clock
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -140,3 +143,21 @@ class StackWidget(Screen):
         app = App.get_running_app()
         main_screen = app.root.get_screen("main")
         return main_screen.ids.screen_header
+    
+    def handle_websocket_messages(self, message: str):
+        try:
+            data = json.loads(message)
+            print(f"Decode message success: {data}\n")
+            if data["name"] == "notify_detection":
+                msg_data = data.get("data")
+                Clock.schedule_once(lambda dt: self.get_detection_screen().add_detection(
+                    DetectionData(
+                        T_Value="20.1",
+                        D_Value="1000",
+                        CH1_N=str(msg_data.get("ch1_area_n")),
+                        CH1_P=str(msg_data.get("ch1_area_p")),
+                        CH2_N=str(msg_data.get("ch2_area_n")),
+                        CH2_P=str(msg_data.get("ch2_area_p")),
+                )))
+        except Exception as ex:
+            print(f"parse json failed. message: {message}, error: {ex}\n")
