@@ -4,13 +4,13 @@ class BypassCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "bypass"
-        self.data_len = 1
+        self.data_len = 2
         self.bypass = None
 
     def process(self, data):
         self.validate(data)
 
-        self.bypass = self._convert_bytes_to_int(data, 0, 1)
+        self.bypass = self._convert_bytes_to_int(data, 0, 2)
 
         self.log_to_file()
 

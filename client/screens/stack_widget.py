@@ -152,17 +152,17 @@ class StackWidget(Screen):
             msg = BaseWsMessage.from_dict(msg_dict)
             print(f"msg1111111111: {msg.to_dict()}")
             if isinstance(msg, NotifyByPassMessage):
-                pass
+                self._handle_bypass_data(msg)
             elif isinstance(msg, NotifyCalibrationMessage):
-                pass
+                self._handle_calibration_data(msg)
             elif isinstance(msg, NotifyDetectionMessage):
                 self._handle_detection_data(msg)
             elif isinstance(msg, NotifyRawDataMessage):
-                pass
+                self._handle_raw_data(msg)
             elif isinstance(msg, NotifyThresholdAdjustedMessage):
-                pass
+                self._handle_threshold_data(msg)
             elif isinstance(msg, RegistrationWsResponse):
-                pass
+                self._handle_registration_response(msg)
             else:
                 print(f"Cannot handle this message: {msg}\n")
         except Exception as ex:
@@ -179,14 +179,17 @@ class StackWidget(Screen):
             CH2_P=str(msg.ch2_area_p),
     )))
 
-    def _handle_calibration_data(self, msg_data: dict) -> None:
+    def _handle_calibration_data(self, msg: NotifyCalibrationMessage) -> None:
         pass
 
-    def _handle_raw_data(self, msg_data: dict) -> None:
+    def _handle_raw_data(self, msg: NotifyRawDataMessage) -> None:
         pass
 
-    def _handle_threshold_datas(self, msg_data: dict) -> None:
+    def _handle_threshold_data(self, msg: NotifyThresholdAdjustedMessage) -> None:
         pass
     
-    def _handle_bypass_data(self, msg_data: dict) -> None:
+    def _handle_bypass_data(self, msg: NotifyByPassMessage) -> None:
+        pass
+
+    def _handle_registration_response(self, msg: RegistrationWsResponse) -> None:
         pass

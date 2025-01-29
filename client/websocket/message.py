@@ -249,7 +249,7 @@ class NotifyByPassMessage(BaseWsNotify):
     @classmethod
     def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'NotifyByPassMessage':
         bypass = data.get("bypass")
-        if bypass is None or isinstance(bypass, int):
+        if bypass is None or not isinstance(bypass, int):
             raise ValueError("bypass is not valid")
         return cls(
             header=header,
@@ -258,7 +258,7 @@ class NotifyByPassMessage(BaseWsNotify):
 
     @classmethod
     def create_message(cls, bypass: int) -> 'NotifyByPassMessage':
-        if bypass is None or isinstance(bypass, int):
+        if bypass is None or not isinstance(bypass, int):
             raise ValueError("bypass is not valid")
         
         header = Header(name=MessageName_NotifyByPass, message_type=MessageType_Notify)
@@ -317,7 +317,7 @@ class NotifyCalibrationMessage(BaseWsNotify):
             pos_threshold2:int, neg_threshold2:int,
             mid_ch1:int, mid_ch2:int,area_threshold:int
         ) -> 'NotifyCalibrationMessage':
-        if pos_threshold1 is None or isinstance(pos_threshold1, int):
+        if pos_threshold1 is None or not isinstance(pos_threshold1, int):
             raise ValueError("pos_threshold1 is not valid")
         
         header = Header(name=MessageName_NotifyCalibration, message_type=MessageType_Notify)
@@ -367,7 +367,7 @@ class NotifyDetectionMessage(BaseWsNotify):
             ch1_area_p:int, ch1_area_n:int, 
             ch2_area_p:int, ch2_area_n:int,
         ) -> 'NotifyCalibrationMessage':
-        if ch1_area_p is None or isinstance(ch1_area_p, int):
+        if ch1_area_p is None or not isinstance(ch1_area_p, int):
             raise ValueError("ch1_area_p is not valid")
         
         header = Header(name=MessageName_NotifyDetection, message_type=MessageType_Notify)
@@ -426,7 +426,7 @@ class NotifyRawDataMessage(BaseWsNotify):
             ch1_area_p: int, ch1_area_n: int, 
             ch2_area_p: int, ch2_area_n: int
         ) -> 'NotifyCalibrationMessage':
-        if input1_raw is None or isinstance(input1_raw, int):
+        if input1_raw is None or not isinstance(input1_raw, int):
             raise ValueError("input1_raw is not valid")
         
         header = Header(name=MessageName_NotifyRawData, message_type=MessageType_Notify)
@@ -461,7 +461,7 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
     def create_message(cls, 
             area_threshold: int,
         ) -> 'NotifyCalibrationMessage':
-        if area_threshold is None or isinstance(area_threshold, int):
+        if area_threshold is None or not isinstance(area_threshold, int):
             raise ValueError("area_threshold is not valid")
         
         header = Header(name=MessageName_NotifyThresholdAdjusted, message_type=MessageType_Notify)
