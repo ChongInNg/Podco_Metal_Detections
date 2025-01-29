@@ -15,6 +15,7 @@ class CommandProcessor:
             raise ValueError(f"Error loading JSON file: {e}")
 
     def get_command(self, name):
+        self.commands = self._load_commands() # update every time
         for command in self.commands:
             if command["name"] == name:
                 return command

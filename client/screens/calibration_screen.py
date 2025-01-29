@@ -1,8 +1,20 @@
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
 from kivy.lang import Builder
+from dataclasses import dataclass
 
 Builder.load_file("kv/calibration_screen.kv")
+
+@dataclass
+class CalibrationData:
+    T_Value: str
+    D_Value: str
+    CH1_P: str
+    CH1_N: str
+    CH1_M: str
+    CH2_P: str
+    CH2_N: str
+    CH2_M: str
 
 class CalibrationScreen(Screen):
     title = StringProperty('Calibration')
@@ -17,18 +29,31 @@ class CalibrationScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.current_T = "100.1"
-        self.current_D = "1234"
-        self.current_CH1_P = "1234"
-        self.current_CH1_N = "1234"
-        self.current_CH1_M = "1234"
 
-        self.current_CH2_P = "4321"
-        self.current_CH2_N = "4321"
-        self.current_CH2_M = "4321"
+    def on_kv_post(self, base_widget):
+        self.reset_data()
 
     def reset_data(self):
-        pass
+        self.current_T = "0"
+        self.current_D = "0"
+        self.current_CH1_P = "0"
+        self.current_CH1_N = "0"
+        self.current_CH1_M = "0"
+        self.current_CH2_P = "0"
+        self.current_CH2_N = "0"
+        self.current_CH2_M = "0"
 
     def get_title(self):
         return self.title
+    
+    def update_data(self, data: CalibrationData) -> None:
+        print("Updating data...")
+        self.current_T = data.T_Value
+        self.current_D = data.D_Value
+        self.current_CH1_P = data.CH1_P
+        self.current_CH1_N = data.CH1_N
+        self.current_CH1_M = data.CH1_M
+        self.current_CH2_P = data.CH2_P
+        self.current_CH2_N = data.CH2_N
+        self.current_CH2_M = data.CH2_M
+        print(f"Updated data: {data}.")

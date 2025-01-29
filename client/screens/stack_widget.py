@@ -7,7 +7,7 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from screens.option_screen import OptionScreen
 from screens.detection_screen import DetectionScreen, DetectionData
-from screens.calibration_screen import CalibrationScreen
+from screens.calibration_screen import CalibrationScreen, CalibrationData
 from screens.analyzer_screen import AnalyzerScreen
 from screens.screen_header import ScreenHeader
 from websocket.message import *
@@ -170,17 +170,27 @@ class StackWidget(Screen):
 
     def _handle_detection_data(self, msg: NotifyDetectionMessage) -> None:
         Clock.schedule_once(lambda dt: self.get_detection_screen().add_detection(
-        DetectionData(
-            T_Value="20.1",
-            D_Value="1000",
-            CH1_N=str(msg.ch1_area_n),
-            CH1_P=str(msg.ch1_area_p),
-            CH2_N=str(msg.ch2_area_n),
-            CH2_P=str(msg.ch2_area_p),
-    )))
+            DetectionData(
+                T_Value="20.1",
+                D_Value="1000",
+                CH1_N=str(msg.ch1_area_n),
+                CH1_P=str(msg.ch1_area_p),
+                CH2_N=str(msg.ch2_area_n),
+                CH2_P=str(msg.ch2_area_p),
+        )))
 
     def _handle_calibration_data(self, msg: NotifyCalibrationMessage) -> None:
-        pass
+        Clock.schedule_once(lambda dt: self.get_calibration_screen().update_data(
+            CalibrationData(
+                T_Value="20.1",
+                D_Value="1000",
+                CH1_N=str(msg.neg_threshold1),
+                CH1_P=str(msg.pos_threshold1),
+                CH1_M=str(msg.mid_ch1),
+                CH2_N=str(msg.neg_threshold2),
+                CH2_P=str(msg.pos_threshold2),
+                CH2_M=str(msg.mid_ch2)
+        )))
 
     def _handle_raw_data(self, msg: NotifyRawDataMessage) -> None:
         pass
