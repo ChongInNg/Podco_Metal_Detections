@@ -38,4 +38,4 @@ class WebSocketClient:
             print(f"WebSocket connection error: {e}")
 
     def compose_register_message(self) -> str:
-        return RegistrationWsRequest("detecotr2").to_json()
+        return RegistrationWsRequest.create_message(device_id="detecotr2").to_json()

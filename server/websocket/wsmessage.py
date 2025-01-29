@@ -136,7 +136,7 @@ class NotifyCalibrationMessage(BaseWsNotify):
         return base_dict
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyByPassMessage':
+    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyCalibrationMessage':
         pos_threshold1 = data.get("pos_threshold1")
         neg_threshold1 = data.get("neg_threshold1")
         pos_threshold2 = data.get("pos_threshold2")
@@ -175,7 +175,7 @@ class NotifyDetectionMessage(BaseWsNotify):
         return base_dict
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyByPassMessage':
+    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyDetectionMessage':
         ch1_area_p = data.get("ch1_area_p")
         ch1_area_n = data.get("ch1_area_n")
         ch2_area_p = data.get("ch2_area_p")
@@ -213,7 +213,7 @@ class NotifyRawDataMessage(BaseWsNotify):
         return base_dict
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyByPassMessage':
+    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyRawDataMessage':
         input1_raw = data.get("input1_raw")
         input2_raw = data.get("input2_raw")
         ch1_area_p = data.get("ch1_area_p")
@@ -243,7 +243,7 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
         return base_dict
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyByPassMessage':
+    def from_dict(cls, data: Dict[str, Any]) -> 'NotifyThresholdAdjustedMessage':
         area_threshold = data.get("area_threshold")
         return cls(
             area_threshold=area_threshold

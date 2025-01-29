@@ -4,12 +4,13 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
 from kivy.lang import Builder
+from kivy.clock import Clock
 from screens.option_screen import OptionScreen
 from screens.detection_screen import DetectionScreen, DetectionData
 from screens.calibration_screen import CalibrationScreen
 from screens.analyzer_screen import AnalyzerScreen
 from screens.screen_header import ScreenHeader
-from kivy.clock import Clock
+from websocket.message import *
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -146,18 +147,46 @@ class StackWidget(Screen):
     
     def handle_websocket_messages(self, message: str):
         try:
-            data = json.loads(message)
-            print(f"Decode message success: {data}\n")
-            if data["name"] == "notify_detection":
-                msg_data = data.get("data")
-                Clock.schedule_once(lambda dt: self.get_detection_screen().add_detection(
-                    DetectionData(
-                        T_Value="20.1",
-                        D_Value="1000",
-                        CH1_N=str(msg_data.get("ch1_area_n")),
-                        CH1_P=str(msg_data.get("ch1_area_p")),
-                        CH2_N=str(msg_data.get("ch2_area_n")),
-                        CH2_P=str(msg_data.get("ch2_area_p")),
-                )))
+            msg_dict = json.loads(message)
+            print(f"Decode message success: {msg_dict}\n")
+            msg = BaseWsMessage.from_dict(msg_dict)
+            print(f"msg1111111111: {msg.to_dict()}")
+            if isinstance(msg, NotifyByPassMessage):
+                pass
+            elif isinstance(msg, NotifyCalibrationMessage):
+                pass
+            elif isinstance(msg, NotifyDetectionMessage):
+                self._handle_detection_data(msg)
+            elif isinstance(msg, NotifyRawDataMessage):
+                pass
+            elif isinstance(msg, NotifyThresholdAdjustedMessage):
+                pass
+            elif isinstance(msg, RegistrationWsResponse):
+                pass
+            else:
+                print(f"Cannot handle this message: {msg}\n")
         except Exception as ex:
-            print(f"parse json failed. message: {message}, error: {ex}\n")
+            print(f"parse json failed. error: {ex}\n")
+
+    def _handle_detection_data(self, msg: NotifyDetectionMessage) -> None:
+        Clock.schedule_once(lambda dt: self.get_detection_screen().add_detection(
+        DetectionData(
+            T_Value="20.1",
+            D_Value="1000",
+            CH1_N=str(msg.ch1_area_n),
+            CH1_P=str(msg.ch1_area_p),
+            CH2_N=str(msg.ch2_area_n),
+            CH2_P=str(msg.ch2_area_p),
+    )))
+
+    def _handle_calibration_data(self, msg_data: dict) -> None:
+        pass
+
+    def _handle_raw_data(self, msg_data: dict) -> None:
+        pass
+
+    def _handle_threshold_datas(self, msg_data: dict) -> None:
+        pass
+    
+    def _handle_bypass_data(self, msg_data: dict) -> None:
+        pass
