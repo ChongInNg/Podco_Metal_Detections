@@ -52,3 +52,12 @@ class ConnectionManager:
                     if connection.get_identity() == device_identity:
                         connetions.append(connection)
         return connetions
+    
+    def delete_connection(self, client_id:int):
+        with self._lock:
+            if client_id in self._connections:
+                del self._connections[client_id]
+                print(f"delete connection: {client_id}, current connection len: {len(self._connections)}")
+            else:
+                print(f"Key: {client_id} not found in connections")
+            

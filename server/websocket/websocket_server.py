@@ -11,7 +11,6 @@ class WebSocketServer:
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.connected_clients = {}
 
     async def on_connect(self, websocket):
         client_id = id(websocket)
@@ -61,11 +60,7 @@ class WebSocketServer:
             await websocket.send(error_rsp.to_json())
 
     def _handle_disconnect(self, client_id):
-        websocket = self.connected_clients.get(client_id)
-        if not websocket:
-            Logger.error("Cannot find this client from webserver memory, cannot handle disconnect.")
-            return
-        del websocket
+        ConnectionManager.instance().delete_connection(client_id)
         Logger.debug(f"Client: {id} disconnected.")
 
 
