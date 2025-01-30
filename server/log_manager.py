@@ -4,7 +4,6 @@ from typing import  Optional
 import json
 import os
 from logs.global_log import GlobalLog
-from logs.session_log import SessionLog
 from logs.system_log import SystemLog
 
 class LogManager:
@@ -25,13 +24,11 @@ class LogManager:
     
     def _run_periodic_updates(self):
         while self.running:
-            self.session_log.update_session_log()
-            self.global_log.update_global_log()
             time.sleep(60)
+            self.global_log.update_global_log()
 
     def setup(self, log_directory: str="./"):
         self.global_log = GlobalLog(log_directory=log_directory)
-        self.session_log = SessionLog(log_directory=log_directory)
         global_log_data = self.global_log.get_global_log()
         self.system_log = SystemLog(
             log_directory=log_directory,
@@ -41,7 +38,6 @@ class LogManager:
         )
         self.running = True
     
-        self.session_log.start_session()
         self.system_log.start_session()
         self.thd = threading.Thread(target=self._run_periodic_updates, daemon=True)
         self.thd.start()
