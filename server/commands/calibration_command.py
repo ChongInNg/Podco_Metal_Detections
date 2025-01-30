@@ -24,7 +24,11 @@ class CalibrationCommand(BaseCommand):
         self.mid_ch2 = self._convert_bytes_to_int(data, 10, 12)
         self.area_threshold = self._convert_bytes_to_int(data, 12, 14)
 
-        self.log_to_file()
+        self._save_calibration_log()
+
+    def _save_calibration_log(self):
+        from log_manager import LogManager
+        LogManager.instance().update_calibration_data(self.area_threshold)
 
     def to_dict(self):
         base_dict = super().to_dict()

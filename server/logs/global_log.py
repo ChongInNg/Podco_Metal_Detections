@@ -60,7 +60,7 @@ class CalibrationLog:
         if self.started_at is not None:
             self.last_updated_at = datetime.now()
             self.total_run_minutes = self.orig_total_run_minutes + total_run_minutes
-        
+
     def set_calibration_data(self, threshold: int):
         self.started_at = datetime.now()
         self.last_updated_at = datetime.now()
@@ -174,7 +174,16 @@ class GlobalLog(BaseLog):
 
     def increment_log_index(self, index: int):
         self.global_data.log_index = index
-        self._write_json(self.file_name, self.global_data.to_dict())
+        self._write_json(self.global_data.to_dict())
 
     def get_global_log(self) -> GlobalLogData:
         return self.global_data
+
+    def update_calibration_data(self, threshold: int):
+        if self.global_data.current_calibration.started_at is not None:
+            self.global_data.calibration_histories.add_calibration_log(self.global_data.current_calibration)
+
+        calibration_log = CalibrationLog()
+        calibration_log.set_calibration_data(threshold)
+        self.global_data.current_calibration = calibration_log
+        self._write_json(self.global_data.to_dict())

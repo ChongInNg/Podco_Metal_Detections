@@ -31,17 +31,10 @@ class CalibrationScreen(Screen):
         super().__init__(**kwargs)
 
     def on_kv_post(self, base_widget):
-        self.reset_data()
+       pass
 
     def reset_data(self):
-        self.current_T = "0"
-        self.current_D = "0"
-        self.current_CH1_P = "0"
-        self.current_CH1_N = "0"
-        self.current_CH1_M = "0"
-        self.current_CH2_P = "0"
-        self.current_CH2_N = "0"
-        self.current_CH2_M = "0"
+        pass # no need reset when changing the data
 
     def get_title(self):
         return self.title

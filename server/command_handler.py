@@ -31,6 +31,7 @@ class CommandHandler:
         ins.process(data)
         notify_message = self.create_notify_message(ins)
         ConnectionManager.instance().send_notify_message(notify_message)
+        self.log_to_file(ins)
         return ins.to_dict()
 
     def create_notify_message(self, command: BaseCommand) -> BaseWsNotify:
@@ -46,3 +47,7 @@ class CommandHandler:
             return NotifyThresholdAdjustedMessage.from_dict(command.to_dict())
         else:
             raise ValueError(f"Unknown command: {command.name}")
+        
+    def log_to_file(self, command: BaseCommand):
+        from log_manager import LogManager
+        LogManager.instance().log_message(f"{command.to_dict()}")
