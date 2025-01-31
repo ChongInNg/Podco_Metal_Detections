@@ -1,28 +1,42 @@
+import random
+import time
+
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy_garden.graph import Graph, LinePlot
 from kivy.clock import Clock
-import random
-import time
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from dataclasses import dataclass
 
-
-class AmplitudeData:
-    def __init__(self, time, value: int):
-        self.time = time
-        self.value = value
+@dataclass
+class AnalyzerData:
+    TimeStamp: float
+    Input1_Raw: int
+    Input2_Raw: int
+    CH1_P: int
+    CH1_N: int
+    CH2_P: int
+    CH2_N: int
 
 class AnalyzerScreen(Screen):
     title = "Analyzer"
 
     def reset_data(self):
-        self.start_time = time.time() 
+        self.start_time = time.time()
+
+        self.threshold = 1500
         self.data = []  
         self.count = 0 
         self.ch1_p_plot.points = []
+        self.ch1_n_plot.points = []
+
+        self.ch2_p_plot.points = []
+        self.ch2_n_plot.points = []
+
         self.threshold_plot.points = []
         self.event = Clock.schedule_interval(self.update_graph, 0.1)
         
-
     def get_title(self):
         return self.title
 
@@ -55,12 +69,12 @@ class AnalyzerScreen(Screen):
 
         self.ch1_p_plot = LinePlot(color=[0, 1, 0, 1])
         self.ch1_p_plot.points = []
-        self.ch1_n_plot = LinePlot(color=[0, 1, 0, 1])
+        self.ch1_n_plot = LinePlot(color=[1, 0.5, 0, 1])
         self.ch1_n_plot.points = []
 
-        self.ch2_p_plot = LinePlot(color=[0, 1, 0, 1])
+        self.ch2_p_plot = LinePlot(color=[0, 0.5, 1, 1])
         self.ch2_p_plot.points = []
-        self.ch2_n_plot = LinePlot(color=[0, 1, 0, 1])
+        self.ch2_n_plot = LinePlot(color=[1, 0, 1, 1])
         self.ch2_n_plot.points = []
 
 
@@ -72,46 +86,62 @@ class AnalyzerScreen(Screen):
         self.graph.add_plot(self.ch2_p_plot)
         self.graph.add_plot(self.ch2_n_plot)
         self.graph.add_plot(self.threshold_plot)
-        self.add_widget(self.graph)
+
+        layout = BoxLayout(orientation="vertical")
+        layout.add_widget(self.graph)
+
+        legend_layout = BoxLayout(size_hint_y=0.1)
+
+        legend_items = [
+            ("Threshold", [1, 0, 0, 1]),
+            ("CH1 Positive", [0, 1, 0, 1]),
+            ("CH1 Negative", [1, 0.5, 0, 1]),
+            ("CH2 Positive", [0, 0.5, 1, 1]),
+            ("CH2 Negative", [1, 0, 1, 1]),
+        ]
+
+        for name, color in legend_items:
+            label = Label(text=name, color=color)
+            legend_layout.add_widget(label)
+
+        layout.add_widget(legend_layout)
+        self.add_widget(layout)
 
     def update_graph(self, dt):
-        current_time = time.time() - self.start_time
+        current_time = time.time()
         current_second = int(current_time) 
 
-        if self.count % 5 == 0:
-            new_value = random.randint(0, 3000)
-        else:
-            new_value = random.randint(0, 0)
-        
-        self.data.append(AmplitudeData(current_time, new_value))
-        self.count += 1
-
-        self.data = [d for d in self.data if d.time >= current_time - 10]
-        self.ch1_p_plot.points = [(d.time, d.value) for d in self.data]
+        time_range = 10
+        self.ch1_p_plot.points = [
+            (timestamp,value) for timestamp, value in self.ch1_p_plot.points if current_time - timestamp <= time_range
+        ]
 
         self.ch1_n_plot.points = [
-            (current_time - 11, 2000),
-            (current_time + 2, 2000),
+            (timestamp,value) for timestamp, value in self.ch1_n_plot.points if current_time - timestamp <= time_range
         ]
 
         self.ch2_p_plot.points = [
-            (current_time - 11, 2500),
-            (current_time + 2, 2500),
+            (timestamp,value) for timestamp, value in self.ch2_p_plot.points if current_time - timestamp <= time_range
         ]
 
         self.ch2_n_plot.points = [
-            (current_time - 11, 2800),
-            (current_time + 2, 2800),
+            (timestamp,value) for timestamp, value in self.ch2_n_plot.points if current_time - timestamp <= time_range
         ]
 
         self.threshold_plot.points = [
-            (current_time - 11, 1500),
-            (current_time + 2, 1500),
+            (current_time - 11, self.threshold),
+            (current_time + 2, self.threshold),
         ]
 
+        # contol the graph view size in around 10 seconds
         self.graph.xmin = max(0, current_second - 10)
         self.graph.xmax = max(current_second + 1, 1)
 
-    def update_threshold(self, threshold_value: int):
-        pass
+    def update_data(self, data: AnalyzerData):
+        self.ch1_n_plot.points.append((data.TimeStamp, data.CH1_N))
+        self.ch1_p_plot.points.append((data.TimeStamp, data.CH1_P))
+        self.ch2_n_plot.points.append((data.TimeStamp, data.CH2_N))
+        self.ch2_p_plot.points.append((data.TimeStamp, data.CH2_P))
 
+    def update_threshold(self, threshold: int):
+        self.threshold = threshold

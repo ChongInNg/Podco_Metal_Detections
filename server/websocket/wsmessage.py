@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from typing import Dict, Any, Type, List
 import ulid
-import ulid.ulid
+import time
 
 MessageType_Request = "request"
 MessageType_Response = "response"
@@ -112,7 +112,8 @@ class NotifyByPassMessage(BaseWsNotify):
 class NotifyCalibrationMessage(BaseWsNotify):
     def __init__(self, pos_threshold1:int, neg_threshold1:int, 
                  pos_threshold2:int, neg_threshold2:int,
-                 mid_ch1:int, mid_ch2:int,area_threshold:int):
+                 mid_ch1:int, mid_ch2:int,area_threshold:int,
+                 t_value: float, d_value:  int):
         super().__init__(name="notify_calibration")
         self.pos_threshold1 = pos_threshold1
         self.neg_threshold1 = neg_threshold1
@@ -121,6 +122,8 @@ class NotifyCalibrationMessage(BaseWsNotify):
         self.mid_ch1 = mid_ch1
         self.mid_ch2 = mid_ch2
         self.area_threshold = area_threshold
+        self.t_value  = t_value
+        self.d_value = d_value
 
     def to_dict(self):
         base_dict = super().to_dict()
@@ -131,12 +134,16 @@ class NotifyCalibrationMessage(BaseWsNotify):
             "neg_threshold2": self.neg_threshold2,
             "mid_ch1": self.mid_ch1,
             "mid_ch2": self.mid_ch2,
-            "area_threshold": self.area_threshold
+            "area_threshold": self.area_threshold,
+            "t_value": self.t_value,
+            "d_value": self.d_value
         }
         return base_dict
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'NotifyCalibrationMessage':
+        t_value = data.get("t_value")
+        d_value = data.get("d_value")
         pos_threshold1 = data.get("pos_threshold1")
         neg_threshold1 = data.get("neg_threshold1")
         pos_threshold2 = data.get("pos_threshold2")
@@ -153,16 +160,21 @@ class NotifyCalibrationMessage(BaseWsNotify):
             mid_ch1=mid_ch1,
             mid_ch2=mid_ch2,
             area_threshold=area_threshold,
+            t_value=t_value,
+            d_value=d_value
         )
 
 class NotifyDetectionMessage(BaseWsNotify):
     def __init__(self, ch1_area_p: int, ch1_area_n: int, 
-                 ch2_area_p: int, ch2_area_n: int, ):
+                 ch2_area_p: int, ch2_area_n: int, 
+                 t_value: float, d_value:  int):
         super().__init__(name="notify_detection")
         self.ch1_area_p = ch1_area_p
         self.ch1_area_n = ch1_area_n
         self.ch2_area_p = ch2_area_p
         self.ch2_area_n = ch2_area_n
+        self.t_value  = t_value
+        self.d_value = d_value
     
     def to_dict(self):
         base_dict = super().to_dict()
@@ -170,12 +182,16 @@ class NotifyDetectionMessage(BaseWsNotify):
             "ch1_area_p": self.ch1_area_p,
             "ch1_area_n": self.ch1_area_n,
             "ch2_area_p": self.ch2_area_p,
-            "ch2_area_n": self.ch2_area_n
+            "ch2_area_n": self.ch2_area_n,
+            "t_value": self.t_value,
+            "d_value": self.d_value
         }
         return base_dict
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'NotifyDetectionMessage':
+        t_value = data.get("t_value")
+        d_value = data.get("d_value")
         ch1_area_p = data.get("ch1_area_p")
         ch1_area_n = data.get("ch1_area_n")
         ch2_area_p = data.get("ch2_area_p")
@@ -185,7 +201,9 @@ class NotifyDetectionMessage(BaseWsNotify):
             ch1_area_p=ch1_area_p,
             ch1_area_n=ch1_area_n,
             ch2_area_p=ch2_area_p,
-            ch2_area_n=ch2_area_n
+            ch2_area_n=ch2_area_n,
+            t_value=t_value,
+            d_value=d_value
         )
     
 class NotifyRawDataMessage(BaseWsNotify):
@@ -193,6 +211,7 @@ class NotifyRawDataMessage(BaseWsNotify):
                  ch1_area_p: int, ch1_area_n: int, 
                  ch2_area_p: int, ch2_area_n: int):
         super().__init__(name="notify_raw_data")
+        self.timestamp = time.time()
         self.input1_raw = input1_raw
         self.input2_raw = input2_raw
         self.ch1_area_p = ch1_area_p
@@ -203,6 +222,7 @@ class NotifyRawDataMessage(BaseWsNotify):
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict["data"] = {
+            "timestamp": self.timestamp,
             "input1_raw": self.input1_raw,
             "input2_raw": self.input2_raw,
             "ch1_area_p": self.ch1_area_p,

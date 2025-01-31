@@ -6,6 +6,7 @@ from commands.bypass_command import BypassCommand
 from commands.base_command import BaseCommand
 from websocket.wsmessage import *
 from websocket.connection_manager import ConnectionManager
+from log_manager import LogManager
 
 class CommandHandler:
     COMMANDS = {
@@ -38,9 +39,19 @@ class CommandHandler:
         if isinstance(command, BypassCommand):
             return NotifyByPassMessage.from_dict(command.to_dict())
         elif isinstance(command, CalibrationCommand):
-            return NotifyCalibrationMessage.from_dict(command.to_dict())
+            msg_dict = command.to_dict()
+            msg_dict.update({
+                "t_value": LogManager.instance().get_current_engine_time(),
+                "d_value": LogManager.instance().get_current_calibration_threshold()
+            })
+            return NotifyCalibrationMessage.from_dict(msg_dict)
         elif isinstance(command, DetectionCommand):
-            return NotifyDetectionMessage.from_dict(command.to_dict())
+            msg_dict = command.to_dict()
+            msg_dict.update({
+                "t_value": LogManager.instance().get_current_engine_time(),
+                "d_value": LogManager.instance().get_current_calibration_threshold()
+            })
+            return NotifyDetectionMessage.from_dict(msg_dict)
         elif isinstance(command, RawDataCommand):
             return NotifyRawDataMessage.from_dict(command.to_dict())
         elif isinstance(command, ThresholdAdjustedCommand):

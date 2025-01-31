@@ -8,7 +8,7 @@ from kivy.clock import Clock
 from screens.option_screen import OptionScreen
 from screens.detection_screen import DetectionScreen, DetectionData
 from screens.calibration_screen import CalibrationScreen, CalibrationData
-from screens.analyzer_screen import AnalyzerScreen
+from screens.analyzer_screen import AnalyzerScreen, AnalyzerData
 from screens.screen_header import ScreenHeader
 from websocket.message import *
 
@@ -166,13 +166,13 @@ class StackWidget(Screen):
             else:
                 print(f"Cannot handle this message: {msg}\n")
         except Exception as ex:
-            print(f"parse json failed. error: {ex}\n")
+            print(f"handle_websocket_messages failed. error: {ex}\n")
 
     def _handle_detection_data(self, msg: NotifyDetectionMessage) -> None:
         Clock.schedule_once(lambda dt: self.get_detection_screen().add_detection(
             DetectionData(
-                T_Value="20.1",
-                D_Value="1000",
+                T_Value=str(msg.t_value),
+                D_Value=str(msg.d_value),
                 CH1_N=str(msg.ch1_area_n),
                 CH1_P=str(msg.ch1_area_p),
                 CH2_N=str(msg.ch2_area_n),
@@ -182,8 +182,8 @@ class StackWidget(Screen):
     def _handle_calibration_data(self, msg: NotifyCalibrationMessage) -> None:
         Clock.schedule_once(lambda dt: self.get_calibration_screen().update_data(
             CalibrationData(
-                T_Value="20.1",
-                D_Value="1000",
+                T_Value=str(msg.t_value),
+                D_Value=str(msg.d_value),
                 CH1_N=str(msg.neg_threshold1),
                 CH1_P=str(msg.pos_threshold1),
                 CH1_M=str(msg.mid_ch1),
@@ -193,10 +193,19 @@ class StackWidget(Screen):
         )))
 
     def _handle_raw_data(self, msg: NotifyRawDataMessage) -> None:
-        pass
+        Clock.schedule_once(lambda dt: self.get_analyzer_screen().update_data(
+            AnalyzerData(
+                TimeStamp=msg.timestamp,
+                Input1_Raw=msg.input1_raw,
+                Input2_Raw=msg.input2_raw,
+                CH1_N=msg.ch1_area_n,
+                CH1_P=msg.ch1_area_p,
+                CH2_N=msg.ch2_area_n,
+                CH2_P=msg.ch2_area_p,
+        )))
 
     def _handle_threshold_data(self, msg: NotifyThresholdAdjustedMessage) -> None:
-        pass
+        Clock.schedule_once(lambda dt: self.get_analyzer_screen().update_threshold(msg.area_threshold))
     
     def _handle_bypass_data(self, msg: NotifyByPassMessage) -> None:
         pass

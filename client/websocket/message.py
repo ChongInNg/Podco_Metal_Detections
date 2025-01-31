@@ -265,9 +265,12 @@ class NotifyByPassMessage(BaseWsNotify):
         return cls(header, bypass)
     
 class NotifyCalibrationMessage(BaseWsNotify):
-    def __init__(self, header: Header, pos_threshold1:int, neg_threshold1:int, 
-                 pos_threshold2:int, neg_threshold2:int,
-                 mid_ch1:int, mid_ch2:int,area_threshold:int):
+    def __init__(
+            self, header: Header, pos_threshold1:int, neg_threshold1:int, 
+            pos_threshold2:int, neg_threshold2:int,
+            mid_ch1:int, mid_ch2:int,area_threshold:int,
+            t_value: float, d_value: int
+        ):
         super().__init__(header=header)
         self.pos_threshold1 = pos_threshold1
         self.neg_threshold1 = neg_threshold1
@@ -276,6 +279,8 @@ class NotifyCalibrationMessage(BaseWsNotify):
         self.mid_ch1 = mid_ch1
         self.mid_ch2 = mid_ch2
         self.area_threshold = area_threshold
+        self.t_value = t_value
+        self.d_value = d_value
 
     def to_dict(self):
         base_dict = super().to_dict()
@@ -286,7 +291,9 @@ class NotifyCalibrationMessage(BaseWsNotify):
             "neg_threshold2": self.neg_threshold2,
             "mid_ch1": self.mid_ch1,
             "mid_ch2": self.mid_ch2,
-            "area_threshold": self.area_threshold
+            "area_threshold": self.area_threshold,
+            "t_value": self.t_value,
+            "d_value": self.d_value
         }
         return base_dict
 
@@ -299,6 +306,8 @@ class NotifyCalibrationMessage(BaseWsNotify):
         mid_ch1 = data.get("mid_ch1")
         mid_ch2 = data.get("mid_ch2")
         area_threshold = data.get("area_threshold")
+        t_value = data.get("t_value")
+        d_value = data.get("d_value")
         # do validate
         return cls(
             header=header,
@@ -309,13 +318,16 @@ class NotifyCalibrationMessage(BaseWsNotify):
             mid_ch1=mid_ch1,
             mid_ch2=mid_ch2,
             area_threshold=area_threshold,
+            t_value=t_value,
+            d_value=d_value
         )
 
     @classmethod
     def create_message(cls, 
             pos_threshold1:int, neg_threshold1:int, 
             pos_threshold2:int, neg_threshold2:int,
-            mid_ch1:int, mid_ch2:int,area_threshold:int
+            mid_ch1:int, mid_ch2:int,area_threshold:int,
+            t_value: float, d_value: int
         ) -> 'NotifyCalibrationMessage':
         if pos_threshold1 is None or not isinstance(pos_threshold1, int):
             raise ValueError("pos_threshold1 is not valid")
@@ -326,20 +338,28 @@ class NotifyCalibrationMessage(BaseWsNotify):
             pos_threshold1=pos_threshold1, neg_threshold1=neg_threshold1,
             pos_threshold2=pos_threshold2, neg_threshold2=neg_threshold2,
             mid_ch1=mid_ch1, mid_ch2=mid_ch2, area_threshold=area_threshold,
+            t_value=t_value, d_value=d_value
         )
     
 class NotifyDetectionMessage(BaseWsNotify):
-    def __init__(self, header: Header, ch1_area_p: int, ch1_area_n: int, 
-                 ch2_area_p: int, ch2_area_n: int, ):
+    def __init__(
+            self, header: Header, ch1_area_p: int, ch1_area_n: int, 
+            ch2_area_p: int, ch2_area_n: int,
+            t_value: float, d_value: int
+        ):
         super().__init__(header=header)
         self.ch1_area_p = ch1_area_p
         self.ch1_area_n = ch1_area_n
         self.ch2_area_p = ch2_area_p
         self.ch2_area_n = ch2_area_n
+        self.t_value = t_value
+        self.d_value = d_value
     
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict["data"] = {
+            "t_value": self.t_value,
+            "d_value": self.d_value,
             "ch1_area_p": self.ch1_area_p,
             "ch1_area_n": self.ch1_area_n,
             "ch2_area_p": self.ch2_area_p,
@@ -353,19 +373,24 @@ class NotifyDetectionMessage(BaseWsNotify):
         ch1_area_n = data.get("ch1_area_n")
         ch2_area_p = data.get("ch2_area_p")
         ch2_area_n = data.get("ch2_area_n")
+        t_value = data.get("t_value")
+        d_value = data.get("d_value")
         # do validate
         return cls(
             header=header,
             ch1_area_p=ch1_area_p,
             ch1_area_n=ch1_area_n,
             ch2_area_p=ch2_area_p,
-            ch2_area_n=ch2_area_n
+            ch2_area_n=ch2_area_n,
+            t_value=t_value,
+            d_value=d_value
         )
     
     @classmethod
     def create_message(cls, 
             ch1_area_p:int, ch1_area_n:int, 
             ch2_area_p:int, ch2_area_n:int,
+            t_value:float, d_value=float
         ) -> 'NotifyCalibrationMessage':
         if ch1_area_p is None or not isinstance(ch1_area_p, int):
             raise ValueError("ch1_area_p is not valid")
@@ -375,12 +400,16 @@ class NotifyDetectionMessage(BaseWsNotify):
             header, 
             ch1_area_p=ch1_area_p, ch1_area_n=ch1_area_n,
             ch2_area_p=ch2_area_p, ch2_area_n=ch2_area_n,
+            t_value=t_value,d_value=d_value
         )
     
 class NotifyRawDataMessage(BaseWsNotify):
-    def __init__(self, header: Header, input1_raw: int, input2_raw: int, 
-                 ch1_area_p: int, ch1_area_n: int, 
-                 ch2_area_p: int, ch2_area_n: int):
+    def __init__(
+            self, header: Header, input1_raw: int, input2_raw: int, 
+            ch1_area_p: int, ch1_area_n: int, 
+            ch2_area_p: int, ch2_area_n: int,
+            timestamp: float
+        ):
         super().__init__(header=header)
         self.input1_raw = input1_raw
         self.input2_raw = input2_raw
@@ -388,6 +417,7 @@ class NotifyRawDataMessage(BaseWsNotify):
         self.ch1_area_n = ch1_area_n
         self.ch2_area_p = ch2_area_p
         self.ch2_area_n = ch2_area_n
+        self.timestamp = timestamp
     
     def to_dict(self):
         base_dict = super().to_dict()
@@ -397,7 +427,8 @@ class NotifyRawDataMessage(BaseWsNotify):
             "ch1_area_p": self.ch1_area_p,
             "ch1_area_n": self.ch1_area_n,
             "ch2_area_p": self.ch2_area_p,
-            "ch2_area_n": self.ch2_area_n
+            "ch2_area_n": self.ch2_area_n,
+            "timestamp": self.timestamp
         }
         return base_dict
 
@@ -409,7 +440,7 @@ class NotifyRawDataMessage(BaseWsNotify):
         ch1_area_n = data.get("ch1_area_n")
         ch2_area_p = data.get("ch2_area_p")
         ch2_area_n = data.get("ch2_area_n")
-      
+        timestamp = data.get("timestamp")
         return cls(
             header=header,
             input1_raw=input1_raw,
@@ -417,7 +448,8 @@ class NotifyRawDataMessage(BaseWsNotify):
             ch1_area_p=ch1_area_p,
             ch1_area_n=ch1_area_n,
             ch2_area_p=ch2_area_p,
-            ch2_area_n=ch2_area_n
+            ch2_area_n=ch2_area_n,
+            timestamp=timestamp
         )
 
     @classmethod

@@ -19,14 +19,14 @@
             "command_type": "0xAA",
             "data_length_bytes": 12,
             "each_item_bytes": 2,
-            "data": [2055, 2040, 1234, 0, 255, 30]
+            "data": [2055, 2040, 1534, 2800, 255, 730]
         },
         {
             "name": "threshold",
             "command_type": "0xF0",
             "data_length_bytes": 2,
             "each_item_bytes": 2,
-            "data": [1024]
+            "data": [2024]
         },
         {
             "name": "bypass",

@@ -48,6 +48,14 @@ class LogManager:
     def update_calibration_data(self, threshold: int):
         self.global_log.update_calibration_data(threshold)
 
+    def get_current_engine_time(self)->float:
+        return round(self.global_log.global_data.total_run_minutes / 60, 1)
+
+    def get_current_calibration_threshold(self)->int:
+        if self.global_log.global_data.current_calibration.threshold is None:
+            return 0
+        return self.global_log.global_data.current_calibration.threshold
+
     def close(self):
         if self.thd:
             self.thd.join()
