@@ -24,17 +24,6 @@ class AnalyzerScreen(Screen):
 
     def reset_data(self):
         self.start_time = time.time()
-
-        self.threshold = 1500
-        self.data = []  
-        self.count = 0 
-        self.ch1_p_plot.points = []
-        self.ch1_n_plot.points = []
-
-        self.ch2_p_plot.points = []
-        self.ch2_n_plot.points = []
-
-        self.threshold_plot.points = []
         self.event = Clock.schedule_interval(self.update_graph, 0.1)
         
     def get_title(self):
@@ -46,7 +35,7 @@ class AnalyzerScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
+        self.threshold = 1500
         self._create_graph()
         
     def _create_graph(self):
@@ -69,13 +58,22 @@ class AnalyzerScreen(Screen):
 
         self.ch1_p_plot = LinePlot(color=[0, 1, 0, 1])
         self.ch1_p_plot.points = []
+        self.ch1_p_data = []
+
         self.ch1_n_plot = LinePlot(color=[1, 0.5, 0, 1])
         self.ch1_n_plot.points = []
+        self.ch1_n_data = []
 
         self.ch2_p_plot = LinePlot(color=[0, 0.5, 1, 1])
         self.ch2_p_plot.points = []
+        self.ch2_p_data = []
+
         self.ch2_n_plot = LinePlot(color=[1, 0, 1, 1])
         self.ch2_n_plot.points = []
+        self.ch2_n_data = []
+
+        self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
+        self.threshold_plot.points = []
 
 
         self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
@@ -109,28 +107,33 @@ class AnalyzerScreen(Screen):
 
     def update_graph(self, dt):
         current_time = time.time()
-        current_second = int(current_time) 
+        current_second = int(current_time - self.start_time) 
 
         time_range = 10
-        self.ch1_p_plot.points = [
-            (timestamp,value) for timestamp, value in self.ch1_p_plot.points if current_time - timestamp <= time_range
+        self.ch1_p_data = [
+            (timestamp,value) for timestamp, value in self.ch1_p_data if current_time - timestamp <= time_range
         ]
 
-        self.ch1_n_plot.points = [
-            (timestamp,value) for timestamp, value in self.ch1_n_plot.points if current_time - timestamp <= time_range
+        self.ch1_n_data = [
+            (timestamp,value) for timestamp, value in self.ch1_n_data if current_time - timestamp <= time_range
         ]
 
-        self.ch2_p_plot.points = [
-            (timestamp,value) for timestamp, value in self.ch2_p_plot.points if current_time - timestamp <= time_range
+        self.ch2_p_data = [
+            (timestamp,value) for timestamp, value in self.ch2_p_data if current_time - timestamp <= time_range
         ]
 
-        self.ch2_n_plot.points = [
-            (timestamp,value) for timestamp, value in self.ch2_n_plot.points if current_time - timestamp <= time_range
+        self.ch2_n_data = [
+            (timestamp,value) for timestamp, value in self.ch2_n_data if current_time - timestamp <= time_range
         ]
+
+        self.ch1_n_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch1_n_data]
+        self.ch1_p_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch1_p_data]
+        self.ch2_n_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch2_n_data]
+        self.ch2_p_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch2_p_data]
 
         self.threshold_plot.points = [
-            (current_time - 11, self.threshold),
-            (current_time + 2, self.threshold),
+            (current_second - 11, self.threshold),
+            (current_second + 2, self.threshold),
         ]
 
         # contol the graph view size in around 10 seconds
@@ -138,10 +141,10 @@ class AnalyzerScreen(Screen):
         self.graph.xmax = max(current_second + 1, 1)
 
     def update_data(self, data: AnalyzerData):
-        self.ch1_n_plot.points.append((data.TimeStamp, data.CH1_N))
-        self.ch1_p_plot.points.append((data.TimeStamp, data.CH1_P))
-        self.ch2_n_plot.points.append((data.TimeStamp, data.CH2_N))
-        self.ch2_p_plot.points.append((data.TimeStamp, data.CH2_P))
+        self.ch1_n_data.append((data.TimeStamp, data.CH1_N))
+        self.ch1_p_data.append((data.TimeStamp, data.CH1_P))
+        self.ch2_n_data.append((data.TimeStamp, data.CH2_N))
+        self.ch2_p_data.append((data.TimeStamp, data.CH2_P))
 
     def update_threshold(self, threshold: int):
         self.threshold = threshold
