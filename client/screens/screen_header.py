@@ -2,6 +2,8 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, BooleanProperty
 from kivy.lang import Builder
+from kivy.core.image import Image as CoreImage
+from kivy.clock import Clock
 from screens.image_button import ImageButton
 Builder.load_file('kv/screen_header.kv')
 
@@ -71,7 +73,7 @@ class ScreenHeader(BoxLayout):
     def update_server_status(self, on: bool):
         if on:
             self.server_status = 1
-            self.server_status_image = 'assets/right_icon.png'
+            self.server_status_image = 'assets/green_circle.png'
             print("Update to green status.")
         else:
             self.server_status = 0

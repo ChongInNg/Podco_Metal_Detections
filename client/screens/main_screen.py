@@ -96,5 +96,5 @@ class MainScreen(Screen):
         on_status = False 
         if msg.code == "OK":
             on_status = True
-        self.get_screen_header().update_server_status(on_status)
+        Clock.schedule_once(lambda dt: self.get_screen_header().update_server_status(on_status))
         print(f"handle the registration response success.status: {on_status}")
