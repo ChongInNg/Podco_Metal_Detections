@@ -41,10 +41,12 @@ class BaseWsResponse(BaseWsMessage):
 
     def to_dict(self) -> Dict[str, Any]:
         base_dict = super().to_dict()
-        base_dict["code"] = self.code
+    
         if self.data is not None:
             base_dict["data"] = self.data
-
+        base_dict["data"].update(
+            {"code": "OK"}
+        )
         return base_dict
     
 class RegistrationWsRequest(BaseWsRequest):

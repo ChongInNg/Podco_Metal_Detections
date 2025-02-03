@@ -67,8 +67,11 @@ class MetalDetectionApp(App):
 
 
     def start_websocket(self):
-        stack_widget = self.main_screen.get_stack_widget()
-        self.client = WebSocketClient("ws://127.0.0.1:8765", stack_widget.handle_websocket_messages)
+        self.client = WebSocketClient(
+            "ws://127.0.0.1:8765", 
+            self.main_screen.handle_websocket_messages,
+            self.main_screen.handle_websocket_disconnect,
+        )
         self.client.start()
 
 if __name__ == "__main__":

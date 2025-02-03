@@ -9,11 +9,12 @@ class ScreenHeader(BoxLayout):
     title = StringProperty('')
     show_back = BooleanProperty(False)
     show_next = BooleanProperty(False)
+    server_status_image = StringProperty('assets/red_circle.png')
 
     # update button default state
     def on_kv_post(self, base_widget):
+        self.server_status = 0
         self.update_btn_state()
-
 
     def update_header(self, title):
         self.title = title
@@ -66,3 +67,13 @@ class ScreenHeader(BoxLayout):
     
     def is_option(self):
         return self.title == "Main Menu"
+    
+    def update_server_status(self, on: bool):
+        if on:
+            self.server_status = 1
+            self.server_status_image = 'assets/right_icon.png'
+            print("Update to green status.")
+        else:
+            self.server_status = 0
+            self.server_status_image = 'assets/red_circle.png'
+            print("Update to red status.")

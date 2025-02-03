@@ -1,15 +1,17 @@
 import asyncio
 import websockets
 import threading
-import json
+import time
 from .message import *
 
 class WebSocketClient:
-    def __init__(self, url, message_callback=None):
+    def __init__(self, url, message_callback=None, disconnect_callback=None):
         self.url = url
         self.message_callback = message_callback
         self.running = False
         self.thread = None
+        self.retry_delay = 1
+        self.disconnect_callback = disconnect_callback
 
     def start(self):
         self.running = True
@@ -25,17 +27,22 @@ class WebSocketClient:
         asyncio.run(self._connect())
 
     async def _connect(self):
-        try:
-            async with websockets.connect(self.url) as websocket:
-                print(f"Connected to WebSocket server: {self.url}")
-                await websocket.send(self.compose_register_message())
-                while self.running:
-                    message = await websocket.recv()
-                    if self.message_callback:
-                        self.message_callback(message)
-                        
-        except Exception as e:
-            print(f"WebSocket connection error: {e}")
+        while self.running:
+            try:
+                async with websockets.connect(self.url) as websocket:
+                    print(f"Connected to WebSocket server: {self.url}")
+                    await websocket.send(self.compose_register_message())
+                    while self.running:
+                        message = await websocket.recv()
+                        if self.message_callback:
+                            self.message_callback(message)
+                            
+            except Exception as e:
+                print(f"WebSocket connection error: {e}")
+                self.disconnect_callback()
+                print(f"Excuted disconnect callback.")
+                await asyncio.sleep(self.retry_delay)
+            
 
     def compose_register_message(self) -> str:
         return RegistrationWsRequest.create_message(device_id="detecotr2").to_json()

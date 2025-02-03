@@ -8,6 +8,10 @@ Builder.load_file("kv/setting_screen.kv")
 class SettingScreen(Screen):
     title = StringProperty('Setting')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.bypass = 1
+        
     def reset_data(self):
         pass
 
@@ -23,3 +27,6 @@ class SettingScreen(Screen):
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         stack_widget.change_to_screen_name("option")
+
+    def update_bypass(self, value: int):
+        self.bypass = 1

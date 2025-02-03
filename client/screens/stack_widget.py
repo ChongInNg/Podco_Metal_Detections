@@ -4,13 +4,13 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
 from kivy.lang import Builder
-from kivy.clock import Clock
+
 from screens.option_screen import OptionScreen
-from screens.detection_screen import DetectionScreen, DetectionData
-from screens.calibration_screen import CalibrationScreen, CalibrationData
-from screens.analyzer_screen import AnalyzerScreen, AnalyzerData
+from screens.detection_screen import DetectionScreen
+from screens.calibration_screen import CalibrationScreen
+from screens.analyzer_screen import AnalyzerScreen
 from screens.screen_header import ScreenHeader
-from websocket.message import *
+from screens.setting_screen import SettingScreen
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -137,7 +137,7 @@ class StackWidget(Screen):
     def get_analyzer_screen(self)-> AnalyzerScreen:
         return self.ids.stack_manager.get_screen("analyzer")
     
-    def get_setting_screen(self)-> AnalyzerScreen:
+    def get_setting_screen(self)-> SettingScreen:
         return self.ids.stack_manager.get_screen("setting")
 
     def get_screen_header(self)-> ScreenHeader:
@@ -145,70 +145,4 @@ class StackWidget(Screen):
         main_screen = app.root.get_screen("main")
         return main_screen.ids.screen_header
     
-    def handle_websocket_messages(self, message: str):
-        try:
-            msg_dict = json.loads(message)
-            print(f"Decode message success: {msg_dict}\n")
-            msg = BaseWsMessage.from_dict(msg_dict)
-            print(f"msg1111111111: {msg.to_dict()}")
-            if isinstance(msg, NotifyByPassMessage):
-                self._handle_bypass_data(msg)
-            elif isinstance(msg, NotifyCalibrationMessage):
-                self._handle_calibration_data(msg)
-            elif isinstance(msg, NotifyDetectionMessage):
-                self._handle_detection_data(msg)
-            elif isinstance(msg, NotifyRawDataMessage):
-                self._handle_raw_data(msg)
-            elif isinstance(msg, NotifyThresholdAdjustedMessage):
-                self._handle_threshold_data(msg)
-            elif isinstance(msg, RegistrationWsResponse):
-                self._handle_registration_response(msg)
-            else:
-                print(f"Cannot handle this message: {msg}\n")
-        except Exception as ex:
-            print(f"handle_websocket_messages failed. error: {ex}\n")
-
-    def _handle_detection_data(self, msg: NotifyDetectionMessage) -> None:
-        Clock.schedule_once(lambda dt: self.get_detection_screen().add_detection(
-            DetectionData(
-                T_Value=str(msg.t_value),
-                D_Value=str(msg.d_value),
-                CH1_N=str(msg.ch1_area_n),
-                CH1_P=str(msg.ch1_area_p),
-                CH2_N=str(msg.ch2_area_n),
-                CH2_P=str(msg.ch2_area_p),
-        )))
-
-    def _handle_calibration_data(self, msg: NotifyCalibrationMessage) -> None:
-        Clock.schedule_once(lambda dt: self.get_calibration_screen().update_data(
-            CalibrationData(
-                T_Value=str(msg.t_value),
-                D_Value=str(msg.d_value),
-                CH1_N=str(msg.neg_threshold1),
-                CH1_P=str(msg.pos_threshold1),
-                CH1_M=str(msg.mid_ch1),
-                CH2_N=str(msg.neg_threshold2),
-                CH2_P=str(msg.pos_threshold2),
-                CH2_M=str(msg.mid_ch2)
-        )))
-
-    def _handle_raw_data(self, msg: NotifyRawDataMessage) -> None:
-        Clock.schedule_once(lambda dt: self.get_analyzer_screen().update_data(
-            AnalyzerData(
-                TimeStamp=msg.timestamp,
-                Input1_Raw=msg.input1_raw,
-                Input2_Raw=msg.input2_raw,
-                CH1_N=msg.ch1_area_n,
-                CH1_P=msg.ch1_area_p,
-                CH2_N=msg.ch2_area_n,
-                CH2_P=msg.ch2_area_p,
-        )))
-
-    def _handle_threshold_data(self, msg: NotifyThresholdAdjustedMessage) -> None:
-        Clock.schedule_once(lambda dt: self.get_analyzer_screen().update_threshold(msg.area_threshold))
     
-    def _handle_bypass_data(self, msg: NotifyByPassMessage) -> None:
-        pass
-
-    def _handle_registration_response(self, msg: RegistrationWsResponse) -> None:
-        pass

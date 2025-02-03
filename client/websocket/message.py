@@ -116,7 +116,7 @@ class BaseWsMessage:
             if header.is_request():
                 return RegistrationWsRequest.from_dict(header=header, data=msg_data)
             else:
-                return RegistrationWsResponse.from_dict(header=header, data=data)
+                return RegistrationWsResponse.from_dict(header=header, data=msg_data)
         elif header.is_notify_bypass_message():
             return NotifyByPassMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_calibration_message():
@@ -148,16 +148,16 @@ class BaseWsResponse(BaseWsMessage):
 
     def to_dict(self) -> Dict[str, Any]:
         base_dict = super().to_dict()
-        base_dict["code"] = self.code
-        base_dict["message"] = self.message
+        # base_dict["code"] = self.code
+        # base_dict["message"] = self.message
         return base_dict
     
     def validate(self, header: Header, code: str, message: str):
         if not header.is_response():
             raise ValueError("Message type wrong, should be response")
         
-        if code is None or not isinstance(code, str):
-            raise ValueError("code is not valid.")
+        # if code is None or not isinstance(code, str):
+        #     raise ValueError("code is not valid.")
         
         # if message is None or not isinstance(message, str):
         #     raise ValueError("message is not valid.")
@@ -222,7 +222,7 @@ class RegistrationWsResponse(BaseWsResponse):
         message = data.get("message")
         meta = data.get("meta")
         if code is None or not isinstance(code, str):
-            raise ValueError("Code id is not valid.")
+            raise ValueError(f"Code id is not valid. {data}")
         return cls(header, code, message, meta)
     
     @classmethod

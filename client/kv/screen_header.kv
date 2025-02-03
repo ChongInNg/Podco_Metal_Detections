@@ -1,7 +1,6 @@
 <ScreenHeader>:
     title: ''  
     size_hint_y: None
-    #height: dp(50)
     canvas.before:
         Color:
             rgba: 0.2, 0.25, 0.3, 1
@@ -18,11 +17,34 @@
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
     Label:
-        font_size: "30sp"
-        text: root.title
+        font_size: "10sp"
+        text: "Server"
+        size_hint_x: None
         bold: True
         color: 0.9, 0.9, 1, 1
-        
+
+    Image:
+        id: server_status_icon
+        size_hint_x: None
+        size: "24dp", "24dp"
+        source: root.server_status_image
+        text: "Server"
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+    Label:
+        font_size: "30sp"
+        text: root.title
+        size_hint_x: 1
+        bold: True
+        color: 0.9, 0.9, 1, 1
+    
+    Label:
+        font_size: "10sp"
+        text: "      "
+        size_hint_x: None
+        bold: True
+        color: 0.9, 0.9, 1, 1
+
     ImageButton:
         id: next_button
         size_hint_x: None
