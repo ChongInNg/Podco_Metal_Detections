@@ -9,11 +9,11 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
-        
+
         BoxLayout:
             orientation: "vertical"
             spacing: 10
-            padding: 10
+            padding: [20, 40]  # Padding to center the UI
             canvas.before:
                 Color:
                     rgba: 0.15, 0.15, 0.2, 1
@@ -21,24 +21,78 @@
                     pos: self.pos
                     size: self.size
 
-            Label:
-                text: "Setting Screen"
-                font_size: "40sp"
-                size_hint_y: 0.9
-
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 10
-                padding: 10
-                size_hint_y: 0.1
+                size_hint_y: 0.12  # Adjusted for better alignment
+                
                 Label:
-                    text: ""
-                    size_hint_x: 1
+                    text: "Bypass Status:"
+                    font_size: "20sp"
+                    size_hint_x: 0.5
+                
+                Label:
+                    id: bypass_status_label
+                    text: root.bypass_status_value
+                    font_size: "20sp"
+                    size_hint_x: 0.5
+
+            # Brightness Adjustment
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 10
+                size_hint_y: 0.12
+                Label:
+                    text: "Brightness:"
+                    font_size: "20sp"
+                    size_hint_x: 0.4
+                Slider:
+                    id: brightness_slider
+                    min: 0
+                    max: 100
+                    value: root.brightness
+                    size_hint_x: 0.6
+                    on_value: root.on_brightness_change(self.value)
+
+            # Copy Log Feature with Label
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 10
+                size_hint_y: 0.1  # Reduced height for compact layout
+                Label:
+                    text: "Log Backup:"
+                    font_size: "18sp"
+                    size_hint_x: 0.6  # Adjusted for better proportion
                 Button:
-                    id: cancel_btn
-                    text: "Cancel"
-                    on_release: root.on_cancel_btn_click()
-                Button:
-                    id: confirm_btn
-                    text: "Confirm"
-                    on_release: root.on_confirm_btn_click()
+                    id: copy_log_btn
+                    text: "Copy Log"
+                    size_hint_x: 0.4  # Made button smaller
+                    size_hint_y: 0.7  # Reduced height for compact look
+                    font_size: "16sp"
+                    opacity: 1  
+                    disabled: False
+                    on_release: root.on_copy_log_click()
+
+        # Bigger Cancel & Confirm Buttons
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 10
+            padding: [20, 10]
+            size_hint_y: 0.18  # Increased height for better usability
+            Label:
+                text: ""
+                size_hint_x: 0.2  # Adjusted to keep buttons centered
+            Button:
+                id: cancel_btn
+                text: "Cancel"
+                font_size: "22sp"
+                size_hint_x: 0.5
+                size_hint_y: 1
+                on_release: root.on_cancel_btn_click()
+            Button:
+                id: confirm_btn
+                text: "Confirm"
+                font_size: "22sp"
+                size_hint_x: 0.5
+                size_hint_y: 1
+                on_release: root.on_confirm_btn_click()
