@@ -25,13 +25,13 @@ Config.set('graphics', 'dpi', '96')
 
 
 
-from kivy.core.window import Window
-Window.size = (640, 480)
+# from kivy.core.window import Window
+# Window.size = (640, 480)
 #Window.fullscreen = True
 class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
-        print(f"Current window size: {Window.size}") 
+        # print(f"Current window size: {Window.size}") 
         # Add LogoScreen first, then other screens
         self.logo_screen = LogoScreen(name="logo")
         self.main_screen = MainScreen(name="main")
