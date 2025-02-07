@@ -7,6 +7,7 @@ from commands.base_command import BaseCommand
 from websocket.wsmessage import *
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
+from logs.detection_log import DetectionLogData
 
 class CommandHandler:
     COMMANDS = {
@@ -46,12 +47,7 @@ class CommandHandler:
             })
             return NotifyCalibrationMessage.from_dict(msg_dict)
         elif isinstance(command, DetectionCommand):
-            msg_dict = command.to_dict()
-            msg_dict.update({
-                "t_value": LogManager.instance().get_current_engine_time(),
-                "d_value": LogManager.instance().get_current_calibration_threshold()
-            })
-            return NotifyDetectionMessage.from_dict(msg_dict)
+            return NotifyDetectionMessage.from_dict(self.compose_detection_dict(command))
         elif isinstance(command, RawDataCommand):
             return NotifyRawDataMessage.from_dict(command.to_dict())
         elif isinstance(command, ThresholdAdjustedCommand):
@@ -62,3 +58,15 @@ class CommandHandler:
     def log_to_file(self, command: BaseCommand):
         from log_manager import LogManager
         LogManager.instance().log_message(f"{command.to_dict()}")
+        if isinstance(command, DetectionCommand):
+            LogManager.instance().save_detection(
+                 DetectionLogData.from_dict(self.compose_detection_dict(command))
+            )
+
+    def compose_detection_dict(self, command: DetectionCommand):
+        msg_dict = command.to_dict()
+        msg_dict.update({
+            "t_value": LogManager.instance().get_current_engine_time(),
+            "d_value": LogManager.instance().get_current_calibration_threshold()
+        })
+        return msg_dict

@@ -23,12 +23,11 @@ async def start_web_server():
 
 if __name__ == "__main__":
     Logger.instance().info("Podco Metal Detection Server Start")
-    server = SerialServer(port='COM2', baudrate=115200, timeout=None)
-    if not server.connect():
-        Logger.instance().error("Podco Metal Detection Server exited")
+    if not SerialServer.instance().connect(port='COM2', baudrate=115200, timeout=None):
+        Logger.instance().error("Podco Metal Detection Serial Server exited")
         exit(100)
+
     LogManager.instance().setup(f"{get_current_program_folder()}/system_logs")
-    
     try:
         asyncio.run(start_web_server())
     except KeyboardInterrupt:

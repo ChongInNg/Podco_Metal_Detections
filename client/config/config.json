@@ -1,0 +1,7 @@
+{
+    "metal_detection_id": "detection1",
+    "analyze_range_min": 500,
+    "analyze_range_max": 2500,
+    "serial_port": "COM2",
+    "websocket_port": 8765
+}

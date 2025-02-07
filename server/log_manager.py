@@ -5,7 +5,7 @@ import json
 import os
 from logs.global_log import GlobalLog
 from logs.system_log import SystemLog
-
+from logs.detection_log import DetectionLog, DetectionLogData
 class LogManager:
     _instance: Optional['LogManager'] = None
     def __init__(self):
@@ -15,6 +15,7 @@ class LogManager:
         self.global_log = None
         self.session_log = None
         self.system_log = None
+        self.detection_log = None
     
     @classmethod
     def instance(cls) -> 'LogManager':
@@ -36,6 +37,7 @@ class LogManager:
             max_file_size=global_log_data.max_file_size,
             update_index_callback=self.global_log.increment_log_index,
         )
+        self.detection_log = DetectionLog(log_directory=log_directory)
         self.running = True
     
         self.system_log.start_session()
@@ -44,6 +46,9 @@ class LogManager:
 
     def log_message(self, message: str):
         self.system_log.log_event(message=message)
+
+    def save_detection(self, detection_data: DetectionLogData):
+        self.detection_log.save_detection_data(detection_data)
 
     def update_calibration_data(self, threshold: int):
         self.global_log.update_calibration_data(threshold)
@@ -55,6 +60,9 @@ class LogManager:
         if self.global_log.global_data.current_calibration.threshold is None:
             return 0
         return self.global_log.global_data.current_calibration.threshold
+
+    def get_last_n_detections(self, num: int) -> list[dict]:
+        return self.detection_log.get_last_n_detections(num)
 
     def close(self):
         if self.thd:

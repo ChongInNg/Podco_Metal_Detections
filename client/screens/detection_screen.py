@@ -104,3 +104,15 @@ class DetectionScreen(Screen):
         self.detections.append(detection_data)
         self.current_index = 0
         self.update_current_values()
+
+    def init_detections(self, detections: list[dict]):
+        self.detections.clear()
+        for detection in detections:
+            self.detections.append(DetectionData(
+                T_Value=detection[""],
+                D_Value=detection[""],
+                CH1_P=detection[""],
+                CH1_N=detection[""],
+                CH2_P=detection[""],
+                CH2_N=detection[""],
+            ))

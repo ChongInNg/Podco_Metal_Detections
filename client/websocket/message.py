@@ -9,6 +9,9 @@ MessageType_Response = "response"
 MessageType_Notify = "notify"
 
 MessageName_Registration = "registration"
+MessageName_GetLastNDetections = "get_last_n_detections"
+MessageName_SetThreshold = "set_threshold"
+MessageName_SetDefaultCalibration = "set_default_calibration"
 
 MessageName_NotifyByPass = "notify_bypass"
 MessageName_NotifyCalibration = "notify_calibration"
@@ -49,6 +52,15 @@ class Header:
     def is_registration_message(self):
         return self.name == MessageName_Registration
 
+    def is_get_last_n_detections_message(self):
+        return self.name == MessageName_GetLastNDetections
+    
+    def is_set_threshold_message(self):
+        return self.name == MessageName_SetThreshold
+    
+    def is_set_default_calibration_message(self):
+        return self.name == MessageName_SetDefaultCalibration
+    
     def is_notify_bypass_message(self):
         return self.name == MessageName_NotifyByPass
 
@@ -117,6 +129,21 @@ class BaseWsMessage:
                 return RegistrationWsRequest.from_dict(header=header, data=msg_data)
             else:
                 return RegistrationWsResponse.from_dict(header=header, data=msg_data)
+        elif header.is_get_last_n_detections_message():
+            if header.is_request():
+                return GetLastNDetectionsRequest.from_dict(header=header, data=msg_data)
+            else:
+                return GetLastNDetectionsResponse.from_dict(header=header, data=msg_data)
+        elif header.is_set_threshold_message():
+            if header.is_request():
+                return SetThresholdRequest.from_dict(header=header, data=msg_data)
+            else:
+                return SetThresholdResponse.from_dict(header=header, data=msg_data)
+        elif header.is_set_default_calibration_message():
+            if header.is_request():
+                return SetDefaultCalibrationRequest.from_dict(header=header, data=msg_data)
+            else:
+                return SetDefaultCalibrationResponse.from_dict(header=header, data=msg_data)
         elif header.is_notify_bypass_message():
             return NotifyByPassMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_calibration_message():
@@ -140,27 +167,42 @@ class BaseWsRequest(BaseWsMessage):
             raise ValueError("Message type wrong, should be request")
 
 class BaseWsResponse(BaseWsMessage):
-    def __init__(self, header: Header, code:str, message: str):
+    def __init__(self, header: Header, code:str, message: str, meta: str=None):
         self.validate(header=header, code=code,message=message)
         super().__init__(header=header)
         self.code = code
         self.message = message
+        self.meta = meta
 
+    def is_success(self) -> bool:
+        if self.code == "OK" or self.code == "success":
+            return True
+        return False
+    
     def to_dict(self) -> Dict[str, Any]:
         base_dict = super().to_dict()
-        # base_dict["code"] = self.code
-        # base_dict["message"] = self.message
+        base_dict.update({
+            "data": {
+                "code": self.code,
+                "message": self.message
+            }
+        })
+        if self.meta is not None:
+            base_dict["data"].update({
+                "meta": self.meta
+            })
+
         return base_dict
     
     def validate(self, header: Header, code: str, message: str):
         if not header.is_response():
             raise ValueError("Message type wrong, should be response")
         
-        # if code is None or not isinstance(code, str):
-        #     raise ValueError("code is not valid.")
+        if code is None or not isinstance(code, str):
+            raise ValueError("code is not valid.")
         
-        # if message is None or not isinstance(message, str):
-        #     raise ValueError("message is not valid.")
+        if message is None or not isinstance(message, str):
+            raise ValueError("message is not valid.")
 
 class BaseWsNotify(BaseWsMessage):
     def __init__(self, header: Header):
@@ -204,14 +246,7 @@ class RegistrationWsRequest(BaseWsRequest):
 
 class RegistrationWsResponse(BaseWsResponse):
     def __init__(self, header: Header, code: str, message: str, meta: Dict=None):
-        super().__init__(header=header, code=code, message=message)
-        self.meta = meta
-
-    def to_dict(self) -> Dict[str, Any]:
-        base_dict = super().to_dict()
-        if self.meta is not None:
-            base_dict["meta"] = self.meta 
-        return base_dict
+        super().__init__(header=header, code=code, message=message, meta=meta)
 
     @classmethod
     def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'RegistrationWsResponse':
@@ -221,18 +256,184 @@ class RegistrationWsResponse(BaseWsResponse):
         code = data.get("code")
         message = data.get("message")
         meta = data.get("meta")
-        if code is None or not isinstance(code, str):
-            raise ValueError(f"Code id is not valid. {data}")
         return cls(header, code, message, meta)
     
     @classmethod
     def create_message(cls, id: str, code: str, message: str, meta: str=None) -> 'RegistrationWsResponse':
         if id is None or not isinstance(id, str):
             raise ValueError("Id is not valid.")
-        
+                
         header = Header(id=id, name=MessageName_Registration, message_type=MessageType_Response)
         return cls(header, code, message, meta)
     
+
+class GetLastNDetectionsRequest(BaseWsRequest):
+    def __init__(self,  header: Header,  last_n: int):
+        super().__init__(header=header)
+        self.last_n = last_n
+
+    def to_dict(self) -> Dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "last_n": self.last_n,
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'GetLastNDetectionsRequest':
+        if not header.is_get_last_n_detections_message():
+            raise ValueError("Message name is not valid.")
+        
+        last_n = data.get("last_n")
+        if last_n is None or not isinstance(last_n, int):
+            raise ValueError("last n is not valid.")
+        return cls(header, last_n)
+    
+    @classmethod
+    def create_message(cls, last_n: int) -> 'GetLastNDetectionsRequest':
+        if last_n is None or not isinstance(last_n, int):
+            raise ValueError("Lat N is not valid.")
+        
+        header = Header(name=MessageName_GetLastNDetections, message_type=MessageType_Request)
+        return cls(header, last_n)
+    
+class GetLastNDetectionsResponse(BaseWsResponse)   :
+    def __init__(self, header: Header, code: str, message: str, 
+                meta: Dict=None, detections: list[dict]=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+        self.detections = detections or []
+
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"].update({
+            "detections": self.detections
+        })
+        return base_dict
+    
+    @classmethod
+    def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'GetLastNDetectionsResponse':
+        if not header.is_get_last_n_detections_message():
+            raise ValueError("Message name is not valid.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        detections = data.get("detections")
+        return cls(header, code, message, meta, detections)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, 
+                       meta: dict=None, detections: List[dict]=None) -> 'GetLastNDetectionsResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+                
+        header = Header(id=id, name=MessageName_GetLastNDetections, message_type=MessageType_Response)
+        return cls(header, code, message, meta, detections)
+
+class SetThresholdRequest(BaseWsRequest):
+    def __init__(self,  header: Header,  threshold: int):
+        super().__init__(header=header)
+        self.threshold = threshold
+
+    def to_dict(self) -> Dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "threshold": self.threshold,
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'SetThresholdRequest':
+        if not header.is_set_threshold_message():
+            raise ValueError("Message name is not valid.")
+        
+        threshold = data.get("threshold")
+        if threshold is None or not isinstance(threshold, int):
+            raise ValueError("threshold is not valid.")
+        return cls(header, threshold)
+    
+    @classmethod
+    def create_message(cls, threshold: int) -> 'SetThresholdRequest':
+        if threshold is None or not isinstance(threshold, int):
+            raise ValueError("Threshold is not valid.")
+        
+        header = Header(name=MessageName_SetThreshold, message_type=MessageType_Request)
+        return cls(header, threshold)
+    
+class SetThresholdResponse(BaseWsResponse)   :
+    def __init__(self, header: Header, code: str, message: str, meta: Dict=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+
+    @classmethod
+    def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'SetThresholdResponse':
+        if not header.is_set_threshold_message():
+            raise ValueError("Message name is not valid.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        return cls(header, code, message, meta)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, meta: str=None) -> 'SetThresholdResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+                
+        header = Header(id=id, name=MessageName_SetThreshold, message_type=MessageType_Response)
+        return cls(header, code, message, meta)
+
+class SetDefaultCalibrationRequest(BaseWsRequest):
+    def __init__(self,  header: Header,  last_n: int):
+        super().__init__(header=header)
+        self.last_n = last_n
+
+    def to_dict(self) -> Dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "last_n": self.last_n,
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'SetDefaultCalibrationRequest':
+        if not header.is_set_default_calibration_message():
+            raise ValueError("Message name is not valid.")
+        
+        last_n = data.get("last_n")
+        if last_n is None or not isinstance(last_n, int):
+            raise ValueError("last n is not valid.")
+        return cls(header, last_n)
+    
+    @classmethod
+    def create_message(cls, last_n: int) -> 'SetDefaultCalibrationRequest':
+        if last_n is None or not isinstance(last_n, int):
+            raise ValueError("Lat N is not valid.")
+        
+        header = Header(name=MessageName_SetDefaultCalibration, message_type=MessageType_Request)
+        return cls(header, last_n)
+    
+class SetDefaultCalibrationResponse(BaseWsResponse)   :
+    def __init__(self, header: Header, code: str, message: str, meta: Dict=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+
+    @classmethod
+    def from_dict(cls, header: Header, data: Dict[str, Any]) -> 'SetDefaultCalibrationResponse':
+        if not header.is_set_default_calibration_message():
+            raise ValueError("Message name is not valid.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        return cls(header, code, message, meta)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, meta: str=None) -> 'SetDefaultCalibrationResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+                
+        header = Header(id=id, name=MessageName_SetDefaultCalibration, message_type=MessageType_Response)
+        return cls(header, code, message, meta)
+
 
 class NotifyByPassMessage(BaseWsNotify):
     def __init__(self, header: Header, bypass: int):
@@ -391,7 +592,7 @@ class NotifyDetectionMessage(BaseWsNotify):
             ch1_area_p:int, ch1_area_n:int, 
             ch2_area_p:int, ch2_area_n:int,
             t_value:float, d_value=float
-        ) -> 'NotifyCalibrationMessage':
+        ) -> 'NotifyDetectionMessage':
         if ch1_area_p is None or not isinstance(ch1_area_p, int):
             raise ValueError("ch1_area_p is not valid")
         
@@ -457,7 +658,7 @@ class NotifyRawDataMessage(BaseWsNotify):
             input1_raw: int, input2_raw: int, 
             ch1_area_p: int, ch1_area_n: int, 
             ch2_area_p: int, ch2_area_n: int
-        ) -> 'NotifyCalibrationMessage':
+        ) -> 'NotifyRawDataMessage':
         if input1_raw is None or not isinstance(input1_raw, int):
             raise ValueError("input1_raw is not valid")
         
@@ -492,7 +693,7 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
     @classmethod
     def create_message(cls, 
             area_threshold: int,
-        ) -> 'NotifyCalibrationMessage':
+        ) -> 'NotifyThresholdAdjustedMessage':
         if area_threshold is None or not isinstance(area_threshold, int):
             raise ValueError("area_threshold is not valid")
         
@@ -500,4 +701,13 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
         return cls(
             header, 
             area_threshold=area_threshold,
+        )
+    
+class SystemErrorResponse(BaseWsResponse):
+    def __init__(self, message: str, meta:dict=None):
+        super().__init__(
+            Header(name="system_error", message_type=MessageType_Response),
+            "error", 
+            message=message,
+            meta=meta
         )

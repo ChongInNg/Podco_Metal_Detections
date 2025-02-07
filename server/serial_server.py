@@ -1,7 +1,7 @@
 import serial # type: ignore
 import threading
 import queue
-import struct
+from typing import  Optional
 from command_handler import CommandHandler
 from log.logger import Logger
 
@@ -18,25 +18,27 @@ class CommandData:
         }
     
 class SerialServer:
-    def __init__(self, port, baudrate=115200, timeout=None):
-        self.port = port
-        self.baudrate = baudrate
-        self.timeout = timeout # None: means nonblcoking, it is good to handle a lot of data receiving
+    _instance: Optional['SerialServer'] = None
+    def __init__(self):
+        self.port = None
+        self.baudrate = 115200
+        self.timeout = None # None: means nonblcoking, it is good to handle a lot of data receiving
         self.serial = None
         self.bytes_endian = "big"
         self.cmd_queue = queue.Queue()
         self.running = False
         self.command_handler = CommandHandler()
 
-        self.commands = {
-            "detection": 0x0A,
-            "calibration": 0xA0,
-            "raw_data": 0xAA,
-            "threshold": 0xF0,
-            "bypass": 0x0F,
-        }
-
-    def connect(self) -> bool:
+    @classmethod
+    def instance(cls) -> 'SerialServer':
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+    
+    def connect(self, port, baudrate=115200, timeout=None) -> bool:
+        self.port = port
+        self.baudrate = baudrate
+        self.timeout = timeout
         try:
             self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
             self.running = True
@@ -54,9 +56,14 @@ class SerialServer:
         self.proces_thread.start()
         Logger.instance().info("Start read data and process data thread success.")
 
+    def send_default_calibration_request(self):
+        pass
+
+    def send_threshold_request(self):
+        pass
+    
     def _read_data(self):
         while self.running:
-  
             if self.serial.in_waiting:
                 Logger.instance().info(f"There are data comming from serial, len:{self.serial.in_waiting}")
                 header = self.serial.read(2) 
@@ -71,6 +78,8 @@ class SerialServer:
                 command_data = CommandData(command_type, data_length, data)
                 self.cmd_queue.put(command_data)
                 Logger.instance().info(f"Read data from the serial port: {command_data.to_dict()}")
+                self._send_response(command_data.command_type)
+                Logger.instance().info(f"Send response to controller, command_type: {hex(command_type)}")
 
     def _write_data(self, data: bytes):
         if self.serial and self.serial.is_open:
@@ -105,10 +114,7 @@ class SerialServer:
             self.proces_thread.join()
             Logger.instance().info("Process queue thread closed.")
 
-    def _send_response(self, command_name: str):
-        if command_name not in self.commands:
-            raise ValueError(f"Invalid command name: {command_name}")
-        command_type = self.commands[command_name]
+    def _send_response(self, command_type: int):
         resp_value = 1
         encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
         data_length = 1

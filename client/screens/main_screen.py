@@ -28,11 +28,8 @@ class MainScreen(Screen):
         self.get_screen_header().update_server_status(False)
         print(f"handle the websocket disconnect esponse success.")
     
-    def handle_websocket_messages(self, message: str):
+    def handle_websocket_messages(self, msg: BaseWsMessage):
         try:
-            msg_dict = json.loads(message)
-            print(f"Decode message success: {msg_dict}\n")
-            msg = BaseWsMessage.from_dict(msg_dict)
             if isinstance(msg, NotifyByPassMessage):
                 self._handle_bypass_data(msg)
             elif isinstance(msg, NotifyCalibrationMessage):
@@ -45,6 +42,14 @@ class MainScreen(Screen):
                 self._handle_threshold_data(msg)
             elif isinstance(msg, RegistrationWsResponse):
                 self._handle_registration_response(msg)
+            elif isinstance(msg, SetDefaultCalibrationResponse):
+                self._handle_set_default_calibration_response(msg)
+            elif isinstance(msg, GetLastNDetectionsResponse):
+                self._handle_get_last_n_detections_response(msg)
+            elif isinstance(msg, SetThresholdResponse):
+                self._handle_set_threshold_response(msg)
+            elif isinstance(msg, SystemErrorResponse):
+                self._handle_system_error_response(msg)
             else:
                 print(f"Cannot handle this message: {msg}\n")
         except Exception as ex:
@@ -94,7 +99,31 @@ class MainScreen(Screen):
 
     def _handle_registration_response(self, msg: RegistrationWsResponse) -> None:
         on_status = False 
-        if msg.code == "OK":
+        if msg.is_success():
             on_status = True
+            print(f"handle the registration response success.status: {on_status}")
+        else:
+            print(f"registration response is wrong.")
         Clock.schedule_once(lambda dt: self.get_screen_header().update_server_status(on_status))
-        print(f"handle the registration response success.status: {on_status}")
+
+    def _handle_set_default_calibration_response(self, msg: SetDefaultCalibrationResponse):
+        if msg.is_success():
+            pass
+        else:
+            print(f"get last n detection response is not success, cannot handle in UI")
+
+    def _handle_set_threshold_response(self, msg: SetThresholdResponse):
+        if msg.is_success():
+            pass
+        else:
+            print(f"get last n detection response is not success, cannot handle in UI")
+
+    def _handle_get_last_n_detections_response(self, msg: GetLastNDetectionsResponse):
+        if msg.is_success():
+            Clock.schedule_once(lambda dt: self.get_stack_widget().get_detection_screen().init_detections(msg.detections))
+        else:
+            print(f"get last n detection response is not success, cannot handle in UI")
+            # should popup error
+    
+    def _handle_system_error_response(self, msg: SystemErrorResponse):
+        pass

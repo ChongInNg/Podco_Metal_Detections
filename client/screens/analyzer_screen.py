@@ -91,11 +91,11 @@ class AnalyzerScreen(Screen):
         legend_layout = BoxLayout(size_hint_y=0.1)
 
         legend_items = [
-            ("Threshold", [1, 0, 0, 1]),
-            ("CH1 Positive", [0, 1, 0, 1]),
-            ("CH1 Negative", [1, 0.5, 0, 1]),
-            ("CH2 Positive", [0, 0.5, 1, 1]),
-            ("CH2 Negative", [1, 0, 1, 1]),
+            ("T", [1, 0, 0, 1]),
+            ("CH1 P", [0, 1, 0, 1]),
+            ("CH1 N", [1, 0.5, 0, 1]),
+            ("CH2 P", [0, 0.5, 1, 1]),
+            ("CH2 N", [1, 0, 1, 1]),
         ]
 
         for name, color in legend_items:

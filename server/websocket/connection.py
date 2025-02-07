@@ -1,6 +1,8 @@
 from .wsmessage import *
 from log.logger import Logger
+from log_manager import LogManager
 
+import asyncio
 
 class Connection:
     Status_Registered = "registered"
@@ -21,6 +23,10 @@ class Connection:
                await self.handle_registration(message)
             elif isinstance(message, SetThresholdRequest):
                 await self.handle_set_threshold(message)
+            elif isinstance(message, GetLastNDetectionsRequest):
+                await self.handle_get_last_n_detections(message)
+            elif isinstance(message, SetDefaultCalibrationRequest):
+                await self.handle_set_default_calibration(message)
             else:
                 Logger.warning(f"Cannot handle this message: {message}")
         except Exception as e:
@@ -37,7 +43,7 @@ class Connection:
         self.device_id = message.device_id
 
         rsp = RegistrationWsResponse(
-            id=message.id, code="success", message="register successfully",
+            id=message.id, code="OK", message="register successfully",
             data={"device_id": message.device_id}
         )
 
@@ -45,33 +51,80 @@ class Connection:
         Logger.debug(f"Handle registeration success: {rsp.to_dict()}")
 
     async def handle_set_threshold(self, message: SetThresholdRequest):
+        from serial_server import SerialServer
+
         Logger.debug(f"Handling set threshold message: {message}")
         if self.status != Connection.Status_Registered:
-            Logger.error("This connection didn't registered yet, cannot handle it.")
+            Logger.error("This connection didn't registered yet, cannot handle set threshold message.")
+            await self.send_error_response(message, "connection didn't registered yet")
             return
         
-        # device = DeviceManager.instance().get_device(message.device_identity)
-        # rsp = None
-        # if device is None:
-        #     rsp = QueryDeviceResponse(
-        #         id=message.id, code="device_not_found",
-        #         message=f"cannot get this device:{message.device_identity}"                
-        #     )
-        # else:
-        #     info = device.to_dict()
-        #     rsp = QueryDeviceResponse(
-        #         id=message.id, code="success", message="query device successfully",
-        #         data=info                      
-        #     )
+        await asyncio.to_thread(SerialServer.instance().send_threshold_request(message.threshold))
 
-        # await self.conn.send(rsp.to_json())
-        # Logger.debug(f"Handle query device success: {rsp.to_dict()}")
+        rsp = SetThresholdResponse.create_message(
+            id=message.header.id, code="OK", 
+            message="set threshold completed."
+        )
+        await self.conn.send(rsp.to_json())
+        Logger.debug(f"Handle set threshold success: {rsp.to_dict()}")
+        
+
+    async def handle_set_default_calibration(self, message: SetDefaultCalibrationRequest):
+        from serial_server import SerialServer
+        if self.status != Connection.Status_Registered:
+            Logger.error("This connection didn't registered yet, cannot handle set default calibration message.")
+            await self.send_error_response(message, "connection didn't registered yet")
+            return
+        
+        await asyncio.to_thread(SerialServer.instance().send_default_calibration_request())
+        rsp = SetDefaultCalibrationResponse.create_message(
+            id=message.header.id, code="OK", 
+            message="set default calibration completed."
+        )
+        await self.conn.send(rsp.to_json())
+        Logger.debug(f"Handle set default calibration success: {rsp.to_dict()}")
+
+    async def handle_get_last_n_detections(self, message: GetLastNDetectionsRequest):
+        if self.status != Connection.Status_Registered:
+            Logger.error("This connection didn't registered yet, cannot handle set default calibration message.")
+            await self.send_error_response(message, "connection didn't registered yet")
+            return
+        
+        detections = LogManager.instance().get_last_n_detections(message.last_n)
+        rsp = GetLastNDetectionsResponse.create_message(
+            id=message.header.id, code="OK",
+            message="get last n detections successfully.",
+            detections=detections
+        )
+        await self.conn.send(rsp.to_json())
+        Logger.debug(f"Send back last n detections: {len(detections)}")
+
 
     async def send_system_error(self, message: str, data:dict=None):
         rsp = SystemErrorResponse(message=message, data=data)
         await self.conn.send(rsp.to_json())
         Logger.debug(f"Send system error: {rsp}")
 
+    async def send_error_response(self, req: BaseWsMessage, message: str, meta: dict=None):
+        response_map = {
+            RegistrationWsRequest: RegistrationWsResponse,
+            SetDefaultCalibrationRequest: SetDefaultCalibrationResponse,
+            SetThresholdRequest: SetThresholdResponse,
+            GetLastNDetectionsRequest: GetLastNDetectionsResponse
+        }
+        
+        response_cls = response_map.get(type(req))
+        if response_cls is None:
+            await self.send_system_error(message) 
+        
+        rsp = response_cls.create_message(
+            id= req.header.id, 
+            code="error",
+            message=message,
+            meta=meta
+        )
+        await self.conn.send(rsp.to_json())
+            
     async def send_notify_message(self, notify_msg: BaseWsNotify):
         json_msg = notify_msg.to_json()
         await self.conn.send(json_msg)

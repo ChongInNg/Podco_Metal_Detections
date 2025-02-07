@@ -32,6 +32,8 @@ class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
         # print(f"Current window size: {Window.size}") 
+
+        self.joystick = None
         # Add LogoScreen first, then other screens
         self.logo_screen = LogoScreen(name="logo")
         self.main_screen = MainScreen(name="main")

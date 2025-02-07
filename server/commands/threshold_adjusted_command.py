@@ -3,7 +3,7 @@ from .base_command import BaseCommand
 class ThresholdAdjustedCommand(BaseCommand):
     def __init__(self):
         super().__init__()
-        self.name = "threshold_adjuested"
+        self.name = "threshold"
         self.data_len = 2
         self.area_threshold = None
 

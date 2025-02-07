@@ -5,7 +5,7 @@ import logging
 from log.logger import Logger
 from .connection_manager import ConnectionManager 
 from .notify_message_queue import NotifyMessageQueue
-from .wsmessage import SystemErrorResponse, create_from_dict
+from .wsmessage import BaseWsMessage, SystemErrorResponse
 
 class WebSocketServer:
     def __init__(self, host, port):
@@ -44,7 +44,7 @@ class WebSocketServer:
 
     async def _handle_message(self, client_id: int, websocket: any, data: dict) -> None:             
         try:
-            message = create_from_dict(data)
+            message = BaseWsMessage.from_dict(data)
             connection_manager = ConnectionManager.instance()
             connection = connection_manager.get_or_create_connection(client_id, websocket)
             await connection.handle_message(message)

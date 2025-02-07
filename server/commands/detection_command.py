@@ -5,8 +5,6 @@ class DetectionCommand(BaseCommand):
         super().__init__()
         self.name = "detection"
         self.data_len = 8
-        self.t_value = None
-        self.d_value = None
         self.ch1_area_p = None
         self.ch1_area_n = None
         self.ch2_area_p = None
@@ -23,8 +21,6 @@ class DetectionCommand(BaseCommand):
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
-            "t_value": self.t_value,
-            "d_value": self.d_value,
             "ch1_area_p": self.ch1_area_p,
             "ch1_area_n": self.ch1_area_n,
             "ch2_area_p": self.ch2_area_p,
