@@ -2,8 +2,13 @@ from asyncio import Queue, get_event_loop
 import asyncio
 from typing import Callable
 from log.logger import Logger
-from .wsmessage import BaseWsNotify
 from .connection import Connection
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
+
 
 class NotifyMessageQueue:
     def __init__(self, get_connections_callback: Callable[[str], list[Connection]], loop: asyncio.AbstractEventLoop):

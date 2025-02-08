@@ -13,6 +13,15 @@ from screens.main_screen import MainScreen
 from screens.logo_screen import LogoScreen 
 from websocket.client import WebSocketClient
 
+import sys
+import os
+
+# Dynamically add the parent directory to sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Now import the shared file
+from share.wsmessage import *
+
 from kivy.config import Config
 Config.set('graphics', 'width', '320')  
 Config.set('graphics', 'height', '240') 
@@ -78,6 +87,7 @@ class MetalDetectionApp(App):
 
 if __name__ == "__main__":
     app = MetalDetectionApp()
+    BaseWsMessage(Header("", ""))
     app.run()
     app.stop_joystick()
 

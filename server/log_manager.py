@@ -61,7 +61,7 @@ class LogManager:
             return 0
         return self.global_log.global_data.current_calibration.threshold
 
-    def get_last_n_detections(self, num: int) -> list[dict]:
+    def get_last_n_detections(self, num: int) -> list[DetectionLogData]:
         return self.detection_log.get_last_n_detections(num)
 
     def close(self):

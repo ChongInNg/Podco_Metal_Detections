@@ -95,6 +95,9 @@ class Header:
             MessageName_Registration, MessageName_NotifyByPass,
             MessageName_NotifyCalibration, MessageName_NotifyDetection,
             MessageName_NotifyRawData, MessageName_NotifyThresholdAdjusted,
+            MessageName_GetLastNDetections,
+            MessageName_SetDefaultCalibration,
+            MessageName_SetThreshold
         ]:
             if name == message_name:
                 return
@@ -119,8 +122,11 @@ class BaseWsMessage:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'BaseWsMessage':
+        print(f"55555555555555522222222222 {data}")
         header = Header.from_dict(data)
+        print(f"33333333333333333333 {header}")
         msg_data = data.get("data")
+        print(f"4444444444444444444447777777777777 {msg_data}")
         if msg_data is None or not isinstance(msg_data, dict):
             raise ValueError("Message data format is wrong. should be a dictionary.")
         
@@ -174,11 +180,11 @@ class BaseWsResponse(BaseWsMessage):
         self.message = message
         self.meta = meta
 
-    def is_success(self) -> bool:
+    def is_success(self):
         if self.code == "OK" or self.code == "success":
             return True
         return False
-    
+
     def to_dict(self) -> dict[str, Any]:
         base_dict = super().to_dict()
         base_dict.update({
@@ -187,6 +193,7 @@ class BaseWsResponse(BaseWsMessage):
                 "message": self.message
             }
         })
+
         if self.meta is not None:
             base_dict["data"].update({
                 "meta": self.meta
@@ -296,17 +303,70 @@ class GetLastNDetectionsRequest(BaseWsRequest):
         
         header = Header(name=MessageName_GetLastNDetections, message_type=MessageType_Request)
         return cls(header, last_n)
+
+class DetectionLog:
+    def __init__(self, t_value: float, d_value: int, ch1_area_p:int,
+            ch1_area_n:int, ch2_area_p:int, ch2_area_n: int):
+        self.t_value:float = t_value
+        self.d_value:int = d_value
+        self.ch1_area_p:int = ch1_area_p
+        self.ch1_area_n:int = ch1_area_n
+        self.ch2_area_p:int = ch2_area_p
+        self.ch2_area_n:int = ch2_area_n
     
+    def to_dict(self):
+        return {
+            "t_value": self.t_value,
+            "d_value": self.d_value,
+            "ch1_area_p": self.ch1_area_p,
+            "ch1_area_n": self.ch1_area_n,
+            "ch2_area_p": self.ch2_area_p,
+            "ch2_area_n": self.ch2_area_n
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'DetectionLog':
+        return DetectionLog(
+            t_value=data["t_value"],
+            d_value=data["d_value"],
+            ch1_area_p=data["ch1_area_p"],
+            ch1_area_n=data["ch1_area_n"],
+            ch2_area_p=data["ch2_area_p"],
+            ch2_area_n=data["ch2_area_n"],
+        )
+    
+    
+class DetectionLogs:
+    def __init__(self, logs: list[DetectionLog] = []):
+        self.logs = logs
+        print(f"333333333333333333aooooooooooooooooooooooo {logs}")
+
+    def to_dict(self) -> list[dict[str, int]]:
+        return [log.to_dict() for log in self.logs]
+
+    @classmethod
+    def from_dict(cls, data: list[dict[str, int]]) -> 'DetectionLogs':
+        logs = [DetectionLog.from_dict(log_data) for log_data in data]
+        print(f"ooooooooooooooooooooooo {logs}")
+        return cls(logs)
+
+    def add_log(self, log: DetectionLog):
+        if isinstance(log, DetectionLog):
+            self.logs.append(log)
+        else:
+            raise TypeError("Only DetectionLog instances can be added.")
+
 class GetLastNDetectionsResponse(BaseWsResponse)   :
-    def __init__(self, header: Header, code: str, message: str, 
-                meta: dict=None, detections: list[dict]=None):
+    def __init__(self, header: Header, code: str, message: str, meta: dict=None,
+            detections: DetectionLogs=None):
         super().__init__(header=header, code=code, message=message, meta=meta)
-        self.detections = detections or []
+        self.detections:DetectionLogs = detections or DetectionLogs()
 
     def to_dict(self):
         base_dict = super().to_dict()
+        print(f"kkkkkkkkkkkkkkkkkkkkkkkkkkkk {len(self.detections.logs)}")
         base_dict["data"].update({
-            "detections": self.detections
+            "detections": self.detections.to_dict()
         })
         return base_dict
     
@@ -319,14 +379,21 @@ class GetLastNDetectionsResponse(BaseWsResponse)   :
         message = data.get("message")
         meta = data.get("meta")
         detections = data.get("detections")
-        return cls(header, code, message, meta, detections)
+        if detections is not None:
+            detection_logs = DetectionLogs.from_dict(detections)
+            print(f"lllllllllllllllllllllllllppppp {detection_logs}")
+        else:
+            detection_logs = DetectionLogs()
+            print(f"tttttttttttttttttttttttt {detection_logs}")
+        return cls(header, code, message, meta, detection_logs)
     
     @classmethod
-    def create_message(cls, id: str, code: str, message: str, 
-                       meta: dict=None, detections: list[dict]=None) -> 'GetLastNDetectionsResponse':
+    def create_message(cls, id: str, code: str, message: str, meta: dict=None, 
+            detections: DetectionLogs=None) -> 'GetLastNDetectionsResponse':
         if id is None or not isinstance(id, str):
             raise ValueError("Id is not valid.")
-                
+        if detections is None or not isinstance(detections, DetectionLogs):
+            raise ValueError("Detections is not the DetectionLogs instance")        
         header = Header(id=id, name=MessageName_GetLastNDetections, message_type=MessageType_Response)
         return cls(header, code, message, meta, detections)
 

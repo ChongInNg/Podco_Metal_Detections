@@ -1,6 +1,11 @@
-from .wsmessage import *
 from log.logger import Logger
 from log_manager import LogManager
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
+
 
 import asyncio
 
@@ -42,9 +47,9 @@ class Connection:
         self.registered_at = datetime.now().isoformat()
         self.device_id = message.device_id
 
-        rsp = RegistrationWsResponse(
-            id=message.id, code="OK", message="register successfully",
-            data={"device_id": message.device_id}
+        rsp = RegistrationWsResponse.create_message(
+            id=message.header.id, code="OK", message="register successfully",
+            meta={"device_id": message.device_id}
         )
 
         await self.conn.send(rsp.to_json())
@@ -91,11 +96,20 @@ class Connection:
             return
         
         detections = LogManager.instance().get_last_n_detections(message.last_n)
+        detection_logs = DetectionLogs()
+        for detection in detections:
+            print(f"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx {detection.to_dict()}")
+            log = DetectionLog.from_dict(detection.to_dict())
+            detection_logs.add_log(log)
+
         rsp = GetLastNDetectionsResponse.create_message(
             id=message.header.id, code="OK",
             message="get last n detections successfully.",
-            detections=detections
+            detections=detection_logs
         )
+
+        print(f"99999999999999999 {len(detection_logs.logs)}")
+        print(f"9999999999999999911111111111111111111 {rsp.to_json()}")
         await self.conn.send(rsp.to_json())
         Logger.debug(f"Send back last n detections: {len(detections)}")
 

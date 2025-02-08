@@ -2,6 +2,10 @@ from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty, NumericProperty
 from kivy.lang import Builder
 from dataclasses import dataclass
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
 
 Builder.load_file("kv/detection_screen.kv")
 
@@ -105,14 +109,14 @@ class DetectionScreen(Screen):
         self.current_index = 0
         self.update_current_values()
 
-    def init_detections(self, detections: list[dict]):
+    def init_detections(self, detections: DetectionLogs):
         self.detections.clear()
-        for detection in detections:
+        for detection in detections.logs:
             self.detections.append(DetectionData(
-                T_Value=detection[""],
-                D_Value=detection[""],
-                CH1_P=detection[""],
-                CH1_N=detection[""],
-                CH2_P=detection[""],
-                CH2_N=detection[""],
+                T_Value=str(detection.t_value),
+                D_Value=str(detection.d_value),
+                CH1_P=str(detection.ch1_area_p),
+                CH1_N=str(detection.ch1_area_n),
+                CH2_P=str(detection.ch2_area_p),
+                CH2_N=str(detection.ch2_area_n),
             ))

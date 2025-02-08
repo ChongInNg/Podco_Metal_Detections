@@ -5,7 +5,11 @@ import logging
 from log.logger import Logger
 from .connection_manager import ConnectionManager 
 from .notify_message_queue import NotifyMessageQueue
-from .wsmessage import BaseWsMessage, SystemErrorResponse
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
 
 class WebSocketServer:
     def __init__(self, host, port):
@@ -45,6 +49,7 @@ class WebSocketServer:
     async def _handle_message(self, client_id: int, websocket: any, data: dict) -> None:             
         try:
             message = BaseWsMessage.from_dict(data)
+            print(f"1111111111111 {message}")
             connection_manager = ConnectionManager.instance()
             connection = connection_manager.get_or_create_connection(client_id, websocket)
             await connection.handle_message(message)
@@ -54,7 +59,6 @@ class WebSocketServer:
         except Exception as e:
             import traceback
             traceback.print_stack()
-        
             Logger.error(f"Error handling message from client {client_id}: {e}")
             error_rsp = SystemErrorResponse(f"Internal server error: {e}")
             await websocket.send(error_rsp.to_json())

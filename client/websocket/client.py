@@ -1,8 +1,11 @@
 import asyncio
 import websockets
 import threading
-import time
-from .message import *
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
 
 class WebSocketClient:
     def __init__(self, url, message_callback=None, disconnect_callback=None):
@@ -37,7 +40,7 @@ class WebSocketClient:
                     await websocket.send(register_req.to_json())
                     while self.running:
                         message = await websocket.recv()
-                        self.handle_websocket_messages(message)
+                        await self.handle_websocket_messages(message)
                             
             except Exception as e:
                 print(f"WebSocket connection error: {e}")
@@ -67,7 +70,7 @@ class WebSocketClient:
 
             # handle the response after ui updated
             if isinstance(msg, RegistrationWsResponse):
-                self._handle_registration_response(msg)
+                await self._handle_registration_response(msg)
         except Exception as ex:
             print(f"handle_websocket_messages failed. error: {ex}\n")
 

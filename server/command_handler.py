@@ -4,10 +4,15 @@ from commands.raw_data_command import RawDataCommand
 from commands.threshold_adjusted_command import ThresholdAdjustedCommand
 from commands.bypass_command import BypassCommand
 from commands.base_command import BaseCommand
-from websocket.wsmessage import *
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
+
 
 class CommandHandler:
     COMMANDS = {

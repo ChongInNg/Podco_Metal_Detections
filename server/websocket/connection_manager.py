@@ -2,8 +2,13 @@ import threading
 from typing import Optional
 from .connection import Connection
 from log.logger import Logger
-from .wsmessage import *
 from .notify_message_queue import NotifyMessageQueue
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
+
 
 class ConnectionManager:
     _instance: Optional['ConnectionManager'] = None

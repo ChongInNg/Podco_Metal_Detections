@@ -3,7 +3,8 @@ from kivy.properties import StringProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
 
-import json
+import sys
+import os
 from screens.detection_screen import DetectionData
 from screens.calibration_screen import CalibrationData
 from screens.analyzer_screen import AnalyzerData
@@ -11,7 +12,8 @@ from screens.analyzer_screen import AnalyzerData
 from .stack_widget import StackWidget
 from .screen_header import ScreenHeader
 
-from websocket.message import *
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
 
 Builder.load_file("kv/main_screen.kv")
 

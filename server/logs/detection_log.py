@@ -40,12 +40,14 @@ class DetectionLog(BaseLog):
 
     def get_last_n_detections(self, n: int) -> list[DetectionLogData]:
          detections = self._read_json()
+         print(f"get_last_n_detections1111111111111111111111111111 {detections}")
          if detections is None:
             return []
          else:
             resp = list[DetectionLogData]()
             for detection in detections[-n:]:
                  resp.append(DetectionLogData.from_dict(detection))
+            return resp
          
     def save_detection_data(self, detection_data: DetectionLogData):
         detection_log = self._read_json() or []
