@@ -113,6 +113,10 @@ class Header:
 class BaseWsMessage:
     def __init__(self, header: Header):
         self.header = header
+
+        # make these variables to be access conveniently
+        self.name = self.header.name
+        self.id = self.header.id
         
     def to_json(self) -> str:
         return json.dumps(self.to_dict())
@@ -716,7 +720,8 @@ class NotifyRawDataMessage(BaseWsNotify):
     def create_message(cls, 
             input1_raw: int, input2_raw: int, 
             ch1_area_p: int, ch1_area_n: int, 
-            ch2_area_p: int, ch2_area_n: int
+            ch2_area_p: int, ch2_area_n: int,
+            timestamp: float
         ) -> 'NotifyRawDataMessage':
         if input1_raw is None or not isinstance(input1_raw, int):
             raise ValueError("input1_raw is not valid")
@@ -727,6 +732,7 @@ class NotifyRawDataMessage(BaseWsNotify):
             input1_raw=input1_raw, input2_raw=input2_raw,
             ch1_area_p=ch1_area_p, ch1_area_n=ch1_area_n,
             ch2_area_p=ch2_area_p, ch2_area_n=ch2_area_n,
+            timestamp=timestamp
         )
     
 class NotifyThresholdAdjustedMessage(BaseWsNotify):

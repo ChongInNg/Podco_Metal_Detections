@@ -22,15 +22,15 @@ class SerialHandler:
         try:
             self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
             self.running = True
-            Logger.instance().info(f"Serial connection established. port:{self.port}, baudrate: {self.baudrate}, timeout mode: {self.timeout}")
+            Logger.info(f"Serial connection established. port:{self.port}, baudrate: {self.baudrate}, timeout mode: {self.timeout}")
             return True
         except Exception as e:
-            Logger.instance().error(f"Failed to connect to serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
+            Logger.error(f"Failed to connect to serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
             return False
 
     def send(self, data):
         self.serial.write(data)
-        Logger.instance().info(f"Sent: {data.hex()}")
+        Logger.info(f"Sent: {data.hex()}")
 
     def receive(self):
         try:
@@ -44,4 +44,4 @@ class SerialHandler:
             data = self.serial.read(data_length)
             return CommandData(command_type=command_type, data_length=data_length, data=data)
         except serial.SerialTimeoutException:
-            Logger.instance().error(f"Timeout: No data received within {self.timeout} seconds.")
+            Logger.error(f"Timeout: No data received within {self.timeout} seconds.")

@@ -7,7 +7,7 @@ from commands.base_command import BaseCommand
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
-
+import time
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -43,20 +43,45 @@ class CommandHandler:
 
     def create_notify_message(self, command: BaseCommand) -> BaseWsNotify:
         if isinstance(command, BypassCommand):
-            return NotifyByPassMessage.from_dict(command.to_dict())
+            return NotifyByPassMessage.create_message(bypass=command.bypass)
         elif isinstance(command, CalibrationCommand):
             msg_dict = command.to_dict()
             msg_dict.update({
                 "t_value": LogManager.instance().get_current_engine_time(),
                 "d_value": LogManager.instance().get_current_calibration_threshold()
             })
-            return NotifyCalibrationMessage.from_dict(msg_dict)
+            return NotifyCalibrationMessage.create_message(
+                t_value=LogManager.instance().get_current_engine_time(),
+                d_value=LogManager.instance().get_current_calibration_threshold(),
+                pos_threshold1=command.pos_threshold1,
+                pos_threshold2=command.pos_threshold2,
+                mid_ch1=command.mid_ch1,
+                mid_ch2=command.mid_ch2,
+                neg_threshold1=command.neg_threshold1,
+                neg_threshold2=command.neg_threshold2,
+                area_threshold=command.area_threshold
+            )
         elif isinstance(command, DetectionCommand):
-            return NotifyDetectionMessage.from_dict(self.compose_detection_dict(command))
+            return NotifyDetectionMessage.create_message(
+                t_value=LogManager.instance().get_current_engine_time(),
+                d_value=LogManager.instance().get_current_calibration_threshold(),
+                ch1_area_n=command.ch1_area_n,
+                ch1_area_p=command.ch1_area_p,
+                ch2_area_n=command.ch2_area_n,
+                ch2_area_p=command.ch2_area_p
+            )
         elif isinstance(command, RawDataCommand):
-            return NotifyRawDataMessage.from_dict(command.to_dict())
+            return NotifyRawDataMessage.create_message(
+                input1_raw=command.input1_raw,
+                input2_raw=command.input2_raw,
+                ch1_area_n=command.ch1_area_n,
+                ch1_area_p=command.ch1_area_p,
+                ch2_area_n=command.ch2_area_n,
+                ch2_area_p=command.ch2_area_p,
+                timestamp=time.time()
+            )
         elif isinstance(command, ThresholdAdjustedCommand):
-            return NotifyThresholdAdjustedMessage.from_dict(command.to_dict())
+            return NotifyThresholdAdjustedMessage.create_message(area_threshold=command.area_threshold)
         else:
             raise ValueError(f"Unknown command: {command.name}")
         
@@ -65,13 +90,12 @@ class CommandHandler:
         LogManager.instance().log_message(f"{command.to_dict()}")
         if isinstance(command, DetectionCommand):
             LogManager.instance().save_detection(
-                 DetectionLogData.from_dict(self.compose_detection_dict(command))
+                 DetectionLogData(
+                    t_value=LogManager.instance().get_current_engine_time(),
+                    d_value=LogManager.instance().get_current_calibration_threshold(),
+                    ch1_area_n=command.ch1_area_n,
+                    ch1_area_p=command.ch1_area_p,
+                    ch2_area_n=command.ch2_area_n,
+                    ch2_area_p=command.ch2_area_p
+                )
             )
-
-    def compose_detection_dict(self, command: DetectionCommand):
-        msg_dict = command.to_dict()
-        msg_dict.update({
-            "t_value": LogManager.instance().get_current_engine_time(),
-            "d_value": LogManager.instance().get_current_calibration_threshold()
-        })
-        return msg_dict

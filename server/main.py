@@ -22,9 +22,9 @@ async def start_web_server():
         Logger.info("Web server cleanup completed.")
 
 if __name__ == "__main__":
-    Logger.instance().info("Podco Metal Detection Server Start")
+    Logger.info("Podco Metal Detection Server Start")
     if not SerialServer.instance().connect(port='COM2', baudrate=115200, timeout=None):
-        Logger.instance().error("Podco Metal Detection Serial Server exited")
+        Logger.error("Podco Metal Detection Serial Server exited")
         exit(100)
 
     LogManager.instance().setup(f"{get_current_program_folder()}/system_logs")

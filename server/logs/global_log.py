@@ -157,7 +157,7 @@ class GlobalLog(BaseLog):
     def update_global_log(self):
         self.global_data.update_run_time()
         self._write_json(self.global_data.to_dict())
-        Logger.instance().info("Global log updated.")
+        Logger.info("Global log updated.")
 
     def _init_data(self):
         global_log = self._read_json()
