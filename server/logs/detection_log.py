@@ -40,7 +40,6 @@ class DetectionLog(BaseLog):
 
     def get_last_n_detections(self, n: int) -> list[DetectionLogData]:
          detections = self._read_json()
-         print(f"get_last_n_detections1111111111111111111111111111 {detections}")
          if detections is None:
             return []
          else:

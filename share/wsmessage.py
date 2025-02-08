@@ -122,11 +122,8 @@ class BaseWsMessage:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'BaseWsMessage':
-        print(f"55555555555555522222222222 {data}")
         header = Header.from_dict(data)
-        print(f"33333333333333333333 {header}")
         msg_data = data.get("data")
-        print(f"4444444444444444444447777777777777 {msg_data}")
         if msg_data is None or not isinstance(msg_data, dict):
             raise ValueError("Message data format is wrong. should be a dictionary.")
         
@@ -337,9 +334,8 @@ class DetectionLog:
     
     
 class DetectionLogs:
-    def __init__(self, logs: list[DetectionLog] = []):
-        self.logs = logs
-        print(f"333333333333333333aooooooooooooooooooooooo {logs}")
+    def __init__(self, logs: list[DetectionLog] = None):
+        self.logs = logs or []
 
     def to_dict(self) -> list[dict[str, int]]:
         return [log.to_dict() for log in self.logs]
@@ -347,7 +343,6 @@ class DetectionLogs:
     @classmethod
     def from_dict(cls, data: list[dict[str, int]]) -> 'DetectionLogs':
         logs = [DetectionLog.from_dict(log_data) for log_data in data]
-        print(f"ooooooooooooooooooooooo {logs}")
         return cls(logs)
 
     def add_log(self, log: DetectionLog):
@@ -364,7 +359,6 @@ class GetLastNDetectionsResponse(BaseWsResponse)   :
 
     def to_dict(self):
         base_dict = super().to_dict()
-        print(f"kkkkkkkkkkkkkkkkkkkkkkkkkkkk {len(self.detections.logs)}")
         base_dict["data"].update({
             "detections": self.detections.to_dict()
         })
@@ -381,10 +375,8 @@ class GetLastNDetectionsResponse(BaseWsResponse)   :
         detections = data.get("detections")
         if detections is not None:
             detection_logs = DetectionLogs.from_dict(detections)
-            print(f"lllllllllllllllllllllllllppppp {detection_logs}")
         else:
             detection_logs = DetectionLogs()
-            print(f"tttttttttttttttttttttttt {detection_logs}")
         return cls(header, code, message, meta, detection_logs)
     
     @classmethod

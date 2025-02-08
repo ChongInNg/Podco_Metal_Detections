@@ -49,7 +49,6 @@ class WebSocketServer:
     async def _handle_message(self, client_id: int, websocket: any, data: dict) -> None:             
         try:
             message = BaseWsMessage.from_dict(data)
-            print(f"1111111111111 {message}")
             connection_manager = ConnectionManager.instance()
             connection = connection_manager.get_or_create_connection(client_id, websocket)
             await connection.handle_message(message)

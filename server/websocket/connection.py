@@ -98,7 +98,6 @@ class Connection:
         detections = LogManager.instance().get_last_n_detections(message.last_n)
         detection_logs = DetectionLogs()
         for detection in detections:
-            print(f"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx {detection.to_dict()}")
             log = DetectionLog.from_dict(detection.to_dict())
             detection_logs.add_log(log)
 
@@ -108,8 +107,6 @@ class Connection:
             detections=detection_logs
         )
 
-        print(f"99999999999999999 {len(detection_logs.logs)}")
-        print(f"9999999999999999911111111111111111111 {rsp.to_json()}")
         await self.conn.send(rsp.to_json())
         Logger.debug(f"Send back last n detections: {len(detections)}")
 
