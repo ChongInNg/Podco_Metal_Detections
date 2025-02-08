@@ -1,5 +1,5 @@
 import threading
-from typing import Dict, Optional
+from typing import Optional
 from .connection import Connection
 from log.logger import Logger
 from .wsmessage import *
@@ -13,7 +13,7 @@ class ConnectionManager:
             raise RuntimeError("ConnectionManager is a singleton. Use ConnectionManager.instance() instead.")
         
         self._lock = threading.Lock()
-        self._connections: Dict[int, Connection] = {}
+        self._connections: dict[int, Connection] = {}
         self.notify_queue = None
 
     def set_notify_queue(self, notify_queue: NotifyMessageQueue):
@@ -40,8 +40,8 @@ class ConnectionManager:
             Logger.error(f"Send notify message error: {e}.")
         
 
-    def get_connections(self, device_identity: str) -> List[Connection]:
-        connetions:List[Connection] = []
+    def get_connections(self, device_identity: str) -> list[Connection]:
+        connetions:list[Connection] = []
         with self._lock:
             if device_identity == "only_one":
                 if len(self._connections) > 0 :

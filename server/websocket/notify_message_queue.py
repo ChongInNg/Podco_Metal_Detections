@@ -1,12 +1,12 @@
 from asyncio import Queue, get_event_loop
 import asyncio
-from typing import Callable, List
+from typing import Callable
 from log.logger import Logger
 from .wsmessage import BaseWsNotify
 from .connection import Connection
 
 class NotifyMessageQueue:
-    def __init__(self, get_connections_callback: Callable[[str], List[Connection]], loop: asyncio.AbstractEventLoop):
+    def __init__(self, get_connections_callback: Callable[[str], list[Connection]], loop: asyncio.AbstractEventLoop):
         self.message_queue = Queue()
         self.running = True
         self.get_connections_callback = get_connections_callback
