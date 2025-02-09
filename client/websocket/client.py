@@ -36,7 +36,7 @@ class WebSocketClient:
                 async with websockets.connect(self.url) as websocket:
                     print(f"Connected to WebSocket server: {self.url}")
                     self.websocket = websocket
-                    register_req = self.compose_register_request()
+                    register_req = RegistrationWsRequest.create_message(device_id="detecotr2")
                     await websocket.send(register_req.to_json())
                     while self.running:
                         message = await websocket.recv()
@@ -48,13 +48,6 @@ class WebSocketClient:
                 self.disconnect_callback()
                 print(f"Excuted disconnect callback.")
                 await asyncio.sleep(self.retry_delay)
-            
-
-    def compose_register_request(self) -> RegistrationWsRequest:
-        return RegistrationWsRequest.create_message(device_id="detecotr2")
-    
-    def compose_get_last_n_detections_req(self, last_n: int) ->GetLastNDetectionsRequest:
-        return GetLastNDetectionsRequest.create_message(last_n=last_n)
     
     async def handle_websocket_messages(self, message: str):
         try:
@@ -76,5 +69,10 @@ class WebSocketClient:
 
     async def _handle_registration_response(self, resp: RegistrationWsResponse):
         if resp.is_success():
-            last_n_detecions_req = self.compose_get_last_n_detections_req(last_n=10)
+            last_n_detecions_req = GetLastNDetectionsRequest.create_message(last_n=10)
             await self.websocket.send(last_n_detecions_req.to_json())
+
+            get_calibration_req = GetCalibrationRequest.create_message()
+            await self.websocket.send(get_calibration_req.to_json())
+
+

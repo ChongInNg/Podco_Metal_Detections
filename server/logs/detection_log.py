@@ -25,7 +25,7 @@ class DetectionLogData:
     
     @classmethod
     def from_dict(cls, data: dict) -> 'DetectionLogData':
-        return DetectionLogData(
+        return cls(
             t_value=data["t_value"],
             d_value=data["d_value"],
             ch1_area_p=data["ch1_area_p"],

@@ -48,66 +48,6 @@ class SessionLogHistory:
             session_log.parse_data(item)
             self.sessions.append(session_log)
 
-class CalibrationLog:
-    def __init__(self):
-        self.started_at:datetime = None
-        self.last_updated_at:datetime = None
-        self.total_run_minutes = 0
-        self.orig_total_run_minutes = 0
-        self.threshold = 0
-
-    def update_run_time(self, total_run_minutes: int):
-        if self.started_at is not None:
-            self.last_updated_at = datetime.now()
-            self.total_run_minutes = self.orig_total_run_minutes + total_run_minutes
-
-    def set_calibration_data(self, threshold: int):
-        self.started_at = datetime.now()
-        self.last_updated_at = datetime.now()
-        self.total_run_minutes = 0
-        self.threshold = threshold
-
-    def parse_data(self, data: dict):
-        if data.get("started_at") is not None:
-            self.started_at = datetime.fromisoformat(data.get("started_at"))
-        
-        if data.get("last_updated_at") is not None:
-            self.last_updated_at = datetime.fromisoformat(data.get("last_updated_at"))
-        
-        self.total_run_minutes = data.get("total_run_minutes")
-        self.orig_total_run_minutes = self.total_run_minutes
-        self.threshold = data.get("threshold")
-
-    def to_dict(self):
-        str_started_at:str = None
-        if self.started_at is not None:
-            str_started_at = self.started_at.isoformat()
-        str_last_updated_at:str = None
-        if self.last_updated_at is not None:
-            str_last_updated_at = self.last_updated_at.isoformat()
-        return {
-            "started_at": str_started_at,
-            "last_updated_at": str_last_updated_at,
-            "total_run_minutes": self.total_run_minutes,
-            "threshold": self.threshold
-        }
-    
-class CalibrationHistory:
-    def __init__(self):
-        self.calibrations:list[CalibrationLog] = []
-
-    def add_calibration_log(self, calibration_log: CalibrationLog):
-        self.calibrations.append(calibration_log)
-
-    def parse_data(self, data: list):
-         for item in data:
-            cali_log = CalibrationLog()
-            cali_log.parse_data(item)
-            self.calibrations.append(cali_log)
-
-    def to_dict(self):
-        return [item.to_dict() for item in self.calibrations]
-    
 class GlobalLogData:
     def __init__(self):
         self.total_run_minutes = 0
@@ -116,8 +56,6 @@ class GlobalLogData:
         self.max_file_size = 1024 * 1024 * 100
         self.session_histories = SessionLogHistory()
         self.current_session = SessionLog()
-        self.calibration_histories = CalibrationHistory()
-        self.current_calibration = CalibrationLog()
 
     def to_dict(self):
         return {
@@ -125,15 +63,12 @@ class GlobalLogData:
             "log_index": self.log_index,
             "max_file_size": self.max_file_size,
             "current_session": self.current_session.to_dict(),
-            "current_calibration": self.current_calibration.to_dict(),
             "session_histories": self.session_histories.to_dict(),
-            "calibration_histories": self.calibration_histories.to_dict()
         }
     
     def update_run_time(self):
         self.current_session.update_run_time()
         self.total_run_minutes = self.orig_total_run_minutes + self.current_session.get_total_run_minutes()
-        self.current_calibration.update_run_time(self.current_session.get_total_run_minutes())
 
     def init_data(self):
         self.current_session.init_data()
@@ -144,9 +79,7 @@ class GlobalLogData:
         self.log_index = data.get("log_index")
         self.max_file_size = data.get("max_file_size")
         self.current_session.parse_data(data.get("current_session"))
-        self.current_calibration.parse_data(data.get("current_calibration"))
         self.session_histories.parse_data(data.get("session_histories"))
-        self.calibration_histories.parse_data(data.get("calibration_histories"))
     
 class GlobalLog(BaseLog):
     def __init__(self, log_directory:str, file_name:str="global_log.json"):
@@ -178,12 +111,3 @@ class GlobalLog(BaseLog):
 
     def get_global_log(self) -> GlobalLogData:
         return self.global_data
-
-    def update_calibration_data(self, threshold: int):
-        if self.global_data.current_calibration.started_at is not None:
-            self.global_data.calibration_histories.add_calibration_log(self.global_data.current_calibration)
-
-        calibration_log = CalibrationLog()
-        calibration_log.set_calibration_data(threshold)
-        self.global_data.current_calibration = calibration_log
-        self._write_json(self.global_data.to_dict())

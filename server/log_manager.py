@@ -6,6 +6,8 @@ import os
 from logs.global_log import GlobalLog
 from logs.system_log import SystemLog
 from logs.detection_log import DetectionLog, DetectionLogData
+from logs.calibration_log import CalibrationLog, CalibrationLogData
+
 class LogManager:
     _instance: Optional['LogManager'] = None
     def __init__(self):
@@ -15,7 +17,8 @@ class LogManager:
         self.global_log = None
         self.session_log = None
         self.system_log = None
-        self.detection_log = None
+        self.detection_log: DetectionLog = None
+        self.calibration_log: CalibrationLog = None
     
     @classmethod
     def instance(cls) -> 'LogManager':
@@ -38,6 +41,7 @@ class LogManager:
             update_index_callback=self.global_log.increment_log_index,
         )
         self.detection_log = DetectionLog(log_directory=log_directory)
+        self.calibration_log = CalibrationLog(log_directory=log_directory)
         self.running = True
     
         self.system_log.start_session()
@@ -50,17 +54,15 @@ class LogManager:
     def save_detection(self, detection_data: DetectionLogData):
         self.detection_log.save_detection_data(detection_data)
 
-    def update_calibration_data(self, threshold: int):
-        self.global_log.update_calibration_data(threshold)
+    def update_calibration_data(self, calibration_data: CalibrationLogData):
+        self.calibration_log.update_calibration_log_data(calibration_data)
 
     def get_current_engine_time(self)->float:
         return round(self.global_log.global_data.total_run_minutes / 60, 1)
 
-    def get_current_calibration_threshold(self)->int:
-        if self.global_log.global_data.current_calibration.threshold is None:
-            return 0
-        return self.global_log.global_data.current_calibration.threshold
-
+    def get_current_calibration_data(self)->CalibrationLogData:
+        return self.calibration_log.get_current_calibration()
+    
     def get_last_n_detections(self, num: int) -> list[DetectionLogData]:
         return self.detection_log.get_last_n_detections(num)
 

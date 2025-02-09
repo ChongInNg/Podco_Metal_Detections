@@ -52,6 +52,8 @@ class MainScreen(Screen):
                 self._handle_set_threshold_response(msg)
             elif isinstance(msg, SystemErrorResponse):
                 self._handle_system_error_response(msg)
+            elif isinstance(msg, GetCalibrationResponse):
+                self._get_calibration_response(msg)
             else:
                 print(f"Cannot handle this message: {msg}\n")
         except Exception as ex:
@@ -69,8 +71,8 @@ class MainScreen(Screen):
         )))
 
     def _handle_calibration_data(self, msg: NotifyCalibrationMessage) -> None:
-        Clock.schedule_once(lambda dt: self.get_stack_widget().get_calibration_screen().update_data(
-            CalibrationData(
+        self.update_calibration_view(
+             CalibrationData(
                 T_Value=str(msg.t_value),
                 D_Value=str(msg.d_value),
                 CH1_N=str(msg.neg_threshold1),
@@ -79,7 +81,13 @@ class MainScreen(Screen):
                 CH2_N=str(msg.neg_threshold2),
                 CH2_P=str(msg.pos_threshold2),
                 CH2_M=str(msg.mid_ch2)
-        )))
+            )
+        )
+
+    def update_calibration_view(self, calibration_data: CalibrationData):
+        Clock.schedule_once(
+            lambda dt: self.get_stack_widget().get_calibration_screen().update_data(calibration_data),
+        )
 
     def _handle_raw_data(self, msg: NotifyRawDataMessage) -> None:
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_analyzer_screen().update_data(
@@ -129,3 +137,17 @@ class MainScreen(Screen):
     
     def _handle_system_error_response(self, msg: SystemErrorResponse):
         pass
+
+    def _get_calibration_response(self, msg: GetCalibrationResponse):
+        self.update_calibration_view(
+             CalibrationData(
+                T_Value=str(msg.t_value),
+                D_Value=str(msg.d_value),
+                CH1_N=str(msg.neg_threshold1),
+                CH1_P=str(msg.pos_threshold1),
+                CH1_M=str(msg.mid_ch1),
+                CH2_N=str(msg.neg_threshold2),
+                CH2_P=str(msg.pos_threshold2),
+                CH2_M=str(msg.mid_ch2)
+            )
+        )

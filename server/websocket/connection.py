@@ -24,6 +24,7 @@ class Connection:
     
     async def handle_message(self, message: BaseWsMessage):
         try:
+            Logger.debug(f"Handling message: {message.to_dict()}")
             if isinstance(message, RegistrationWsRequest):
                await self.handle_registration(message)
             elif isinstance(message, SetThresholdRequest):
@@ -32,6 +33,8 @@ class Connection:
                 await self.handle_get_last_n_detections(message)
             elif isinstance(message, SetDefaultCalibrationRequest):
                 await self.handle_set_default_calibration(message)
+            elif isinstance(message, GetCalibrationRequest):
+                await self._handle_get_calibration_data(message)
             else:
                 Logger.warning(f"Cannot handle this message: {message}")
         except Exception as e:
@@ -42,13 +45,12 @@ class Connection:
             
     
     async def handle_registration(self, message: RegistrationWsRequest):
-        Logger.debug(f"Handling registration message: {message}")
         self.status = Connection.Status_Registered
         self.registered_at = datetime.now().isoformat()
         self.device_id = message.device_id
 
         rsp = RegistrationWsResponse.create_message(
-            id=message.header.id, code="OK", message="register successfully",
+            id=message.id, code="OK", message="register successfully",
             meta={"device_id": message.device_id}
         )
 
@@ -57,8 +59,6 @@ class Connection:
 
     async def handle_set_threshold(self, message: SetThresholdRequest):
         from serial_server import SerialServer
-
-        Logger.debug(f"Handling set threshold message: {message}")
         if self.status != Connection.Status_Registered:
             Logger.error("This connection didn't registered yet, cannot handle set threshold message.")
             await self.send_error_response(message, "connection didn't registered yet")
@@ -67,7 +67,7 @@ class Connection:
         await asyncio.to_thread(SerialServer.instance().send_threshold_request(message.threshold))
 
         rsp = SetThresholdResponse.create_message(
-            id=message.header.id, code="OK", 
+            id=message.id, code="OK", 
             message="set threshold completed."
         )
         await self.conn.send(rsp.to_json())
@@ -83,7 +83,7 @@ class Connection:
         
         await asyncio.to_thread(SerialServer.instance().send_default_calibration_request())
         rsp = SetDefaultCalibrationResponse.create_message(
-            id=message.header.id, code="OK", 
+            id=message.id, code="OK", 
             message="set default calibration completed."
         )
         await self.conn.send(rsp.to_json())
@@ -102,7 +102,7 @@ class Connection:
             detection_logs.add_log(log)
 
         rsp = GetLastNDetectionsResponse.create_message(
-            id=message.header.id, code="OK",
+            id=message.id, code="OK",
             message="get last n detections successfully.",
             detections=detection_logs
         )
@@ -121,7 +121,8 @@ class Connection:
             RegistrationWsRequest: RegistrationWsResponse,
             SetDefaultCalibrationRequest: SetDefaultCalibrationResponse,
             SetThresholdRequest: SetThresholdResponse,
-            GetLastNDetectionsRequest: GetLastNDetectionsResponse
+            GetLastNDetectionsRequest: GetLastNDetectionsResponse,
+            GetCalibrationRequest: GetCalibrationResponse,
         }
         
         response_cls = response_map.get(type(req))
@@ -129,7 +130,7 @@ class Connection:
             await self.send_system_error(message) 
         
         rsp = response_cls.create_message(
-            id= req.header.id, 
+            id= req.id, 
             code="error",
             message=message,
             meta=meta
@@ -140,3 +141,20 @@ class Connection:
         json_msg = notify_msg.to_json()
         await self.conn.send(json_msg)
         Logger.debug(f"Send notify message:{notify_msg.name} successfully: {json_msg}")
+
+    async def _handle_get_calibration_data(self, message: GetCalibrationRequest):
+        if self.status != Connection.Status_Registered:
+            Logger.error("This connection didn't registered yet, cannot handle get calibration data .")
+            await self.send_error_response(message, "connection didn't registered yet")
+            return
+        
+        calibration_log = LogManager.instance().get_current_calibration_data()
+        calibration_data = CalibrationData.from_dict(calibration_log.to_dict())
+        rsp = GetCalibrationResponse.create_message(
+            id=message.id, code="OK",
+            message="get calibration data successfully.",
+            calibration_data=calibration_data
+        )
+
+        await self.conn.send(rsp.to_json())
+        Logger.debug(f"Send back current_calibration data: {calibration_data.to_dict()}")

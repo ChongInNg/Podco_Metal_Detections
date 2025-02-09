@@ -28,7 +28,7 @@ class CalibrationCommand(BaseCommand):
 
     def _save_calibration_log(self):
         from log_manager import LogManager
-        LogManager.instance().update_calibration_data(self.area_threshold)
+        LogManager.instance().update_calibration_threshold(self.area_threshold)
 
     def to_dict(self):
         base_dict = super().to_dict()

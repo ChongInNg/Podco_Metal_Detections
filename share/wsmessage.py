@@ -12,6 +12,8 @@ MessageName_Registration = "registration"
 MessageName_GetLastNDetections = "get_last_n_detections"
 MessageName_SetThreshold = "set_threshold"
 MessageName_SetDefaultCalibration = "set_default_calibration"
+MessageName_GetCalibration = "get_calibration"
+MessageName_SystemError = "system_error"
 
 MessageName_NotifyByPass = "notify_bypass"
 MessageName_NotifyCalibration = "notify_calibration"
@@ -55,6 +57,9 @@ class Header:
     def is_get_last_n_detections_message(self):
         return self.name == MessageName_GetLastNDetections
     
+    def is_get_calibration_message(self):
+        return self.name == MessageName_GetCalibration
+    
     def is_set_threshold_message(self):
         return self.name == MessageName_SetThreshold
     
@@ -75,6 +80,9 @@ class Header:
 
     def is_notify_threshold_adjusted_message(self):
         return self.name == MessageName_NotifyThresholdAdjusted
+    
+    def is_system_error_message(self):
+        return self.name == MessageName_SystemError
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
@@ -97,7 +105,9 @@ class Header:
             MessageName_NotifyRawData, MessageName_NotifyThresholdAdjusted,
             MessageName_GetLastNDetections,
             MessageName_SetDefaultCalibration,
-            MessageName_SetThreshold
+            MessageName_SetThreshold,
+            MessageName_GetCalibration,
+            MessageName_SystemError
         ]:
             if name == message_name:
                 return
@@ -146,11 +156,18 @@ class BaseWsMessage:
                 return SetThresholdRequest.from_dict(header=header, data=msg_data)
             else:
                 return SetThresholdResponse.from_dict(header=header, data=msg_data)
+        elif header.is_get_calibration_message():
+            if header.is_request():
+                return GetCalibrationRequest.from_dict(header=header, data=msg_data)
+            else:
+                return GetCalibrationResponse.from_dict(header=header,data=msg_data)
         elif header.is_set_default_calibration_message():
             if header.is_request():
                 return SetDefaultCalibrationRequest.from_dict(header=header, data=msg_data)
             else:
                 return SetDefaultCalibrationResponse.from_dict(header=header, data=msg_data)
+        elif header.is_system_error_message():
+            return SystemErrorResponse.from_dict(header=header, data=msg_data)
         elif header.is_notify_bypass_message():
             return NotifyByPassMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_calibration_message():
@@ -162,7 +179,7 @@ class BaseWsMessage:
         elif header.is_notify_threshold_adjusted_message():
             return NotifyThresholdAdjustedMessage.from_dict(header=header, data=msg_data)
         else:
-            raise ValueError("Message name is wrong.")
+            raise ValueError(f"Message name is wrong. {header.to_dict()}")
         
 class BaseWsRequest(BaseWsMessage):
     def __init__(self, header: Header):
@@ -444,6 +461,103 @@ class SetThresholdResponse(BaseWsResponse)   :
                 
         header = Header(id=id, name=MessageName_SetThreshold, message_type=MessageType_Response)
         return cls(header, code, message, meta)
+
+class GetCalibrationRequest(BaseWsRequest):
+    def __init__(self,  header: Header):
+        super().__init__(header=header)
+    
+    def to_dict(self) -> dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {}
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetCalibrationRequest':
+        if not header.is_get_calibration_message():
+            raise ValueError("Message name is not valid.")
+        
+        return cls(header)
+    
+    @classmethod
+    def create_message(cls) -> 'GetCalibrationRequest':
+        header = Header(name=MessageName_GetCalibration, message_type=MessageType_Request)
+        return cls(header)
+
+class CalibrationData:
+    def __init__(self,
+            pos_threshold1: int, neg_threshold1: int, pos_threshold2: int,
+            neg_threshold2: int, mid_ch1: int, mid_ch2: int,
+            area_threshold: int, t_value: float, d_value: int
+        ):
+
+        self.pos_threshold1 = pos_threshold1
+        self.neg_threshold1 = neg_threshold1
+        self.pos_threshold2 = pos_threshold2
+        self.neg_threshold2 = neg_threshold2
+        self.mid_ch1 = mid_ch1
+        self.mid_ch2 = mid_ch2
+        self.area_threshold = area_threshold
+        self.t_value:float = t_value
+        self.d_value = d_value
+
+    def to_dict(self):
+        return {
+            "pos_threshold1": self.pos_threshold1,
+            "neg_threshold1": self.neg_threshold1,
+            "pos_threshold2": self.pos_threshold2,
+            "neg_threshold2": self.neg_threshold2,
+            "mid_ch1": self.mid_ch1,
+            "mid_ch2": self.mid_ch2,
+            "area_threshold": self.area_threshold,
+            "t_value": self.t_value,
+            "d_value": self.d_value
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'CalibrationData':
+        return CalibrationData(
+            pos_threshold1=data.get("pos_threshold1"),
+            neg_threshold1=data.get("neg_threshold1"),
+            pos_threshold2=data.get("pos_threshold2"),
+            neg_threshold2=data.get("neg_threshold2"),
+            mid_ch1=data.get("mid_ch1"),
+            mid_ch2=data.get("mid_ch2"),
+            area_threshold=data.get("area_threshold"),
+            t_value=data.get("t_value"),
+            d_value=data.get("d_value"),
+        )
+    
+
+class GetCalibrationResponse(BaseWsResponse)   :
+    def __init__(self, header: Header, code: str, message: str, meta: dict=None,
+            calibration_data: CalibrationData=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+        self.calibration_data = calibration_data 
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetCalibrationResponse':
+        if not header.is_set_threshold_message():
+            raise ValueError("Message name is not valid.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        calibration_dict = data.get("calibration")
+        if calibration_dict is not None:
+            calibration_data = CalibrationData.from_dict(calibration_dict)
+        else:
+            calibration_data = CalibrationData("", 0, 0)
+        return cls(header, code, message, meta, calibration_data)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, meta: str=None, 
+            calibration_data: CalibrationData=None) -> 'GetCalibrationResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+        if calibration_data is None or not isinstance(calibration_data, CalibrationData):
+            raise ValueError("Calibration data is not valid.")       
+        header = Header(id=id, name=MessageName_GetCalibration, message_type=MessageType_Response)
+        return cls(header, code, message, meta, calibration_data)
 
 class SetDefaultCalibrationRequest(BaseWsRequest):
     def __init__(self,  header: Header,  last_n: int):
@@ -756,9 +870,7 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
         )
     
     @classmethod
-    def create_message(cls, 
-            area_threshold: int,
-        ) -> 'NotifyThresholdAdjustedMessage':
+    def create_message(cls, area_threshold: int) -> 'NotifyThresholdAdjustedMessage':
         if area_threshold is None or not isinstance(area_threshold, int):
             raise ValueError("area_threshold is not valid")
         
@@ -769,10 +881,25 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
         )
     
 class SystemErrorResponse(BaseWsResponse):
-    def __init__(self, message: str, meta:dict=None):
-        super().__init__(
-            Header(name="system_error", message_type=MessageType_Response),
-            "error", 
+    def __init__(self, header: Header, code: str, message: str, meta:dict=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+
+    @classmethod
+    def create_message(cls, message: str, meta: dict=None)->'SystemErrorResponse':
+        return cls(
+            Header(name=MessageName_SystemError, message_type=MessageType_Response),
+            code="error",
+            message=message,
+            meta=meta
+        )
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'SystemErrorResponse':
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        return cls(
+            header=header,
+            code=code,
             message=message,
             meta=meta
         )
