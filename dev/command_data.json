@@ -12,7 +12,7 @@
             "command_type": "0xA0",
             "data_length_bytes": 14,
             "each_item_bytes": 2, 
-            "data": [3051, 3052, 2053, 2054, 2055, 2058, 3057]
+            "data": [3051, 3052, 2053, 2054, 2055, 2058, 3067]
         },
         {
             "name": "raw_data",

@@ -38,10 +38,9 @@ class Connection:
             else:
                 Logger.warning(f"Cannot handle this message: {message}")
         except Exception as e:
-            Logger.error(f"Handle message error:{e}")
             import traceback
             traceback.print_stack()
-            await self.send_system_error("Handle message error:{e}")
+            await self.send_system_error(f"Handle message error:{e}")
             
     
     async def handle_registration(self, message: RegistrationWsRequest):
@@ -112,7 +111,7 @@ class Connection:
 
 
     async def send_system_error(self, message: str, data:dict=None):
-        rsp = SystemErrorResponse(message=message, data=data)
+        rsp = SystemErrorResponse.create_message(message)
         await self.conn.send(rsp.to_json())
         Logger.debug(f"Send system error: {rsp}")
 
@@ -147,7 +146,7 @@ class Connection:
             Logger.error("This connection didn't registered yet, cannot handle get calibration data .")
             await self.send_error_response(message, "connection didn't registered yet")
             return
-        
+
         calibration_log = LogManager.instance().get_current_calibration_data()
         calibration_data = CalibrationData.from_dict(calibration_log.to_dict())
         rsp = GetCalibrationResponse.create_message(
@@ -157,4 +156,4 @@ class Connection:
         )
 
         await self.conn.send(rsp.to_json())
-        Logger.debug(f"Send back current_calibration data: {calibration_data.to_dict()}")
+        Logger.debug(f"Send back current_calibration data: {rsp.to_dict()}")

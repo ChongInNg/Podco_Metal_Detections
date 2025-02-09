@@ -5,8 +5,8 @@ from kivy.clock import Clock
 
 import sys
 import os
-from screens.detection_screen import DetectionData
-from screens.calibration_screen import CalibrationData
+from screens.detection_screen import DetectionViewData
+from screens.calibration_screen import CalibrationViewData
 from screens.analyzer_screen import AnalyzerData
 
 from .stack_widget import StackWidget
@@ -57,11 +57,13 @@ class MainScreen(Screen):
             else:
                 print(f"Cannot handle this message: {msg}\n")
         except Exception as ex:
+            import traceback
+            traceback.print_stack()
             print(f"handle_websocket_messages failed. error: {ex}\n")
 
     def _handle_detection_data(self, msg: NotifyDetectionMessage) -> None:
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_detection_screen().add_detection(
-            DetectionData(
+            DetectionViewData(
                 T_Value=str(msg.t_value),
                 D_Value=str(msg.d_value),
                 CH1_N=str(msg.ch1_area_n),
@@ -72,7 +74,7 @@ class MainScreen(Screen):
 
     def _handle_calibration_data(self, msg: NotifyCalibrationMessage) -> None:
         self.update_calibration_view(
-             CalibrationData(
+             CalibrationViewData(
                 T_Value=str(msg.t_value),
                 D_Value=str(msg.d_value),
                 CH1_N=str(msg.neg_threshold1),
@@ -84,7 +86,7 @@ class MainScreen(Screen):
             )
         )
 
-    def update_calibration_view(self, calibration_data: CalibrationData):
+    def update_calibration_view(self, calibration_data: CalibrationViewData):
         Clock.schedule_once(
             lambda dt: self.get_stack_widget().get_calibration_screen().update_data(calibration_data),
         )
@@ -140,14 +142,14 @@ class MainScreen(Screen):
 
     def _get_calibration_response(self, msg: GetCalibrationResponse):
         self.update_calibration_view(
-             CalibrationData(
-                T_Value=str(msg.t_value),
-                D_Value=str(msg.d_value),
-                CH1_N=str(msg.neg_threshold1),
-                CH1_P=str(msg.pos_threshold1),
-                CH1_M=str(msg.mid_ch1),
-                CH2_N=str(msg.neg_threshold2),
-                CH2_P=str(msg.pos_threshold2),
-                CH2_M=str(msg.mid_ch2)
+             CalibrationViewData(
+                T_Value=str(msg.calibration_data.t_value),
+                D_Value=str(msg.calibration_data.d_value),
+                CH1_N=str(msg.calibration_data.neg_threshold1),
+                CH1_P=str(msg.calibration_data.pos_threshold1),
+                CH1_M=str(msg.calibration_data.mid_ch1),
+                CH2_N=str(msg.calibration_data.neg_threshold2),
+                CH2_P=str(msg.calibration_data.pos_threshold2),
+                CH2_M=str(msg.calibration_data.mid_ch2)
             )
         )

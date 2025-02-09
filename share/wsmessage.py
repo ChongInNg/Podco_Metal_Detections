@@ -254,7 +254,7 @@ class RegistrationWsRequest(BaseWsRequest):
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'RegistrationWsRequest':
         if not header.is_registration_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not RegistrationWsRequest.")
         
         device_id = data.get("device_id")
         if device_id is None or not isinstance(device_id, str):
@@ -276,7 +276,7 @@ class RegistrationWsResponse(BaseWsResponse):
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'RegistrationWsResponse':
         if not header.is_registration_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not RegistrationWsResponse.")
         
         code = data.get("code")
         message = data.get("message")
@@ -307,7 +307,7 @@ class GetLastNDetectionsRequest(BaseWsRequest):
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetLastNDetectionsRequest':
         if not header.is_get_last_n_detections_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not GetLastNDetectionsRequest.")
         
         last_n = data.get("last_n")
         if last_n is None or not isinstance(last_n, int):
@@ -345,12 +345,12 @@ class DetectionLog:
     @classmethod
     def from_dict(cls, data: dict) -> 'DetectionLog':
         return DetectionLog(
-            t_value=data["t_value"],
-            d_value=data["d_value"],
-            ch1_area_p=data["ch1_area_p"],
-            ch1_area_n=data["ch1_area_n"],
-            ch2_area_p=data["ch2_area_p"],
-            ch2_area_n=data["ch2_area_n"],
+            t_value=data.get("t_value"),
+            d_value=data.get("d_value"),
+            ch1_area_p=data.get("ch1_area_p"),
+            ch1_area_n=data.get("ch1_area_n"),
+            ch2_area_p=data.get("ch2_area_p"),
+            ch2_area_n=data.get("ch2_area_n"),
         )
     
     
@@ -388,7 +388,7 @@ class GetLastNDetectionsResponse(BaseWsResponse)   :
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetLastNDetectionsResponse':
         if not header.is_get_last_n_detections_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not GetLastNDetectionsResponse.")
         
         code = data.get("code")
         message = data.get("message")
@@ -425,7 +425,7 @@ class SetThresholdRequest(BaseWsRequest):
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'SetThresholdRequest':
         if not header.is_set_threshold_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not SetThresholdRequest.")
         
         threshold = data.get("threshold")
         if threshold is None or not isinstance(threshold, int):
@@ -447,7 +447,7 @@ class SetThresholdResponse(BaseWsResponse)   :
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'SetThresholdResponse':
         if not header.is_set_threshold_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not SetThresholdResponse.")
         
         code = data.get("code")
         message = data.get("message")
@@ -474,7 +474,7 @@ class GetCalibrationRequest(BaseWsRequest):
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetCalibrationRequest':
         if not header.is_get_calibration_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not GetCalibrationRequest.")
         
         return cls(header)
     
@@ -534,10 +534,17 @@ class GetCalibrationResponse(BaseWsResponse)   :
         super().__init__(header=header, code=code, message=message, meta=meta)
         self.calibration_data = calibration_data 
 
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"].update({
+            "calibration": self.calibration_data.to_dict()
+        })
+        return base_dict
+
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetCalibrationResponse':
-        if not header.is_set_threshold_message():
-            raise ValueError("Message name is not valid.")
+        if not header.is_get_calibration_message():
+            raise ValueError("Message is not GetCalibrationResponse.")
         
         code = data.get("code")
         message = data.get("message")
@@ -574,7 +581,7 @@ class SetDefaultCalibrationRequest(BaseWsRequest):
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'SetDefaultCalibrationRequest':
         if not header.is_set_default_calibration_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not SetDefaultCalibrationRequest.")
         
         last_n = data.get("last_n")
         if last_n is None or not isinstance(last_n, int):
@@ -596,7 +603,7 @@ class SetDefaultCalibrationResponse(BaseWsResponse)   :
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'SetDefaultCalibrationResponse':
         if not header.is_set_default_calibration_message():
-            raise ValueError("Message name is not valid.")
+            raise ValueError("Message is not SetDefaultCalibrationResponse.")
         
         code = data.get("code")
         message = data.get("message")
@@ -891,7 +898,7 @@ class SystemErrorResponse(BaseWsResponse):
             code="error",
             message=message,
             meta=meta
-        )
+        ) 
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'SystemErrorResponse':
         code = data.get("code")

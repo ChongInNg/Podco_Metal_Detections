@@ -11,7 +11,7 @@ Builder.load_file("kv/detection_screen.kv")
 
 
 @dataclass
-class DetectionData:
+class DetectionViewData:
     T_Value: str
     D_Value: str
     CH1_P: str
@@ -42,18 +42,6 @@ class DetectionScreen(Screen):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # self.detections = [
-        #     DetectionData(
-        #         T_Value=str(i * 10),
-        #         D_Value=str(i * 20),
-        #         CH1_P=str(i * 30),
-        #         CH1_N=str(i * 40),
-        #         CH2_P=str(i * 50),
-        #         CH2_N=str(i * 60),
-        #     )
-        #     for i in range(1, 11)
-        # ]
-
         self.detections = []
 
     def on_kv_post(self, base_widget):
@@ -100,7 +88,7 @@ class DetectionScreen(Screen):
             down_btn.opacity = 1
             down_btn.disabled = False
 
-    def add_detection(self, detection_data: DetectionData):
+    def add_detection(self, detection_data: DetectionViewData):
         if len(self.detections) >= 10:
             del self.detections[0]
             print(f"Popup the first detection")
@@ -112,7 +100,7 @@ class DetectionScreen(Screen):
     def init_detections(self, detections: DetectionLogs):
         self.detections.clear()
         for detection in detections.logs:
-            self.detections.append(DetectionData(
+            self.detections.append(DetectionViewData(
                 T_Value=str(detection.t_value),
                 D_Value=str(detection.d_value),
                 CH1_P=str(detection.ch1_area_p),

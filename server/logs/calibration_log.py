@@ -75,13 +75,13 @@ class CalibrationLog(BaseLog):
         super().__init__(log_directory=log_directory, file_name=file_name)
 
     def get_current_calibration(self) -> CalibrationLogData:
-        calibration_log = self._read_json() or []
+        calibration_log = self._read_json() or {}
         return self._read_current_calibration_log(calibration_log.get("current_calibration"))
            
     def update_calibration_log_data(self, calibration_log_data: CalibrationLogData):
         if calibration_log_data is None or not isinstance(calibration_log_data, CalibrationLogData):   
             raise ValueError("calibration_log_data is invalid.")
-        calibration_log = self._read_json() or []
+        calibration_log = self._read_json() or {}
         current_calibration_log = self._read_current_calibration_log(calibration_log.get("current_calibration"))
         histories = self._read_current_calibration_log_histories(calibration_log.get("calibration_histories"))
 

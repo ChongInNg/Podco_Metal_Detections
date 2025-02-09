@@ -7,6 +7,7 @@ from commands.base_command import BaseCommand
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
+from logs.calibration_log import CalibrationLogData
 import time
 import sys
 import os
@@ -45,14 +46,9 @@ class CommandHandler:
         if isinstance(command, BypassCommand):
             return NotifyByPassMessage.create_message(bypass=command.bypass)
         elif isinstance(command, CalibrationCommand):
-            msg_dict = command.to_dict()
-            msg_dict.update({
-                "t_value": LogManager.instance().get_current_engine_time(),
-                "d_value": LogManager.instance().get_current_calibration_threshold()
-            })
             return NotifyCalibrationMessage.create_message(
                 t_value=LogManager.instance().get_current_engine_time(),
-                d_value=LogManager.instance().get_current_calibration_threshold(),
+                d_value=command.area_threshold,
                 pos_threshold1=command.pos_threshold1,
                 pos_threshold2=command.pos_threshold2,
                 mid_ch1=command.mid_ch1,
@@ -64,7 +60,7 @@ class CommandHandler:
         elif isinstance(command, DetectionCommand):
             return NotifyDetectionMessage.create_message(
                 t_value=LogManager.instance().get_current_engine_time(),
-                d_value=LogManager.instance().get_current_calibration_threshold(),
+                d_value=LogManager.instance().get_current_calibration_data().area_threshold,
                 ch1_area_n=command.ch1_area_n,
                 ch1_area_p=command.ch1_area_p,
                 ch2_area_n=command.ch2_area_n,
@@ -86,16 +82,15 @@ class CommandHandler:
             raise ValueError(f"Unknown command: {command.name}")
         
     def log_to_file(self, command: BaseCommand):
-        from log_manager import LogManager
         LogManager.instance().log_message(f"{command.to_dict()}")
         if isinstance(command, DetectionCommand):
-            LogManager.instance().save_detection(
-                 DetectionLogData(
-                    t_value=LogManager.instance().get_current_engine_time(),
-                    d_value=LogManager.instance().get_current_calibration_threshold(),
-                    ch1_area_n=command.ch1_area_n,
-                    ch1_area_p=command.ch1_area_p,
-                    ch2_area_n=command.ch2_area_n,
-                    ch2_area_p=command.ch2_area_p
-                )
-            )
+            log_data = DetectionLogData.from_dict(command.to_dict())
+            log_data.t_value = LogManager.instance().get_current_engine_time()
+            log_data.d_value = LogManager.instance().get_current_calibration_data().area_threshold
+            LogManager.instance().save_detection(log_data)
+
+        elif isinstance(command, CalibrationCommand):
+            log_data = CalibrationLogData.from_dict(command.to_dict())
+            log_data.t_value = LogManager.instance().get_current_engine_time()
+            log_data.d_value = command.area_threshold
+            LogManager.instance().update_calibration_data(log_data)

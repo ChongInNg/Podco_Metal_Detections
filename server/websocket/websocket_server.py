@@ -53,13 +53,13 @@ class WebSocketServer:
             connection = connection_manager.get_or_create_connection(client_id, websocket)
             await connection.handle_message(message)
         except ValueError as ve:
-            error_rsp = SystemErrorResponse(f"Invalid message: {ve}")
+            error_rsp = SystemErrorResponse.create_message(f"Invalid message: {ve}")
             await websocket.send(error_rsp.to_json())
         except Exception as e:
             import traceback
             traceback.print_stack()
             Logger.error(f"Error handling message from client {client_id}: {e}")
-            error_rsp = SystemErrorResponse(f"Internal server error: {e}")
+            error_rsp = SystemErrorResponse.create_message(f"Internal server error: {e}")
             await websocket.send(error_rsp.to_json())
 
     def _handle_disconnect(self, client_id):

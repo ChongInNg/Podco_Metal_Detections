@@ -6,7 +6,7 @@ from dataclasses import dataclass
 Builder.load_file("kv/calibration_screen.kv")
 
 @dataclass
-class CalibrationData:
+class CalibrationViewData:
     T_Value: str
     D_Value: str
     CH1_P: str
@@ -39,7 +39,7 @@ class CalibrationScreen(Screen):
     def get_title(self):
         return self.title
     
-    def update_data(self, data: CalibrationData) -> None:
+    def update_data(self, data: CalibrationViewData) -> None:
         print("Updating data...")
         self.current_T = data.T_Value
         self.current_D = data.D_Value

@@ -15,7 +15,7 @@ class BaseLog:
             if os.path.exists(self.full_name):
                 with open(self.full_name, "r") as f:
                     return json.load(f)
-        return {}
+        return None
 
     def _write_json(self, data: dict):
         with self.file_lock:

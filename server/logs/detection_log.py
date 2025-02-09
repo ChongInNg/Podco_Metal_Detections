@@ -26,12 +26,12 @@ class DetectionLogData:
     @classmethod
     def from_dict(cls, data: dict) -> 'DetectionLogData':
         return cls(
-            t_value=data["t_value"],
-            d_value=data["d_value"],
-            ch1_area_p=data["ch1_area_p"],
-            ch1_area_n=data["ch1_area_n"],
-            ch2_area_p=data["ch2_area_p"],
-            ch2_area_n=data["ch2_area_n"],
+            t_value=data.get("t_value"),
+            d_value=data.get("d_value"),
+            ch1_area_p=data.get("ch1_area_p"),
+            ch1_area_n=data.get("ch1_area_n"),
+            ch2_area_p=data.get("ch2_area_p"),
+            ch2_area_n=data.get("ch2_area_n"),
         )
 
 class DetectionLog(BaseLog):
@@ -39,14 +39,13 @@ class DetectionLog(BaseLog):
         super().__init__(log_directory=log_directory, file_name=file_name)
 
     def get_last_n_detections(self, n: int) -> list[DetectionLogData]:
-         detections = self._read_json()
-         if detections is None:
+        detections = self._read_json()
+        if detections is None:
             return []
-         else:
-            resp = list[DetectionLogData]()
-            for detection in detections[-n:]:
-                 resp.append(DetectionLogData.from_dict(detection))
-            return resp
+        
+        last_n_detections = detections[-n:] if n > 0 else []
+        resp = [DetectionLogData.from_dict(detection) for detection in last_n_detections]
+        return resp
          
     def save_detection_data(self, detection_data: DetectionLogData):
         detection_log = self._read_json() or []
