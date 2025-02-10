@@ -62,7 +62,7 @@ class SettingScreen(Screen):
             valign="middle",
             size_hint=(1, 0.6), 
         )
-        message_label.bind(size=message_label.setter("text_size"))  # Wrap text properly
+        message_label.bind(size=message_label.setter("text_size")) 
         popup_layout.add_widget(message_label)
 
         button_layout = BoxLayout(orientation="horizontal", spacing=5, size_hint=(1, 0.4))

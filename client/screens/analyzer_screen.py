@@ -7,7 +7,17 @@ from kivy_garden.graph import Graph, LinePlot
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
+from kivy.uix.slider import Slider
+from websocket.client import WebSocketClient
+
 from dataclasses import dataclass
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
 
 @dataclass
 class AnalyzerData:
@@ -75,7 +85,6 @@ class AnalyzerScreen(Screen):
         self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
         self.threshold_plot.points = []
 
-
         self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
         self.threshold_plot.points = []
 
@@ -98,10 +107,15 @@ class AnalyzerScreen(Screen):
             ("CH2 N", [1, 0, 1, 1]),
         ]
 
+        self.bp_button = Button(text="BP", size_hint_x=0.2, 
+            on_press=self.open_threshold_popup)
+        legend_layout.add_widget(self.bp_button)
+
         for name, color in legend_items:
             label = Label(text=name, color=color)
             legend_layout.add_widget(label)
 
+        
         layout.add_widget(legend_layout)
         self.add_widget(layout)
 
@@ -148,3 +162,45 @@ class AnalyzerScreen(Screen):
 
     def update_threshold(self, threshold: int):
         self.threshold = threshold
+
+    def open_threshold_popup(self, instance):
+        popup_layout = BoxLayout(orientation="vertical", spacing=5, padding=5)
+
+        label = Label(text=f"Threshold: {self.threshold}", font_size=14, size_hint_y=0.2)
+
+        slider = Slider(min=500, max=2500, value=self.threshold, size_hint_y=0.4)
+        slider.bind(value=lambda instance, val: setattr(label, 'text', f"Threshold: {int(val)}"))
+
+        button_layout = BoxLayout(size_hint_y=0.5, spacing=5)
+
+        confirm_button = Button(text="Confirm", size_hint=(0.5, 0.8), font_size=14)
+        confirm_button.bind(on_press=lambda x: self.set_threshold(int(slider.value), popup))
+
+        cancel_button = Button(text="Cancel", size_hint=(0.5, 0.8), font_size=14)
+        cancel_button.bind(on_press=lambda x: popup.dismiss())
+
+        button_layout.add_widget(cancel_button)
+        button_layout.add_widget(confirm_button)
+
+        popup_layout.add_widget(label)
+        popup_layout.add_widget(slider)
+        popup_layout.add_widget(button_layout)
+
+        popup = Popup(
+            title="Set Threshold",
+            content=popup_layout,
+            size_hint=(None, None),
+            size=(320, 200),
+        )
+
+        popup.open()
+
+    def set_threshold(self, new_threshold, popup):
+        self.threshold = new_threshold
+
+        msg = SetThresholdRequest.create_message(threshold=self.threshold)
+        WebSocketClient.instance().send_json_sync(
+            msg.to_json()
+        )
+        print(f"Threshold updated to {self.threshold}")
+        popup.dismiss()
