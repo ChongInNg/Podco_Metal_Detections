@@ -63,8 +63,7 @@ class Connection:
             await self.send_error_response(message, "connection didn't registered yet")
             return
         
-        await asyncio.to_thread(SerialServer.instance().send_threshold_request(message.threshold))
-
+        SerialServer.instance().send_set_threshold_request(message.threshold)
         rsp = SetThresholdResponse.create_message(
             id=message.id, code="OK", 
             message="set threshold completed."
@@ -80,7 +79,7 @@ class Connection:
             await self.send_error_response(message, "connection didn't registered yet")
             return
         
-        await asyncio.to_thread(SerialServer.instance().send_default_calibration_request())
+        SerialServer.instance().send_default_calibration_request()
         rsp = SetDefaultCalibrationResponse.create_message(
             id=message.id, code="OK", 
             message="set default calibration completed."

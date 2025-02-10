@@ -6,6 +6,13 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
+import asyncio
+import sys
+import os
+
+from websocket.client import WebSocketClient
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
 
 Builder.load_file("kv/setting_screen.kv")
 
@@ -73,17 +80,15 @@ class SettingScreen(Screen):
 
         button_layout.add_widget(cancel_button)
         button_layout.add_widget(confirm_button)
-
         popup_layout.add_widget(button_layout)
 
         popup = Popup(
             title="Reset Factory",
             content=popup_layout,
             size_hint=(None, None),
-            size=(320, 200),  # Smaller popup size for a 2.4-inch screen
+            size=(320, 200),
         )
 
-        # Bind buttons
         cancel_button.bind(on_release=popup.dismiss)
         confirm_button.bind(on_release=lambda _: self.reset_factory(popup))
 
@@ -92,6 +97,10 @@ class SettingScreen(Screen):
 
     
     def reset_factory(self, popup):
+        msg = SetDefaultCalibrationRequest.create_message()
+        WebSocketClient.instance().send_json_sync(
+            msg.to_json()
+        )
         print("Settings have been reset to default.")
 
         popup.dismiss() 

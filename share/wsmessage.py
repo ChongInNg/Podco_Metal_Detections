@@ -567,34 +567,25 @@ class GetCalibrationResponse(BaseWsResponse)   :
         return cls(header, code, message, meta, calibration_data)
 
 class SetDefaultCalibrationRequest(BaseWsRequest):
-    def __init__(self,  header: Header,  last_n: int):
+    def __init__(self,  header: Header):
         super().__init__(header=header)
-        self.last_n = last_n
 
     def to_dict(self) -> dict[str, Any]:
         base_dict = super().to_dict()
-        base_dict["data"] = {
-            "last_n": self.last_n,
-        }
+        base_dict["data"] = {}
         return base_dict
 
     @classmethod
     def from_dict(cls, header: Header, data: dict[str, Any]) -> 'SetDefaultCalibrationRequest':
         if not header.is_set_default_calibration_message():
             raise ValueError("Message is not SetDefaultCalibrationRequest.")
-        
-        last_n = data.get("last_n")
-        if last_n is None or not isinstance(last_n, int):
-            raise ValueError("last n is not valid.")
-        return cls(header, last_n)
+
+        return cls(header)
     
     @classmethod
-    def create_message(cls, last_n: int) -> 'SetDefaultCalibrationRequest':
-        if last_n is None or not isinstance(last_n, int):
-            raise ValueError("Lat N is not valid.")
-        
+    def create_message(cls) -> 'SetDefaultCalibrationRequest': 
         header = Header(name=MessageName_SetDefaultCalibration, message_type=MessageType_Request)
-        return cls(header, last_n)
+        return cls(header)
     
 class SetDefaultCalibrationResponse(BaseWsResponse)   :
     def __init__(self, header: Header, code: str, message: str, meta: dict=None):

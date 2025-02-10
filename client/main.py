@@ -12,9 +12,11 @@ from screens.stack_widget import StackWidget
 from screens.main_screen import MainScreen
 from screens.logo_screen import LogoScreen 
 from websocket.client import WebSocketClient
-
+import asyncio
 import sys
 import os
+import threading
+import time
 
 # Dynamically add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -49,9 +51,17 @@ class MetalDetectionApp(App):
         sm.add_widget(self.logo_screen) 
         sm.add_widget(self.main_screen)
         
+        self.event_loop = asyncio.new_event_loop()
+        self.loop_thread = threading.Thread(target=self._run_event_loop, daemon=True)
+        self.loop_thread.start()
+        
         # self.monitor_joystick()
         self.start_websocket()
         return sm
+
+    def _run_event_loop(self):
+        asyncio.set_event_loop(self.event_loop)
+        self.event_loop.run_forever()
 
     def monitor_joystick(self):
         from controller.joystick import JoyStick
@@ -78,16 +88,25 @@ class MetalDetectionApp(App):
 
 
     def start_websocket(self):
-        self.client = WebSocketClient(
-            "ws://127.0.0.1:8765", 
-            self.main_screen.handle_websocket_messages,
-            self.main_screen.handle_websocket_disconnect,
+        if not self.event_loop.is_running():
+            raise RuntimeError("Event loop is not running.. make sure it running first")
+       
+        WebSocketClient.instance().start(
+            url="ws://127.0.0.1:8765",
+            event_loop=self.event_loop,
+            message_callback=self.main_screen.handle_websocket_messages,
+            disconnect_callback=self.main_screen.handle_websocket_disconnect,
         )
-        self.client.start()
+
+    def on_stop(self):
+        if self.event_loop.is_running():
+            self.event_loop.call_soon_threadsafe(self.event_loop.stop)
+        self.loop_thread.join()
 
 if __name__ == "__main__":
     app = MetalDetectionApp()
     BaseWsMessage(Header("", ""))
+    
     app.run()
     app.stop_joystick()
 

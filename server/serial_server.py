@@ -57,9 +57,11 @@ class SerialServer:
         Logger.info("Start read data and process data thread success.")
 
     def send_default_calibration_request(self):
+        print("Send default calibration request to serial port")
         pass
 
-    def send_threshold_request(self):
+    def send_set_threshold_request(self, threshold: int):
+        print(f"Send set threshold request to serial port. threshold: {threshold}")
         pass
     
     def _read_data(self):
