@@ -4,7 +4,7 @@ import json
 import logging
 from log.logger import Logger
 from .connection_manager import ConnectionManager 
-from .notify_message_queue import NotifyMessageQueue
+from .ws_message_queue import WsMessageQueue
 
 import sys
 import os
@@ -36,13 +36,13 @@ class WebSocketServer:
             logging.getLogger("websockets").setLevel(logging.INFO)
             loop = asyncio.get_event_loop()
             connection_manager = ConnectionManager.instance()
-            notify_queue = NotifyMessageQueue(get_connections_callback=connection_manager.get_connections, loop=loop)
-            connection_manager.set_notify_queue(notify_queue)
-            asyncio.create_task(connection_manager.notify_queue.start())
+            ws_queue = WsMessageQueue(get_connections_callback=connection_manager.get_connections, loop=loop)
+            connection_manager.set_ws_queue(ws_queue)
+            asyncio.create_task(connection_manager.ws_queue.start())
 
             async with websockets.serve(self.on_connect, self.host, self.port):
                 await asyncio.Future()
-            
+            Logger.debug(f"Web server started....")
         except KeyboardInterrupt:
             Logger.error("Receive KeyboardInterrupt, stop the web server")
 

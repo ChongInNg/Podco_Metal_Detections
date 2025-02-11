@@ -4,6 +4,8 @@ from commands.raw_data_command import RawDataCommand
 from commands.threshold_adjusted_command import ThresholdAdjustedCommand
 from commands.bypass_command import BypassCommand
 from commands.base_command import BaseCommand
+from commands.set_threshold_command_resp import SetThresholdCommandResp
+from commands.set_default_calibration_command_resp import SetDefaultCalibrationCommandResp
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
@@ -14,7 +16,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
 
-
+#B0 reset
+#0B set threshold
 class CommandHandler:
     COMMANDS = {
         0x0A: DetectionCommand,
@@ -22,6 +25,8 @@ class CommandHandler:
         0xAA: RawDataCommand,
         0xF0: ThresholdAdjustedCommand,
         0x0F: BypassCommand,
+        0x0B: SetThresholdCommandResp,
+        0xB0: SetDefaultCalibrationCommandResp,
     }
 
     def __init__(self):
@@ -37,12 +42,13 @@ class CommandHandler:
 
         ins = command_class()
         ins.process(data)
-        notify_message = self.create_notify_message(ins)
-        ConnectionManager.instance().send_notify_message(notify_message)
+
+        ws_message = self.create_ws_message(ins)
+        ConnectionManager.instance().put_message_to_queue(ws_message)
         self.log_to_file(ins)
         return ins.to_dict()
 
-    def create_notify_message(self, command: BaseCommand) -> BaseWsNotify:
+    def create_ws_message(self, command: BaseCommand) -> BaseWsMessage:
         if isinstance(command, BypassCommand):
             return NotifyByPassMessage.create_message(bypass=command.bypass)
         elif isinstance(command, CalibrationCommand):
@@ -78,6 +84,18 @@ class CommandHandler:
             )
         elif isinstance(command, ThresholdAdjustedCommand):
             return NotifyThresholdAdjustedMessage.create_message(area_threshold=command.area_threshold)
+        elif isinstance(command, SetDefaultCalibrationCommandResp):
+            return SetDefaultCalibrationResponse.create_message(
+                id="reset_factory", 
+                code="OK",
+                message="Set default calibration to controller success."
+            )
+        elif isinstance(command, SetThresholdCommandResp):
+            return SetThresholdResponse.create_message(
+                id="set_threshold",
+                code="OK",
+                message="Set threshold to controller success."
+            )
         else:
             raise ValueError(f"Unknown command: {command.name}")
         

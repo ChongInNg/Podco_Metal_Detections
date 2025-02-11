@@ -56,13 +56,21 @@ class SerialServer:
         self.proces_thread.start()
         Logger.info("Start read data and process data thread success.")
 
-    def send_default_calibration_request(self):
-        print("Send default calibration request to serial port")
-        pass
+    def send_default_calibration_request(self) -> int:
+        # req_value = 1
+        # encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
+        # data_length = 1
+        # encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
+        # encoded += resp_value.to_bytes(1, self.bytes_endian) # data value
+        
+        # return self._write_data(encoded)
 
-    def send_set_threshold_request(self, threshold: int):
+        print("Send default calibration request to serial port")
+        return 1
+
+    def send_set_threshold_request(self, threshold: int) -> int:
         print(f"Send set threshold request to serial port. threshold: {threshold}")
-        pass
+        return 0
     
     def _read_data(self):
         while self.running:
@@ -83,12 +91,14 @@ class SerialServer:
                 self._send_response(command_data.command_type)
                 Logger.info(f"Send response to controller, command_type: {hex(command_type)}")
 
-    def _write_data(self, data: bytes):
+    def _write_data(self, data: bytes) -> int:
         if self.serial and self.serial.is_open:
-            self.serial.write(data)
-            Logger.info(f"Write to serial success. {data.hex()}")
+            buf_num = self.serial.write(data)
+            Logger.info(f"Write to serial success. {data.hex()}, buf_num: {buf_num}")
+            return buf_num
         else:
             Logger.error(f"Didn't connect to serial port, cannot send. {data.hex()}")
+            return 0
 
     def _process_queue_data(self):
         while self.running:
@@ -101,8 +111,6 @@ class SerialServer:
                     data=command_data.data,
                 )
                 Logger.info("Processed Command:", result)
-                self._send_response(command_data.command_type)
-                Logger.info(f"Send response to control success.{hex(command_data.command_type)}")
             except ValueError as e:
                 self._send_error_response(command_data.command_type)
                 Logger.error(f"Command handling error: {e}, raw_command:{command_data}")
@@ -117,18 +125,18 @@ class SerialServer:
             self.proces_thread.join()
             Logger.info("Process queue thread closed.")
 
-    def _send_response(self, command_type: int):
+    def _send_response(self, command_type: int) -> int:
         resp_value = 1
         encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
         data_length = 1
         encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
         encoded += resp_value.to_bytes(1, self.bytes_endian) # data value
         
-        self._write_data(encoded)
+        return self._write_data(encoded)
 
-    def _send_error_response(self, command_type: int):
+    def _send_error_response(self, command_type: int) -> int:
         resp_value = 0
         encoded = command_type.to_bytes(1, self.bytes_endian)
         encoded += resp_value.to_bytes(1, self.bytes_endian)
         
-        self._write_data(encoded)
+        return self._write_data(encoded)

@@ -6,9 +6,6 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
 
-
-import asyncio
-
 class Connection:
     Status_Registered = "registered"
     Status_UnRegistered = "unregistered"
@@ -79,13 +76,21 @@ class Connection:
             await self.send_error_response(message, "connection didn't registered yet")
             return
         
-        SerialServer.instance().send_default_calibration_request()
-        rsp = SetDefaultCalibrationResponse.create_message(
-            id=message.id, code="OK", 
-            message="set default calibration completed."
-        )
-        await self.conn.send(rsp.to_json())
-        Logger.debug(f"Handle set default calibration success: {rsp.to_dict()}")
+        write_buf_num = SerialServer.instance().send_default_calibration_request()
+        if write_buf_num == 0:
+            rsp = SetDefaultCalibrationResponse.create_message(
+                id=message.id, code="error", 
+                message="Send default calibration request to controller failed."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.debug(f"Handle set default calibration failed: {rsp.to_dict()}")
+        else:
+            rsp = SetDefaultCalibrationResponse.create_message(
+                id=message.id, code="OK", 
+                message="set default calibration completed."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.debug(f"Handle set default calibration success: {rsp.to_dict()}")
 
     async def handle_get_last_n_detections(self, message: GetLastNDetectionsRequest):
         if self.status != Connection.Status_Registered:
@@ -135,10 +140,10 @@ class Connection:
         )
         await self.conn.send(rsp.to_json())
             
-    async def send_notify_message(self, notify_msg: BaseWsNotify):
-        json_msg = notify_msg.to_json()
+    async def send_message(self, msg: BaseWsMessage):
+        json_msg = msg.to_json()
         await self.conn.send(json_msg)
-        Logger.debug(f"Send notify message:{notify_msg.name} successfully: {json_msg}")
+        Logger.debug(f"Send message:{msg.name} to ui websocket successfully: {json_msg}")
 
     async def _handle_get_calibration_data(self, message: GetCalibrationRequest):
         if self.status != Connection.Status_Registered:

@@ -2,7 +2,7 @@ import threading
 from typing import Optional
 from .connection import Connection
 from log.logger import Logger
-from .notify_message_queue import NotifyMessageQueue
+from .ws_message_queue import WsMessageQueue
 
 import sys
 import os
@@ -19,10 +19,10 @@ class ConnectionManager:
         
         self._lock = threading.Lock()
         self._connections: dict[int, Connection] = {}
-        self.notify_queue = None
+        self.ws_queue = None
 
-    def set_notify_queue(self, notify_queue: NotifyMessageQueue):
-        self.notify_queue = notify_queue
+    def set_ws_queue(self, ws_queue: WsMessageQueue):
+        self.ws_queue = ws_queue
     @classmethod
     def instance(cls) -> 'ConnectionManager':
         if cls._instance is None:
@@ -38,11 +38,11 @@ class ConnectionManager:
                 self._connections[client_id] = connection
             return connection
         
-    def send_notify_message(self, notify_message: BaseWsNotify):
+    def put_message_to_queue(self, message: BaseWsMessage):
         try:
-            self.notify_queue.enqueue_message_to_loop(notify_message)
+            self.ws_queue.enqueue_message_to_loop(message)
         except Exception as e:
-            Logger.error(f"Send notify message error: {e}.")
+            Logger.error(f"Enqueu message to event loop error: {e}, message: {message}.")
         
 
     def get_connections(self, device_identity: str) -> list[Connection]:
