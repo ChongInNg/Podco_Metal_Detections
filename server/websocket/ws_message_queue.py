@@ -42,6 +42,5 @@ class WsMessageQueue:
             Logger.warning(f"No connection found for the only one device. Message: {message.to_dict()}")
             return
 
-        Logger.debug(f"Sending message to device: {message.to_json()}")
         for connection in connections:
             await connection.send_message(message)

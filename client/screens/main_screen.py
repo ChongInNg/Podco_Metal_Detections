@@ -119,10 +119,10 @@ class MainScreen(Screen):
         Clock.schedule_once(lambda dt: self.get_screen_header().update_server_status(on_status))
 
     def _handle_set_default_calibration_response(self, msg: SetDefaultCalibrationResponse):
-        if msg.is_success():
-            pass
-        else:
-            print(f"get last n detection response is not success, cannot handle in UI")
+        Clock.schedule_once(lambda dt: 
+            self.get_stack_widget().get_setting_screen().update_reset_factory_status(msg.is_success())
+        )
+        print(f"handle the set default calibration response success. is_success: {msg.is_success()}")
 
     def _handle_set_threshold_response(self, msg: SetThresholdResponse):
         if msg.is_success():

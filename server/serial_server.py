@@ -5,6 +5,9 @@ from typing import  Optional
 from command_handler import CommandHandler
 from log.logger import Logger
 
+SET_THRESHOLD_RESPONSE_COMMAND:int = 0x0B
+SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND: int = 0xB0
+
 class CommandData:
     def __init__(self, command_type: int, data_length: int, data: bytes):
         self.command_type = command_type
@@ -57,20 +60,28 @@ class SerialServer:
         Logger.info("Start read data and process data thread success.")
 
     def send_default_calibration_request(self) -> int:
-        # req_value = 1
-        # encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
-        # data_length = 1
-        # encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
-        # encoded += resp_value.to_bytes(1, self.bytes_endian) # data value
+        req_value = 1
+        command_type = SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND
+        encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
+        data_length = 1
+        encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
+        encoded += req_value.to_bytes(1, self.bytes_endian) # data value
         
-        # return self._write_data(encoded)
-
-        print("Send default calibration request to serial port")
-        return 1
+        num = self._write_data(encoded)
+        print(f"Send default calibration request to serial port. bytes: {num}")
+        return num
 
     def send_set_threshold_request(self, threshold: int) -> int:
-        print(f"Send set threshold request to serial port. threshold: {threshold}")
-        return 0
+        req_value = threshold
+        command_type = SET_THRESHOLD_RESPONSE_COMMAND
+        encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
+        data_length = 2
+        encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
+        encoded += req_value.to_bytes(2, self.bytes_endian) # data value
+        
+        num = self._write_data(encoded)
+        print(f"Send set threshold request to serial port. threshold: {threshold}, bytes: {num}")
+        return num
     
     def _read_data(self):
         while self.running:
@@ -88,8 +99,10 @@ class SerialServer:
                 command_data = CommandData(command_type, data_length, data)
                 self.cmd_queue.put(command_data)
                 Logger.info(f"Read data from the serial port: {command_data.to_dict()}")
-                self._send_response(command_data.command_type)
-                Logger.info(f"Send response to controller, command_type: {hex(command_type)}")
+
+                if self.need_send_back_response_to_controller(command_data.command_type):
+                    self._send_response(command_data.command_type)
+                    Logger.info(f"Send response to controller, command_type: {hex(command_type)}")
 
     def _write_data(self, data: bytes) -> int:
         if self.serial and self.serial.is_open:
@@ -140,3 +153,8 @@ class SerialServer:
         encoded += resp_value.to_bytes(1, self.bytes_endian)
         
         return self._write_data(encoded)
+    
+    def need_send_back_response_to_controller(self, command_type: int):
+        if command_type == SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND or command_type == SET_THRESHOLD_RESPONSE_COMMAND:
+            return False
+        return True

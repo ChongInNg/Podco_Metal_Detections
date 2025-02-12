@@ -60,13 +60,14 @@ class Connection:
             await self.send_error_response(message, "connection didn't registered yet")
             return
         
-        SerialServer.instance().send_set_threshold_request(message.threshold)
-        rsp = SetThresholdResponse.create_message(
-            id=message.id, code="OK", 
-            message="set threshold completed."
-        )
-        await self.conn.send(rsp.to_json())
-        Logger.debug(f"Handle set threshold success: {rsp.to_dict()}")
+        write_buf_num = SerialServer.instance().send_set_threshold_request(message.threshold)
+        if write_buf_num == 0:
+            rsp = SetThresholdResponse.create_message(
+                id=message.id, code="error", 
+                message="Send threshold request to controller failed."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.debug(f"Handle threshold request to controller failed: {rsp.to_dict()}")
         
 
     async def handle_set_default_calibration(self, message: SetDefaultCalibrationRequest):
@@ -84,13 +85,6 @@ class Connection:
             )
             await self.conn.send(rsp.to_json())
             Logger.debug(f"Handle set default calibration failed: {rsp.to_dict()}")
-        else:
-            rsp = SetDefaultCalibrationResponse.create_message(
-                id=message.id, code="OK", 
-                message="set default calibration completed."
-            )
-            await self.conn.send(rsp.to_json())
-            Logger.debug(f"Handle set default calibration success: {rsp.to_dict()}")
 
     async def handle_get_last_n_detections(self, message: GetLastNDetectionsRequest):
         if self.status != Connection.Status_Registered:

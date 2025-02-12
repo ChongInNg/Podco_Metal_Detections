@@ -109,7 +109,7 @@ class WebSocketClient:
         )
         
         try:
-            future.result(timeout=2)  # Wait up to 2 seconds for completion
+            future.result(timeout=2)
             print(f"send json success: {jsonstr}")
         except Exception as e:
             print(f"Failed to send message: {e}")

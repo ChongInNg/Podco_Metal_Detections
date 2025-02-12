@@ -2,11 +2,11 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty, NumericProperty
 from kivy.lang import Builder
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.boxlayout import BoxLayout
-import asyncio
+from kivy.clock import Clock
+from screens.loading_screen import LoadingScreen
+from screens.error_popup import ErrorPopup
+from screens.confirmation_popup import ConfirmationPopup
+
 import sys
 import os
 
@@ -25,6 +25,8 @@ class SettingScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.bypass = 1
+        self.loading_screen = LoadingScreen(timeout=15, on_timeout_callback=self.on_timeout)
+        self.response_received = False
         
     def reset_data(self):
         pass
@@ -37,7 +39,6 @@ class SettingScreen(Screen):
         stack_widget = app.root.get_screen("main").ids.stack_widget
         stack_widget.change_to_screen_name("option")
 
-
     def update_bypass(self, value: int):
         self.bypass = value
         if self.bypass == 1:
@@ -45,6 +46,15 @@ class SettingScreen(Screen):
         else:
             self.bypass_status_value = "OFF"
         print(f"Update bypass successfully, val: {self.bypass}, {self.bypass_status_value}")
+
+    def update_reset_factory_status(self, success: bool):
+        self.response_received = True
+        if success:
+            self.loading_screen.hide()
+            print("Factory reset successful!")
+        else:
+            self.loading_screen.hide() 
+            self.show_error_popup("Reset failed! Please try again.")
 
     def on_brightness_change(self, value: int):
         self.brightness = value
@@ -54,53 +64,28 @@ class SettingScreen(Screen):
         print("Copy log successfully.")
 
     def on_reset_factory_click(self):
-        popup_layout = BoxLayout(orientation="vertical", padding=5, spacing=5)
-
-        message_label = Label(
-            text="Reset settings?",
-            halign="center",
-            valign="middle",
-            size_hint=(1, 0.6), 
-        )
-        message_label.bind(size=message_label.setter("text_size")) 
-        popup_layout.add_widget(message_label)
-
-        button_layout = BoxLayout(orientation="horizontal", spacing=5, size_hint=(1, 0.4))
-
-        cancel_button = Button(
-            text="Cancel",
-            size_hint=(0.5, 1),
-            background_color=(0.5, 0.5, 0.5, 1),
-        )
-        confirm_button = Button(
-            text="Reset",
-            size_hint=(0.5, 1),
-            background_color=(1, 0, 0, 1),
-        )
-
-        button_layout.add_widget(cancel_button)
-        button_layout.add_widget(confirm_button)
-        popup_layout.add_widget(button_layout)
-
-        popup = Popup(
+        reset_popup = ConfirmationPopup(
             title="Reset Factory",
-            content=popup_layout,
-            size_hint=(None, None),
-            size=(320, 200),
+            message="Reset settings to defaults?",
+            on_confirm_callback=self.reset_factory
         )
+        reset_popup.open()
 
-        cancel_button.bind(on_release=popup.dismiss)
-        confirm_button.bind(on_release=lambda _: self.reset_factory(popup))
-
-        popup.open()
-
-
-    
-    def reset_factory(self, popup):
+    def reset_factory(self):
+        self.response_received = False
+        self.loading_screen.show()
         msg = SetDefaultCalibrationRequest.create_message()
         WebSocketClient.instance().send_json_sync(
             msg.to_json()
         )
-        print("Settings have been reset to default.")
-
-        popup.dismiss() 
+    
+        print("Send set_default_calibration message to server successfully.")
+        
+    def show_error_popup(self, message):
+        error_popup = ErrorPopup(message=message)
+        error_popup.open()
+          
+    def on_timeout(self):
+        self.loading_screen.hide()
+        if not self.response_received:  
+           self.show_error_popup("Request timed out! Please try again.")
