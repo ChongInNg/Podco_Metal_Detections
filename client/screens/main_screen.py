@@ -125,10 +125,10 @@ class MainScreen(Screen):
         print(f"handle the set default calibration response success. is_success: {msg.is_success()}")
 
     def _handle_set_threshold_response(self, msg: SetThresholdResponse):
-        if msg.is_success():
-            pass
-        else:
-            print(f"get last n detection response is not success, cannot handle in UI")
+        Clock.schedule_once(lambda dt: 
+            self.get_stack_widget().get_analyzer_screen().update_set_threshold_status(msg.is_success())
+        )
+        print(f"handle the set threshold response success. is_success: {msg.is_success()}")
 
     def _handle_get_last_n_detections_response(self, msg: GetLastNDetectionsResponse):
         if msg.is_success():

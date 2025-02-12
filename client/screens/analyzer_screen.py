@@ -11,7 +11,9 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.slider import Slider
 from websocket.client import WebSocketClient
-
+from screens.set_threshold_popup import SetThresholdPopup
+from screens.loading_screen import LoadingScreen
+from screens.error_popup import ErrorPopup
 from dataclasses import dataclass
 
 import sys
@@ -32,9 +34,17 @@ class AnalyzerData:
 class AnalyzerScreen(Screen):
     title = "Analyzer"
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
+        self.response_received = False
+        self.threshold = 1500
+        self._create_graph()
+
     def reset_data(self):
         self.start_time = time.time()
         self.event = Clock.schedule_interval(self.update_graph, 0.1)
+        self.loading_screen.hide()
         
     def get_title(self):
         return self.title
@@ -42,22 +52,17 @@ class AnalyzerScreen(Screen):
     def stop(self):
         Clock.unschedule(self.update_graph)
         self.event.cancel()
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.threshold = 1500
-        self._create_graph()
         
     def _create_graph(self):
         self.graph = Graph(
-            xlabel="Time (s)",
+            xlabel="Samples",
             ylabel="Amplitude",
             x_ticks_minor=5, 
             x_ticks_major=1, 
             y_ticks_minor=5,
             y_ticks_major=500,
             y_grid_label=True,
-            x_grid_label=True,
+            x_grid_label=False,
             xmin=0,
             xmax=10,  
             ymin=0,
@@ -150,7 +155,6 @@ class AnalyzerScreen(Screen):
             (current_second + 2, self.threshold),
         ]
 
-        # contol the graph view size in around 10 seconds
         self.graph.xmin = max(0, current_second - 10)
         self.graph.xmax = max(current_second + 1, 1)
 
@@ -163,39 +167,22 @@ class AnalyzerScreen(Screen):
     def update_threshold(self, threshold: int):
         self.threshold = threshold
 
+    def update_set_threshold_status(self, success: bool):
+        self.response_received = True
+        if success:
+            self.loading_screen.hide()
+            print("Set threshold to controller successful!")
+        else:
+            self.loading_screen.hide() 
+            self.show_error_popup("Set threshold failed! Please try again.")
+
     def open_threshold_popup(self, instance):
-        popup_layout = BoxLayout(orientation="vertical", spacing=5, padding=5)
-
-        label = Label(text=f"Threshold: {self.threshold}", font_size=14, size_hint_y=0.2)
-
-        slider = Slider(min=500, max=2500, value=self.threshold, size_hint_y=0.4)
-        slider.bind(value=lambda instance, val: setattr(label, 'text', f"Threshold: {int(val)}"))
-
-        button_layout = BoxLayout(size_hint_y=0.5, spacing=5)
-
-        confirm_button = Button(text="Confirm", size_hint=(0.5, 0.8), font_size=14)
-        confirm_button.bind(on_press=lambda x: self.set_threshold(int(slider.value), popup))
-
-        cancel_button = Button(text="Cancel", size_hint=(0.5, 0.8), font_size=14)
-        cancel_button.bind(on_press=lambda x: popup.dismiss())
-
-        button_layout.add_widget(cancel_button)
-        button_layout.add_widget(confirm_button)
-
-        popup_layout.add_widget(label)
-        popup_layout.add_widget(slider)
-        popup_layout.add_widget(button_layout)
-
-        popup = Popup(
-            title="Set Threshold",
-            content=popup_layout,
-            size_hint=(None, None),
-            size=(320, 200),
+        popup = SetThresholdPopup(
+            on_confirm_callback=self.set_threshold
         )
-
         popup.open()
 
-    def set_threshold(self, new_threshold, popup):
+    def set_threshold(self, new_threshold):
         self.threshold = new_threshold
 
         msg = SetThresholdRequest.create_message(threshold=self.threshold)
@@ -203,4 +190,13 @@ class AnalyzerScreen(Screen):
             msg.to_json()
         )
         print(f"Threshold updated to {self.threshold}")
-        popup.dismiss()
+        self.loading_screen.show()
+
+    def on_timeout(self):
+        self.loading_screen.hide()
+        if not self.response_received:  
+           self.show_error_popup("Request timed out! Please try again.")
+    
+    def show_error_popup(self, message):
+        error_popup = ErrorPopup(message=message)
+        error_popup.open()

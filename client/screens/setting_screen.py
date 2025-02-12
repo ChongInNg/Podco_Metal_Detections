@@ -25,7 +25,7 @@ class SettingScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.bypass = 1
-        self.loading_screen = LoadingScreen(timeout=15, on_timeout_callback=self.on_timeout)
+        self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.response_received = False
         
     def reset_data(self):
@@ -51,7 +51,7 @@ class SettingScreen(Screen):
         self.response_received = True
         if success:
             self.loading_screen.hide()
-            print("Factory reset successful!")
+            print("Reset factory config to controller successful!")
         else:
             self.loading_screen.hide() 
             self.show_error_popup("Reset failed! Please try again.")
