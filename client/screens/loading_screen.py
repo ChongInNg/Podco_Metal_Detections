@@ -21,21 +21,36 @@ class LoadingScreen(Popup):
         layout.add_widget(self.loading_icon)
 
         self.content = layout
+        self.current_state = "dismiss"
+
+    def reset_state(self):
+        self.current_state = "dismiss"
 
     def update_message(self, new_message):
         self.message_label.text = new_message
 
     def show(self):
-        super().open()
+        self.handle_open()
         self.timeout_event = Clock.schedule_once(self._on_timeout, self.timeout)
 
     def hide(self):
         if self.timeout_event:
             Clock.unschedule(self.timeout_event)
             self.timeout_event = None
-        self.dismiss()
+        self.handle_dismiss()
 
     def _on_timeout(self, dt):
         self.hide()
         if self.on_timeout_callback:
             self.on_timeout_callback()
+
+    def handle_dismiss(self):
+        self.dismiss()
+        self.current_state = "dismiss"
+
+    def handle_open(self):
+        super().open()
+        self.current_state = "opened"
+    
+    def is_showing(self) -> bool:
+        return self.current_state == "opened"

@@ -16,21 +16,53 @@ class ConfirmationPopup(Popup):
 
         button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.3)
 
-        cancel_button = Button(text="Cancel", size_hint_x=0.5)
-        confirm_button = Button(text="Confirm", size_hint_x=0.5, background_color=(1, 0, 0, 1))
+        self.cancel_button = Button(text="Cancel", size_hint_x=0.5)
+        self.confirm_button = Button(text="Confirm", size_hint_x=0.5, background_color=(1, 0, 0, 1))
 
-        button_layout.add_widget(cancel_button)
-        button_layout.add_widget(confirm_button)
+        button_layout.add_widget(self.cancel_button)
+        button_layout.add_widget(self.confirm_button)
 
         layout.add_widget(self.message_label)
         layout.add_widget(button_layout)
 
         self.content = layout
 
-        cancel_button.bind(on_release=self.dismiss)
-        confirm_button.bind(on_release=self._on_confirm)
+        self.cancel_button.bind(on_release=self.handle_dismiss)
+        self.confirm_button.bind(on_release=self._on_confirm)
+        self.current_button = self.confirm_button
+        
+        self.current_state = "dismiss"
+
+    def reset_state(self):
+        self.current_state = "dismiss"
 
     def _on_confirm(self, instance):
-        self.dismiss()
+        self.handle_dismiss()
         if self.on_confirm_callback:
             self.on_confirm_callback()
+
+    def on_left_pressed(self):
+        self.current_button = self.cancel_button
+        print("ConfirmationPopup on_left_pressed")
+
+    def on_right_pressed(self):
+        self.current_button = self.confirm_button
+        print("ConfirmationPopup on_right_pressed")
+    
+    def handle_on_enter(self):
+        if self.current_button == self.confirm_button:
+            self._on_confirm(self)
+        else:
+            self.handle_dismiss()  
+        print("ConfirmationPopup handle_on_enter")
+
+    def handle_dismiss(self):
+        self.dismiss()
+        self.current_state = "dismiss"
+
+    def handle_open(self):
+        self.open()
+        self.current_state = "opened"
+
+    def is_showing(self) -> bool:
+        return self.current_state == "opened"

@@ -13,12 +13,37 @@ class ErrorPopup(Popup):
         self.message_label.bind(size=self.message_label.setter("text_size"))
 
         ok_button = Button(text="OK", size_hint=(1, 0.3))
-        ok_button.bind(on_release=self.dismiss)
+        ok_button.bind(on_release=self.handle_dismiss)
 
         layout.add_widget(self.message_label)
         layout.add_widget(ok_button)
-
         self.content = layout
+
+        self.current_state = "dismiss"
+
+    def reset_state(self):
+        self.current_state = "dismiss"
 
     def update_message(self, new_message):
         self.message_label.text = new_message
+
+    def on_left_pressed(self):
+        print("ErrorPopup on_left_pressed")
+
+    def on_right_pressed(self):
+        print("ErrorPopup on_right_pressed")
+    
+    def handle_on_enter(self):
+        self.handle_dismiss()
+        print("ErrorPopup handle_on_enter")
+
+    def handle_dismiss(self):
+        self.dismiss()
+        self.current_state = "dismiss"
+
+    def handle_open(self):
+        self.open()
+        self.current_state = "opened"
+
+    def is_showing(self) -> bool:
+        return self.current_state == "opened"

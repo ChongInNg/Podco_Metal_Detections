@@ -38,15 +38,25 @@ class SettingScreen(Screen):
         self.copy_loading_screen = LoadingScreen(message="Copying", timeout=5, on_timeout_callback=self.on_copy_timeout)
         self.response_received = False
         self.current_component_id = ""
+
+        self.reset_popup = ConfirmationPopup(
+            title="Reset Factory",
+            message="Reset settings to defaults?",
+            on_confirm_callback=self.reset_factory
+        )
+
+        self.error_popup = ErrorPopup()
     
     def on_kv_post(self, base_widget):
        self.reset_data()
 
     def reset_data(self):
+        self.reset_popup.reset_state()
+        self.error_popup.reset_state()
+
         self.clear_focus()
         self.current_component_id = "brightness_slider"
-        self.highlight_slider() # default make it high light
-        pass
+        self.highlight_slider() # default make slider high light
 
     def get_title(self):
         return self.title
@@ -72,7 +82,7 @@ class SettingScreen(Screen):
             self.loading_screen.hide()
             print("Reset factory config to controller successful!")
         else:
-            self.loading_screen.hide() 
+            self.loading_screen.hide()
             self.show_error_popup("Reset failed! Please try again.")
 
     def on_brightness_change(self, value: int):
@@ -84,16 +94,11 @@ class SettingScreen(Screen):
         print("Copy log successfully.")
 
     def on_reset_factory_click(self):
-        reset_popup = ConfirmationPopup(
-            title="Reset Factory",
-            message="Reset settings to defaults?",
-            on_confirm_callback=self.reset_factory
-        )
-        reset_popup.open()
+        self.reset_popup.open()
 
     def reset_factory(self):
         self.response_received = False
-        self.copy_loading_screen.show()
+        self.loading_screen.show()
         msg = SetDefaultCalibrationRequest.create_message()
         WebSocketClient.instance().send_json_sync(
             msg.to_json()
@@ -102,11 +107,12 @@ class SettingScreen(Screen):
         print("Send set_default_calibration message to server successfully.")
         
     def show_error_popup(self, message):
-        error_popup = ErrorPopup(message=message)
-        error_popup.open()
+        self.error_popup.update_message(message)
+        self.error_popup.handle_open()
           
     def on_timeout(self):
         self.loading_screen.hide()
+        self.showing_loading_screen = ""
         if not self.response_received:  
            self.show_error_popup("Request timed out! Please try again.")
 
@@ -144,17 +150,31 @@ class SettingScreen(Screen):
 
         self.current_component_id = component_id
 
-
     def handle_on_enter(self):
         if self.current_component_id == "reset_factory_btn":
-            self.on_reset_factory_click()
+            if self.is_showing_reset_popup():
+                self.reset_popup.handle_on_enter()
+            elif self.is_showing_error_popup():
+                self.error_popup.handle_on_enter()
+            elif self.is_showing_loading_screen():
+                print("Setting Screen is showing loading screen, no need to handle enter")
+            else:
+                self.on_reset_factory_click()
+
         elif self.current_component_id == "copy_log_btn":
-            self.on_copy_log_click()
+            if self.is_showing_loading_screen():
+                print("Setting Screen is copy log showing loading screen, no need to handle enter")
+            else:
+                self.on_copy_log_click()
         elif self.current_component_id == "back_btn":
             self.on_back_btn_click()
         print("setting screen handle_on_enter")
 
     def on_down_pressed(self):
+        if self.is_showing_popup_or_loading_screen():
+            print("ingore on_down_pressed when setting screen is showing")
+            return
+         
         if self.current_component_id == "":
             new_index = len(self.component_ids) - 1
         else:
@@ -165,6 +185,10 @@ class SettingScreen(Screen):
         print("setting screen on_down_pressed")
 
     def on_up_pressed(self):
+        if self.is_showing_popup_or_loading_screen():
+            print("ingore on_up_pressed when setting screen is showing")
+            return
+        
         if self.current_component_id == "":
             new_index = 0
         else:
@@ -181,13 +205,14 @@ class SettingScreen(Screen):
         return -1
 
     def on_left_pressed(self):
+        if self.is_showing_reset_popup():
+            self.reset_popup.on_left_pressed()
         print("setting screen on_left_pressed")
 
     def on_right_pressed(self):
+        if self.is_showing_reset_popup():
+            self.reset_popup.on_right_pressed()
         print("setting screen on_right_pressed")
-
-    def is_showing_popup(self) -> bool:
-        return False
     
     def highlight_slider(self):
         self.slider_color = [0.196, 0.643, 0.808,1]
@@ -196,3 +221,17 @@ class SettingScreen(Screen):
     def reset_slider_color(self):
         self.slider_color = [0.15, 0.15, 0.2, 1]
         print("reset_slider_color.........")
+
+    def is_showing_reset_popup(self) -> bool:
+        return self.reset_popup.is_showing()
+    
+    def is_showing_error_popup(self) -> bool:
+        return self.error_popup.is_showing()
+    
+    def is_showing_loading_screen(self) -> bool:
+        return self.loading_screen.is_showing() or self.copy_loading_screen.is_showing()
+    
+    def is_showing_popup_or_loading_screen(self):
+        if self.is_showing_reset_popup() or self.is_showing_error_popup() or self.is_showing_loading_screen():
+            return True
+        return False
