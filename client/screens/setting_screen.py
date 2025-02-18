@@ -97,6 +97,9 @@ class SettingScreen(Screen):
         self.reset_popup.handle_open()
 
     def reset_factory(self):
+        if not WebSocketClient.instance().is_connected(): 
+            self.show_error_popup("Cannot reset without connectting with server")
+            return
         self.response_received = False
         self.loading_screen.show()
         msg = SetDefaultCalibrationRequest.create_message()
@@ -164,6 +167,8 @@ class SettingScreen(Screen):
         elif self.current_component_id == "copy_log_btn":
             if self.is_showing_loading_screen():
                 print("Setting Screen is copy log showing loading screen, no need to handle enter")
+            elif self.is_showing_error_popup():
+                self.error_popup.handle_on_enter()
             else:
                 self.on_copy_log_click()
         elif self.current_component_id == "back_btn":

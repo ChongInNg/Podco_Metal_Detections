@@ -36,7 +36,7 @@ Config.set('graphics', 'dpi', '96')
 
 
 
-# from kivy.core.window import Window
+from kivy.core.window import Window
 # Window.size = (640, 480)
 #Window.fullscreen = True
 class MetalDetectionApp(App):
@@ -56,6 +56,7 @@ class MetalDetectionApp(App):
         self.loop_thread.start()
         
         # self.monitor_joystick()
+        Window.bind(on_key_down=self.handle_keyboard)
         self.start_websocket()
         return sm
 
@@ -102,6 +103,20 @@ class MetalDetectionApp(App):
         if self.event_loop.is_running():
             self.event_loop.call_soon_threadsafe(self.event_loop.stop)
         self.loop_thread.join()
+
+    def handle_keyboard(self, window, key, *args):
+        key_mapping = {
+            273: "up",
+            274: "down",
+            276: "left",
+            275: "right",
+            13: "center"
+        }
+
+        if key in key_mapping:
+            direction = key_mapping[key]
+            print(f"Keyboard event detected: {direction}")
+            self.handle_signal(direction)
 
 if __name__ == "__main__":
     app = MetalDetectionApp()

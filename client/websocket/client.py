@@ -113,4 +113,7 @@ class WebSocketClient:
             print(f"send json success: {jsonstr}")
         except Exception as e:
             print(f"Failed to send message: {e}")
+
+    def is_connected(self) -> bool:
+        return self.websocket != None
             

@@ -37,7 +37,7 @@ class ConfirmationPopup(Popup):
         self.current_state = "dismiss"
         self.current_button = self.confirm_button
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "down"
+        self.confirm_button.state = "normal"
 
     def _on_confirm(self, instance):
         self.handle_dismiss()
@@ -47,12 +47,12 @@ class ConfirmationPopup(Popup):
     def on_left_pressed(self):
         self.current_button = self.cancel_button
         self.cancel_button.state = "down"
-        self.confirm_button.state = "normal"
+        self.confirm_button.state = "down"
         print("ConfirmationPopup on_left_pressed")
 
     def on_right_pressed(self):
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "down"
+        self.confirm_button.state = "normal"
         self.current_button = self.confirm_button
         print("ConfirmationPopup on_right_pressed")
     
