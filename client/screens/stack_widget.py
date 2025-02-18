@@ -17,7 +17,7 @@ Builder.load_file("kv/stack_widget.kv")
 class StackWidget(Screen):
     current_screen = StringProperty('option')
 
-    def change_screen(self, direction):
+    def handle_direction(self, direction):
         if direction == "left":
             if self.is_detection():
                 self.change_to_option_screen()
@@ -25,6 +25,9 @@ class StackWidget(Screen):
                 self.change_to_detection_screen()
             elif self.is_analyzer():
                 self.change_to_calibration_screen()
+            elif self.is_setting():
+                setting_screen = self.get_setting_screen()
+                setting_screen.on_left_pressed()
             else:
                 print(f"Not support left direction in this screen: {self.current_screen}")
         elif direction == "right":
@@ -34,6 +37,9 @@ class StackWidget(Screen):
                 self.change_to_analyzer_screen()
             elif self.is_analyzer():
                 self.change_to_option_screen()
+            elif self.is_setting():
+                setting_screen = self.get_setting_screen()
+                setting_screen.on_right_pressed()
             else:
                 print(f"Not support left direction in this screen: {self.current_screen}")
 
@@ -44,6 +50,9 @@ class StackWidget(Screen):
             elif self.is_detection():
                 detection_screen = self.get_detection_screen()
                 detection_screen.on_up_pressed()
+            elif self.is_setting():
+                setting_screen = self.get_setting_screen()
+                setting_screen.on_up_pressed()
             else:
                 print(f"Not support up direction in this screen: {self.current_screen}")
 
@@ -54,13 +63,22 @@ class StackWidget(Screen):
             elif self.is_detection():
                 detection_screen = self.get_detection_screen()
                 detection_screen.on_down_pressed()
+            elif self.is_setting():
+                setting_screen = self.get_setting_screen()
+                setting_screen.on_down_pressed()
             else:
                 print(f"Not support down direction in this screen: {self.current_screen}")
 
         elif direction == "center":
             if self.is_option():
                 option_screen = self.get_option_screen()
-                option_screen.handle_enter()
+                option_screen.handle_on_enter()
+            if self.is_setting():
+                setting_screen = self.get_setting_screen()
+                setting_screen.handle_on_enter()
+            if self.is_analyzer():
+                analyzer_screen = self.get_analyzer_screen()
+                analyzer_screen.handle_on_enter()
             else:
                 print(f"Not support center direction in this screen: {self.current_screen}")
         else:

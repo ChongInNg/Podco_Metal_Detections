@@ -80,7 +80,7 @@ class MetalDetectionApp(App):
         current_screen = app.root.current
         if current_screen == "main":
             stack_widget = app.root.get_screen("main").ids.stack_widget     
-            stack_widget.change_screen(direction)
+            stack_widget.handle_direction(direction)
         else:
             logo_screen = app.root.get_screen("logo")
             logo_screen.handle_direction(direction)

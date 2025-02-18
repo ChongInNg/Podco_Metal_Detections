@@ -89,3 +89,18 @@ class SettingScreen(Screen):
         self.loading_screen.hide()
         if not self.response_received:  
            self.show_error_popup("Request timed out! Please try again.")
+
+    def handle_on_enter(self):
+        print("setting screen handle_on_enter")
+
+    def on_down_pressed(self):
+        print("setting screen on_down_pressed")
+
+    def on_up_pressed(self):
+        print("setting screen on_up_pressed")
+
+    def on_left_pressed(self):
+        print("setting screen on_left_pressed")
+
+    def on_right_pressed(self):
+        print("setting screen on_right_pressed")

@@ -50,7 +50,7 @@ class OptionScreen(Screen):
         focused_button = self.ids[focused_button_id]
         focused_button.state = "down"
 
-    def handle_enter(self):
+    def handle_on_enter(self):
         if self.current_button == "detection_btn":
             self.on_detection_btn_click()
         elif self.current_button == "calibration_btn":

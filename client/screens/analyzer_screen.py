@@ -184,7 +184,7 @@ class AnalyzerScreen(Screen):
 
     def set_threshold(self, new_threshold):
         self.threshold = new_threshold
-
+        self.response_received = False
         msg = SetThresholdRequest.create_message(threshold=self.threshold)
         WebSocketClient.instance().send_json_sync(
             msg.to_json()
@@ -200,3 +200,6 @@ class AnalyzerScreen(Screen):
     def show_error_popup(self, message):
         error_popup = ErrorPopup(message=message)
         error_popup.open()
+
+    def handle_on_enter(self):
+         print("analyzer screen handle_on_enter")

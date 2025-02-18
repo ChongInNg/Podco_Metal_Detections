@@ -27,14 +27,14 @@ class ScreenHeader(BoxLayout):
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         
-        stack_widget.change_screen("left")
+        stack_widget.handle_direction("left")
 
     def on_next_clicked(self):
         print(f"on_next_clicked {self.title}")
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         
-        stack_widget.change_screen("right")
+        stack_widget.handle_direction("right")
     
     def update_btn_state(self):
         if self.is_detection():
