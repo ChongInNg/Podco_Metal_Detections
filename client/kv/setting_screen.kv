@@ -53,8 +53,10 @@
                     value: root.brightness
                     size_hint_x: 0.6
                     on_value: root.on_brightness_change(self.value)
+                    background_color: root.slider_color
+                    on_touch_down: root.highlight_slider()
+                    on_touch_up: root.reset_slider_color()  
 
-            # 🔥 Reset to Factory Button
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 10

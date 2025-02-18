@@ -1,6 +1,6 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
-from kivy.properties import StringProperty, NumericProperty
+from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
 from screens.loading_screen import LoadingScreen
@@ -22,7 +22,14 @@ class SettingScreen(Screen):
     bypass_status = NumericProperty(0)
     bypass_status_value = StringProperty("OFF")
     current_button = StringProperty('')
-    button_ids = ["reset_factory_btn", "copy_log_btn", "back_btn"]
+    component_ids = component_ids = [
+        ("brightness_slider", "slider"),
+        ("reset_factory_btn", "button"),
+        ("copy_log_btn", "button"),
+        ("back_btn", "button"),
+    ]
+
+    slider_color = ListProperty([1, 1, 1, 1]) 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -40,10 +47,12 @@ class SettingScreen(Screen):
         return self.title
     
     def on_back_btn_click(self):
+        self.reset_data()
+
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         stack_widget.change_to_screen_name("option")
-
+        
     def update_bypass(self, value: int):
         self.bypass = value
         if self.bypass == 1:
@@ -101,16 +110,22 @@ class SettingScreen(Screen):
         self.show_error_popup("Copy timed out! Please try again.")
            
     def clear_focus(self):
-        for button_id in self.button_ids:
-            button = self.ids[button_id]
-            button.state = "normal"
+        for component_id, component_type  in self.component_ids:
+            component = self.ids[component_id]
+            if component_type == "button":
+                component.state = "normal"
+            elif component_type == "slider":
+                self.reset_slider_color()
 
     def set_focus_button(self, focused_button_id):
-        self.clear_focus()
-
-        focused_button = self.ids[focused_button_id]
-        focused_button.state = "down"
-
+        for component_id, component_type in self.button_ids:
+            if component_id == focused_button_id:
+                focused_component = self.ids[component_id]
+                if component_type == "button":
+                    focused_component.state = "down"
+                elif component_type == "slider":
+                    self.highlight_slider()
+                break
 
     def handle_on_enter(self):
         if self.current_button == "reset_factory_btn":
@@ -123,23 +138,23 @@ class SettingScreen(Screen):
 
     def on_down_pressed(self):
         if self.current_button == "":
-            self.current_button = self.button_ids[len(self.button_ids) - 1]
+            self.current_button = self.component_ids[len(self.component_ids) - 1]
             self.set_focus_button(self.current_button)
         else:
-            current_index = self.button_ids.index(self.current_button)
-            new_index = (current_index + 1) % len(self.button_ids)
-            self.current_button = self.button_ids[new_index]
+            current_index = self.component_ids.index(self.current_button)
+            new_index = (current_index + 1) % len(self.component_ids)
+            self.current_button = self.component_ids[new_index]
             self.set_focus_button(self.current_button)
         print("setting screen on_down_pressed")
 
     def on_up_pressed(self):
         if self.current_button == "":
-            self.current_button = self.button_ids[0]
+            self.current_button = self.component_ids[0]
             self.set_focus_button(self.current_button)
         else:
-            current_index = self.button_ids.index(self.current_button)
-            new_index = (current_index - 1) % len(self.button_ids)
-            self.current_button = self.button_ids[new_index]
+            current_index = self.component_ids.index(self.current_button)
+            new_index = (current_index - 1) % len(self.component_ids)
+            self.current_button = self.component_ids[new_index]
             self.set_focus_button(self.current_button)
 
         print("setting screen on_up_pressed")
@@ -149,3 +164,12 @@ class SettingScreen(Screen):
 
     def on_right_pressed(self):
         print("setting screen on_right_pressed")
+
+    def is_showing_popup(self) -> bool:
+        return False
+    
+    def highlight_slider(self):
+        self.slider_color = [0, 1, 0, 1]
+
+    def reset_slider_color(self):
+        self.slider_color = [1, 1, 1, 1]
