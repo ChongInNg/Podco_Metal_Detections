@@ -21,14 +21,18 @@ class SettingScreen(Screen):
     brightness = NumericProperty(50)
     bypass_status = NumericProperty(0)
     bypass_status_value = StringProperty("OFF")
+    current_button = StringProperty('')
+    button_ids = ["reset_factory_btn", "copy_log_btn", "back_btn"]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.bypass = 1
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.response_received = False
-        
+
     def reset_data(self):
+        self.current_button = ""
+        self.clear_focus()
         pass
 
     def get_title(self):
@@ -90,13 +94,42 @@ class SettingScreen(Screen):
         if not self.response_received:  
            self.show_error_popup("Request timed out! Please try again.")
 
+    def clear_focus(self):
+        for button_id in self.button_ids:
+            button = self.ids[button_id]
+            button.state = "normal"
+
+    def set_focus_button(self, focused_button_id):
+        self.clear_focus()
+
+        focused_button = self.ids[focused_button_id]
+        focused_button.state = "down"
+
+
     def handle_on_enter(self):
         print("setting screen handle_on_enter")
 
     def on_down_pressed(self):
+        if self.current_button == "":
+            self.current_button = self.button_ids[len(self.button_ids) - 1]
+            self.set_focus_button(self.current_button)
+        else:
+            current_index = self.button_ids.index(self.current_button)
+            new_index = (current_index + 1) % len(self.button_ids)
+            self.current_button = self.button_ids[new_index]
+            self.set_focus_button(self.current_button)
         print("setting screen on_down_pressed")
 
     def on_up_pressed(self):
+        if self.current_button == "":
+            self.current_button = self.button_ids[0]
+            self.set_focus_button(self.current_button)
+        else:
+            current_index = self.button_ids.index(self.current_button)
+            new_index = (current_index - 1) % len(self.button_ids)
+            self.current_button = self.button_ids[new_index]
+            self.set_focus_button(self.current_button)
+
         print("setting screen on_up_pressed")
 
     def on_left_pressed(self):
