@@ -94,7 +94,7 @@ class SettingScreen(Screen):
         print("Copy log successfully.")
 
     def on_reset_factory_click(self):
-        self.reset_popup.open()
+        self.reset_popup.handle_open()
 
     def reset_factory(self):
         self.response_received = False
