@@ -28,6 +28,7 @@ class SettingScreen(Screen):
         super().__init__(**kwargs)
         self.bypass = 1
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
+        self.copy_loading_screen = LoadingScreen(message="Copying", timeout=5, on_timeout_callback=self.on_copy_timeout)
         self.response_received = False
 
     def reset_data(self):
@@ -65,6 +66,7 @@ class SettingScreen(Screen):
         print("Update brightness of LCD screen successully.")
 
     def on_copy_log_click(self):
+        self.copy_loading_screen.show()
         print("Copy log successfully.")
 
     def on_reset_factory_click(self):
@@ -77,7 +79,7 @@ class SettingScreen(Screen):
 
     def reset_factory(self):
         self.response_received = False
-        self.loading_screen.show()
+        self.copy_loading_screen.show()
         msg = SetDefaultCalibrationRequest.create_message()
         WebSocketClient.instance().send_json_sync(
             msg.to_json()
@@ -94,6 +96,10 @@ class SettingScreen(Screen):
         if not self.response_received:  
            self.show_error_popup("Request timed out! Please try again.")
 
+    def on_copy_timeout(self):
+        self.copy_loading_screen.hide()
+        self.show_error_popup("Copy timed out! Please try again.")
+           
     def clear_focus(self):
         for button_id in self.button_ids:
             button = self.ids[button_id]
@@ -107,6 +113,12 @@ class SettingScreen(Screen):
 
 
     def handle_on_enter(self):
+        if self.current_button == "reset_factory_btn":
+            self.on_reset_factory_click()
+        elif self.current_button == "copy_log_btn":
+            self.on_copy_log_click()
+        elif self.current_button == "back_btn":
+            self.on_back_btn_click()
         print("setting screen handle_on_enter")
 
     def on_down_pressed(self):
