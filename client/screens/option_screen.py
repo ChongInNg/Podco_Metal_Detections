@@ -11,9 +11,13 @@ class OptionScreen(Screen):
     current_button = StringProperty('')
     button_ids = ["detection_btn", "calibration_btn", "analyzer_btn", "setting_btn"]
     
+    def on_kv_post(self, base_widget):
+       self.reset_data()
+       
     def reset_data(self):
-        self.current_button = ""
         self.clear_focus()
+        self.current_button = "detection_btn"
+        self.ids[self.current_button].state = "down"
 
     def get_title(self):
         return self.title
