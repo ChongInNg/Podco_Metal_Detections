@@ -13,7 +13,7 @@
         BoxLayout:
             orientation: "vertical"
             spacing: 5
-            padding: [5, 5]  # Padding to center the UI
+            padding: [5, 5]
             canvas.before:
                 Color:
                     rgba: 0.15, 0.15, 0.2, 1
@@ -53,9 +53,12 @@
                     value: root.brightness
                     size_hint_x: 0.6
                     on_value: root.on_brightness_change(self.value)
-                    background_color: root.slider_color
-                    on_touch_down: root.highlight_slider()
-                    on_touch_up: root.reset_slider_color()  
+                    canvas.before:
+                        Color:
+                            rgba: root.slider_color
+                        Rectangle:
+                            pos: self.x + 5, self.y + (self.height * 0.2)  # 🔥 Reduce vertical coverage
+                            size: self.width - 10, self.height * 0.6
 
             BoxLayout:
                 orientation: "horizontal"
@@ -72,8 +75,8 @@
                     size_hint_x: 0.5  
                     size_hint_y: 0.5  
                     font_size: "15sp"
-                    background_color: (1, 0, 0, 1) 
                     on_release: root.on_reset_factory_click()
+                    background_color: root.reset_button_color
 
             BoxLayout:
                 orientation: "horizontal"

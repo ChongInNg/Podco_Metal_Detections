@@ -21,7 +21,6 @@ class SettingScreen(Screen):
     brightness = NumericProperty(50)
     bypass_status = NumericProperty(0)
     bypass_status_value = StringProperty("OFF")
-    current_button = StringProperty('')
     component_ids = component_ids = [
         ("brightness_slider", "slider"),
         ("reset_factory_btn", "button"),
@@ -29,7 +28,8 @@ class SettingScreen(Screen):
         ("back_btn", "button"),
     ]
 
-    slider_color = ListProperty([1, 1, 1, 1]) 
+    slider_color = ListProperty([0.15, 0.15, 0.2, 1])
+    reset_button_color = ListProperty([1, 0, 0, 1]) 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -37,10 +37,15 @@ class SettingScreen(Screen):
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.copy_loading_screen = LoadingScreen(message="Copying", timeout=5, on_timeout_callback=self.on_copy_timeout)
         self.response_received = False
+        self.current_component_id = ""
+    
+    def on_kv_post(self, base_widget):
+       self.reset_data()
 
     def reset_data(self):
-        self.current_button = ""
         self.clear_focus()
+        self.current_component_id = "brightness_slider"
+        self.highlight_slider() # default make it high light
         pass
 
     def get_title(self):
@@ -113,51 +118,67 @@ class SettingScreen(Screen):
         for component_id, component_type  in self.component_ids:
             component = self.ids[component_id]
             if component_type == "button":
-                component.state = "normal"
+                if component_id == "reset_factory_btn":
+                    component.state = "down" # this button should be special handle because of background color
+                else:
+                    component.state = "normal"
             elif component_type == "slider":
                 self.reset_slider_color()
 
-    def set_focus_button(self, focused_button_id):
-        for component_id, component_type in self.button_ids:
-            if component_id == focused_button_id:
-                focused_component = self.ids[component_id]
-                if component_type == "button":
-                    focused_component.state = "down"
-                elif component_type == "slider":
-                    self.highlight_slider()
-                break
+    def set_focus_component(self, index: int):
+        if index < 0 or index >= len(self.component_ids):
+            print("Index is out of range, set_focus_component failed.")
+            return
+
+        self.clear_focus()
+        component_id, component_type = self.component_ids[index]
+        focused_component = self.ids[component_id]
+        
+        if component_type == "button":
+            if component_id == "reset_factory_btn":
+                focused_component.state = "normal"
+            else:
+                focused_component.state = "down"
+        elif component_type == "slider":
+            self.highlight_slider() 
+
+        self.current_component_id = component_id
+
 
     def handle_on_enter(self):
-        if self.current_button == "reset_factory_btn":
+        if self.current_component_id == "reset_factory_btn":
             self.on_reset_factory_click()
-        elif self.current_button == "copy_log_btn":
+        elif self.current_component_id == "copy_log_btn":
             self.on_copy_log_click()
-        elif self.current_button == "back_btn":
+        elif self.current_component_id == "back_btn":
             self.on_back_btn_click()
         print("setting screen handle_on_enter")
 
     def on_down_pressed(self):
-        if self.current_button == "":
-            self.current_button = self.component_ids[len(self.component_ids) - 1]
-            self.set_focus_button(self.current_button)
+        if self.current_component_id == "":
+            new_index = len(self.component_ids) - 1
         else:
-            current_index = self.component_ids.index(self.current_button)
+            current_index = self.get_current_index()
             new_index = (current_index + 1) % len(self.component_ids)
-            self.current_button = self.component_ids[new_index]
-            self.set_focus_button(self.current_button)
+        
+        self.set_focus_component(new_index) 
         print("setting screen on_down_pressed")
 
     def on_up_pressed(self):
-        if self.current_button == "":
-            self.current_button = self.component_ids[0]
-            self.set_focus_button(self.current_button)
+        if self.current_component_id == "":
+            new_index = 0
         else:
-            current_index = self.component_ids.index(self.current_button)
+            current_index = self.get_current_index()
             new_index = (current_index - 1) % len(self.component_ids)
-            self.current_button = self.component_ids[new_index]
-            self.set_focus_button(self.current_button)
 
+        self.set_focus_component(new_index)
         print("setting screen on_up_pressed")
+
+    def get_current_index(self) -> int:
+        for i in range(len(self.component_ids)):
+            if self.component_ids[i][0] == self.current_component_id:
+                return i
+        return -1
 
     def on_left_pressed(self):
         print("setting screen on_left_pressed")
@@ -169,7 +190,9 @@ class SettingScreen(Screen):
         return False
     
     def highlight_slider(self):
-        self.slider_color = [0, 1, 0, 1]
+        self.slider_color = [0.196, 0.643, 0.808,1]
+        print("highlight_slider.........")
 
     def reset_slider_color(self):
-        self.slider_color = [1, 1, 1, 1]
+        self.slider_color = [0.15, 0.15, 0.2, 1]
+        print("reset_slider_color.........")
