@@ -23,7 +23,7 @@ class SetThresholdPopup(Popup):
         )
         self.slider.bind(value=self.update_label)
 
-        button_layout = BoxLayout(size_hint_y=0.5, spacing=5)
+        button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.3)
         cancel_button = Button(text="Cancel", size_hint=(0.5, 0.8))
         cancel_button.bind(on_press=self.handle_dismiss)
 

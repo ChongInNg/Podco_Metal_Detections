@@ -15,6 +15,7 @@ from screens.set_threshold_popup import SetThresholdPopup
 from screens.loading_screen import LoadingScreen
 from screens.error_popup import ErrorPopup
 from screens.image_button import ImageButton
+from kivy.uix.image import Image
 from dataclasses import dataclass
 
 import sys
@@ -44,7 +45,7 @@ class AnalyzerScreen(Screen):
             on_confirm_callback=self.set_threshold
         )
         self.error_popup = ErrorPopup()
-
+        self.bypass_status_image = "assets/bypass_on.png"
         self._create_graph()
 
     def reset_data(self):
@@ -110,8 +111,6 @@ class AnalyzerScreen(Screen):
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(self.graph)
 
-        legend_layout = BoxLayout(size_hint_y=0.1)
-
         legend_items = [
             ("T", [1, 0, 0, 1]),
             ("C1-P", [0, 1, 0, 1]),
@@ -120,14 +119,43 @@ class AnalyzerScreen(Screen):
             ("C2-N", [1, 0, 1, 1]),
         ]
 
+        bp_layout = BoxLayout(
+            orientation="horizontal",
+            spacing=5,
+            size_hint_x=0.2,
+            size_hint_y=1,
+            pos_hint={"center_y": 0.5},
+        )
+
+        self.bypass_image = Image(
+            source=self.bypass_status_image,
+            size_hint=(None, None),
+            size=(30, 30),
+            allow_stretch=True,
+            keep_ratio=True,
+            pos_hint={"center_y": 0.5}
+        )
+        bp_layout.add_widget(self.bypass_image)
+
         self.bp_button = ImageButton(
             source="assets/threshold.png",
+            size_hint=(None, None),
+            size=(30, 30),
             allow_stretch=True,
             keep_ratio=True,
             pos_hint={"center_y": 0.5}
         )
         self.bp_button.bind(on_release=self.open_threshold_popup)
-        legend_layout.add_widget(self.bp_button)
+        bp_layout.add_widget(self.bp_button)
+
+        
+        legend_layout = BoxLayout(
+            orientation="horizontal",
+            size_hint_y=0.1,
+            padding=[10, 5],
+            spacing=5
+        )
+        legend_layout.add_widget(bp_layout)
 
         for name, color in legend_items:
             label = Label(text=name, color=color)
