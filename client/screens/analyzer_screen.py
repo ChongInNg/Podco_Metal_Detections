@@ -39,12 +39,19 @@ class AnalyzerScreen(Screen):
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.response_received = False
         self.threshold = 1500
+        self.threshold_popup = SetThresholdPopup(
+            on_confirm_callback=self.set_threshold
+        )
+        self.error_popup = ErrorPopup()
+
         self._create_graph()
 
     def reset_data(self):
         self.start_time = time.time()
         self.event = Clock.schedule_interval(self.update_graph, 0.1)
         self.loading_screen.hide()
+        self.threshold_popup.reset_state()
+        self.error_popup.reset_state()
         
     def get_title(self):
         return self.title
@@ -106,13 +113,13 @@ class AnalyzerScreen(Screen):
 
         legend_items = [
             ("T", [1, 0, 0, 1]),
-            ("CH1 P", [0, 1, 0, 1]),
-            ("CH1 N", [1, 0.5, 0, 1]),
-            ("CH2 P", [0, 0.5, 1, 1]),
-            ("CH2 N", [1, 0, 1, 1]),
+            ("CH1-P", [0, 1, 0, 1]),
+            ("CH1-N", [1, 0.5, 0, 1]),
+            ("CH2-P", [0, 0.5, 1, 1]),
+            ("CH2-N", [1, 0, 1, 1]),
         ]
 
-        self.bp_button = Button(text="BP", size_hint_x=0.2, 
+        self.bp_button = Button(text="Setting", size_hint_x=1, 
             on_press=self.open_threshold_popup)
         legend_layout.add_widget(self.bp_button)
 
@@ -177,10 +184,7 @@ class AnalyzerScreen(Screen):
             self.show_error_popup("Set threshold failed! Please try again.")
 
     def open_threshold_popup(self, instance):
-        popup = SetThresholdPopup(
-            on_confirm_callback=self.set_threshold
-        )
-        popup.open()
+        self.threshold_popup.handle_open()
 
     def set_threshold(self, new_threshold):
         self.threshold = new_threshold
@@ -198,8 +202,65 @@ class AnalyzerScreen(Screen):
            self.show_error_popup("Request timed out! Please try again.")
     
     def show_error_popup(self, message):
-        error_popup = ErrorPopup(message=message)
-        error_popup.open()
+        self.error_popup.update_message(message)
+        self.error_popup.handle_open()
 
-    def handle_on_enter(self):
-         print("analyzer screen handle_on_enter")
+    def handle_on_enter(self) -> bool:
+        if self.is_showing_threshold_popup():
+            self.threshold_popup.handle_on_enter()
+            return True
+        elif self.is_showing_error_popup() or self.is_showing_loading_screen():
+            print("analyzer screen ignore to handle handle_on_enter")
+            return True
+        self.open_threshold_popup(self)
+        print("analyzer screen handle_on_enter")
+        return True
+
+    def on_down_pressed(self) -> bool:
+        if self.is_showing_threshold_popup():
+            self.threshold_popup.on_down_pressed()
+            return True
+        
+        print("analyzer screen not handle on_down_pressed")
+        return False
+
+    def on_up_pressed(self) -> bool:
+        if self.is_showing_threshold_popup():
+            self.threshold_popup.on_up_pressed()
+            return True
+        print("analyzer screen not handle on_up_pressed")
+        return False
+
+    def on_left_pressed(self) -> bool:
+        if self.is_showing_threshold_popup():
+            self.threshold_popup.on_left_pressed()
+            return True
+        elif self.is_showing_error_popup or self.is_showing_loading_screen():
+            print("analyzer screen ingore on_left_pressed")
+            return True
+        print("analyzer screen not handle on_left_pressed")
+        return False
+
+    def on_right_pressed(self) -> bool:
+        if self.is_showing_threshold_popup():
+            self.threshold_popup.on_right_pressed()
+            return True
+        elif self.is_showing_error_popup or self.is_showing_loading_screen():
+            print("analyzer screen ingore on_right_pressed")
+            return True
+        print("analyzer screen not handle on_right_pressed")
+        return False
+
+    def is_showing_threshold_popup(self) -> bool:
+        return self.threshold_popup.is_showing()
+    
+    def is_showing_error_popup(self) -> bool:
+        return self.error_popup.is_showing()
+    
+    def is_showing_loading_screen(self) -> bool:
+        return self.loading_screen.is_showing()
+    
+    def is_showing_popup_or_loading_screen(self):
+        if self.is_showing_threshold_popup() or self.is_showing_error_popup() or self.is_showing_loading_screen():
+            return True
+        return False

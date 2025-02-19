@@ -28,7 +28,10 @@ class SettingScreen(Screen):
         ("back_btn", "button"),
     ]
 
-    slider_color = ListProperty([0.15, 0.15, 0.2, 1])
+    HIGHLIGHT_slider_color = [0.196, 0.643, 0.808,1]
+    DEFAULT_slider_color = [0.15, 0.15, 0.2, 1]
+    
+    slider_color = ListProperty(DEFAULT_slider_color)
     reset_button_color = ListProperty([1, 0, 0, 1]) 
 
     def __init__(self, **kwargs):
@@ -226,11 +229,11 @@ class SettingScreen(Screen):
         print("setting screen on_right_pressed")
     
     def highlight_slider(self):
-        self.slider_color = [0.196, 0.643, 0.808,1]
+        self.slider_color = SettingScreen.HIGHLIGHT_slider_color
         print("highlight_slider.........")
 
     def reset_slider_color(self):
-        self.slider_color = [0.15, 0.15, 0.2, 1]
+        self.slider_color = SettingScreen.DEFAULT_slider_color
         print("reset_slider_color.........")
 
     def is_showing_reset_popup(self) -> bool:

@@ -40,7 +40,7 @@ class ConfirmationPopup(Popup):
         self.confirm_button.state = "normal"
 
     def _on_confirm(self, instance):
-        self.handle_dismiss()
+        self.handle_dismiss(instance)
         if self.on_confirm_callback:
             self.on_confirm_callback()
 
@@ -60,10 +60,10 @@ class ConfirmationPopup(Popup):
         if self.current_button == self.confirm_button:
             self._on_confirm(self)
         else:
-            self.handle_dismiss()  
+            self.handle_dismiss(self)  
         print("ConfirmationPopup handle_on_enter")
 
-    def handle_dismiss(self):
+    def handle_dismiss(self, instance):
         self.dismiss()
         self.current_state = "dismiss"
 

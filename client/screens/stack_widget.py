@@ -24,7 +24,12 @@ class StackWidget(Screen):
             elif self.is_calibration():
                 self.change_to_detection_screen()
             elif self.is_analyzer():
-                self.change_to_calibration_screen()
+                analyzer_screen = self.get_analyzer_screen()
+                is_handled = analyzer_screen.on_left_pressed()
+                if is_handled:
+                    print("Already handle, no need to handle in stackwidget")
+                else:
+                    self.change_to_calibration_screen()
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_left_pressed()
@@ -36,7 +41,12 @@ class StackWidget(Screen):
             elif self.is_calibration():
                 self.change_to_analyzer_screen()
             elif self.is_analyzer():
-                self.change_to_option_screen()
+                analyzer_screen = self.get_analyzer_screen()
+                is_handled = analyzer_screen.on_right_pressed()
+                if is_handled:
+                    print("Already handle, no need to handle in stackwidget")
+                else:
+                    self.change_to_option_screen()
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_right_pressed()
@@ -50,6 +60,9 @@ class StackWidget(Screen):
             elif self.is_detection():
                 detection_screen = self.get_detection_screen()
                 detection_screen.on_up_pressed()
+            elif self.is_analyzer():
+                analyzer_screen = self.get_analyzer_screen()
+                analyzer_screen.on_up_pressed()
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_up_pressed()
@@ -63,6 +76,9 @@ class StackWidget(Screen):
             elif self.is_detection():
                 detection_screen = self.get_detection_screen()
                 detection_screen.on_down_pressed()
+            elif self.is_analyzer():
+                analyzer_screen = self.get_analyzer_screen()
+                analyzer_screen.on_down_pressed()
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_down_pressed()
@@ -73,12 +89,12 @@ class StackWidget(Screen):
             if self.is_option():
                 option_screen = self.get_option_screen()
                 option_screen.handle_on_enter()
-            if self.is_setting():
-                setting_screen = self.get_setting_screen()
-                setting_screen.handle_on_enter()
-            if self.is_analyzer():
+            elif self.is_analyzer():
                 analyzer_screen = self.get_analyzer_screen()
                 analyzer_screen.handle_on_enter()
+            elif self.is_setting():
+                setting_screen = self.get_setting_screen()
+                setting_screen.handle_on_enter()
             else:
                 print(f"Not support center direction in this screen: {self.current_screen}")
         else:
@@ -128,19 +144,19 @@ class StackWidget(Screen):
     def change_to_analyzer_screen(self):
         self.change_to_screen_name("analyzer")
 
-    def is_detection(self):
+    def is_detection(self) -> bool:
         return self.current_screen == "detection"
     
-    def is_calibration(self):
+    def is_calibration(self) -> bool:
         return self.current_screen == "calibration"
     
-    def is_analyzer(self):
+    def is_analyzer(self) -> bool:
         return self.current_screen == "analyzer"
     
-    def is_option(self):
+    def is_option(self) -> bool:
         return self.current_screen == "option"
     
-    def is_setting(self):
+    def is_setting(self) -> bool:
         return self.current_screen == "setting"
     
     def get_option_screen(self) -> OptionScreen:

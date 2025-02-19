@@ -34,10 +34,10 @@ class ErrorPopup(Popup):
         print("ErrorPopup on_right_pressed")
     
     def handle_on_enter(self):
-        self.handle_dismiss()
+        self.handle_dismiss(self)
         print("ErrorPopup handle_on_enter")
 
-    def handle_dismiss(self):
+    def handle_dismiss(self, instance):
         self.dismiss()
         self.current_state = "dismiss"
 
