@@ -3,11 +3,55 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.slider import Slider
+from kivy.graphics import Color
 
-class SetThresholdPopup(Popup):
+
+from kivy.uix.slider import Slider
+from kivy.graphics import Color, Rectangle
+
+class CustomSlider(Slider):
     HIGHLIGHT_slider_color = [0.196, 0.643, 0.808,1]
     DEFAULT_slider_color = [0.15, 0.15, 0.2, 1]
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.highlight_state = False
+        with self.canvas.before:
+            self.bg_color = Color(0.15, 0.15, 0.2, 1)
+            self.bg_rect = Rectangle(pos=self.pos, size=self.size)
+        self.bind(pos=self._update_bg, size=self._update_bg)
+
+    def _update_bg(self, *args):
+        self.bg_rect.pos = self.pos
+        self.bg_rect.size = self.size
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self.change_color(CustomSlider.HIGHLIGHT_slider_color)
+        return super().on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        self.change_color(CustomSlider.DEFAULT_slider_color)
+        return super().on_touch_up(touch)
+
+    def change_color(self, color):
+        if color == CustomSlider.HIGHLIGHT_slider_color:
+            self.highlight_state = True
+        else:
+            self.highlight_state = False
+        self.bg_color.rgba = color
+        self.canvas.ask_update() # need to force update
+
+    def highlight_color(self):
+        self.change_color(CustomSlider.HIGHLIGHT_slider_color)
+    
+    def reset_color(self):
+        self.change_color(CustomSlider.DEFAULT_slider_color)
+
+    def is_highlight(self)->bool:
+        return self.highlight_state
+    
+class SetThresholdPopup(Popup):
     def __init__(self, on_confirm_callback=None, **kwargs):
         super().__init__(size_hint=(None, None), size=(320, 240), title="Set Threshold", auto_dismiss=False, **kwargs)
 
@@ -18,12 +62,11 @@ class SetThresholdPopup(Popup):
 
         popup_layout = BoxLayout(orientation="vertical", spacing=5, padding=5)
         self.label = Label(text=f"Threshold: {self.current_threshold}", size_hint_y=0.2)
-        self.slider = Slider(
+        self.slider = CustomSlider(
             min=self.min_value, 
             max=self.max_value, 
             value=self.current_threshold, 
             size_hint_y=0.4,
-            # background_color=SetThresholdPopup.HIGHLIGHT_slider_color
         )
         self.slider.bind(value=self.update_label)
 
@@ -65,25 +108,37 @@ class SetThresholdPopup(Popup):
         self.current_button = self.confirm_button
         self.cancel_button.state = "normal"
         self.confirm_button.state = "normal"
-
+        self.reset_slider_color()
+        
     def on_left_pressed(self):
-        self.current_button = self.cancel_button
-        self.cancel_button.state = "down"
-        self.confirm_button.state = "down"
+        if self.slider.is_highlight():
+            if self.slider.value > self.slider.min:
+                self.slider.value -= 1
+        else:
+            self.current_button = self.cancel_button
+            self.cancel_button.state = "down"
+            self.confirm_button.state = "down"
         print("SetThresholdPopup on_left_pressed")
 
     def on_right_pressed(self):
-        self.cancel_button.state = "normal"
-        self.confirm_button.state = "normal"
-        self.current_button = self.confirm_button
+        if self.slider.is_highlight():
+            if self.slider.value < self.slider.max:
+                self.slider.value += 1
+        else:
+            self.cancel_button.state = "normal"
+            self.confirm_button.state = "normal"
+            self.current_button = self.confirm_button
         print("SetThresholdPopup on_right_pressed")
 
     def handle_on_enter(self):
+        if self.slider.is_highlight():
+            print("Slider is highlight, SetThresholdPopup ingore to handle_on_enter.")
+            return
         if self.current_button == self.confirm_button:
             self._on_confirm(self)
         else:
             self.handle_dismiss(self)  
-        print("ConfirmationPopup handle_on_enter")
+        print("SetThresholdPopup handle_on_enter")
 
     def handle_dismiss(self, instance):
         self.dismiss()
@@ -97,9 +152,21 @@ class SetThresholdPopup(Popup):
         return self.current_state == "opened"
     
     def highlight_slider(self):
-        self.slider_color = SetThresholdPopup.HIGHLIGHT_slider_color
+        self.slider.highlight_color()
         print("highlight_slider.........")
 
     def reset_slider_color(self):
-        self.slider_color = SetThresholdPopup.DEFAULT_slider_color
+        self.slider.reset_color()
         print("reset_slider_color.........")
+
+    def on_up_pressed(self):
+        self.cancel_button.state = "normal"
+        self.confirm_button.state = "down"
+        self.current_button = None
+        self.highlight_slider()
+
+    def on_down_pressed(self):
+        self.cancel_button.state = "normal"
+        self.confirm_button.state = "normal"
+        self.current_button = self.confirm_button
+        self.reset_slider_color()

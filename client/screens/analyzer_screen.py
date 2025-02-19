@@ -209,8 +209,11 @@ class AnalyzerScreen(Screen):
         if self.is_showing_threshold_popup():
             self.threshold_popup.handle_on_enter()
             return True
-        elif self.is_showing_error_popup() or self.is_showing_loading_screen():
-            print("analyzer screen ignore to handle handle_on_enter")
+        elif self.is_showing_error_popup():
+            self.error_popup.handle_on_enter()
+            return True
+        elif self.is_showing_loading_screen():
+            print(f"analyzer screen ignore to handle handle_on_enter.")
             return True
         self.open_threshold_popup(self)
         print("analyzer screen handle_on_enter")
@@ -235,7 +238,7 @@ class AnalyzerScreen(Screen):
         if self.is_showing_threshold_popup():
             self.threshold_popup.on_left_pressed()
             return True
-        elif self.is_showing_error_popup or self.is_showing_loading_screen():
+        elif self.is_showing_error_popup() or self.is_showing_loading_screen():
             print("analyzer screen ingore on_left_pressed")
             return True
         print("analyzer screen not handle on_left_pressed")
@@ -245,7 +248,7 @@ class AnalyzerScreen(Screen):
         if self.is_showing_threshold_popup():
             self.threshold_popup.on_right_pressed()
             return True
-        elif self.is_showing_error_popup or self.is_showing_loading_screen():
+        elif self.is_showing_error_popup() or self.is_showing_loading_screen():
             print("analyzer screen ingore on_right_pressed")
             return True
         print("analyzer screen not handle on_right_pressed")
