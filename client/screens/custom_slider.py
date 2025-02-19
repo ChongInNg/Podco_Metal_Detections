@@ -8,7 +8,7 @@ class CustomSlider(Slider):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.highlight_state = False
-        self.current_step = 1
+        self.current_step = 100
         with self.canvas.before:
             self.bg_color = Color(0.15, 0.15, 0.2, 1)
             self.bg_rect = Rectangle(pos=self.pos, size=self.size)
