@@ -187,6 +187,10 @@ class AnalyzerScreen(Screen):
         self.threshold_popup.handle_open()
 
     def set_threshold(self, new_threshold):
+        if not WebSocketClient.instance().is_connected(): 
+            self.show_error_popup("Cannot reset without connectting with server")
+            return
+        
         self.threshold = new_threshold
         self.response_received = False
         msg = SetThresholdRequest.create_message(threshold=self.threshold)
