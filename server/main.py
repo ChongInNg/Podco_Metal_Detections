@@ -23,7 +23,9 @@ async def start_web_server():
 
 if __name__ == "__main__":
     Logger.info("Podco Metal Detection Server Start")
-    if not SerialServer.instance().connect(port='COM2', baudrate=115200, timeout=None):
+    # port = 'COM2'
+    port = 'ttyAMA0'
+    if not SerialServer.instance().connect(port=port, baudrate=115200, timeout=None):
         Logger.error("Podco Metal Detection Serial Server exited")
         exit(100)
 
