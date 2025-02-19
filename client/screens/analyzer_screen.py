@@ -14,6 +14,7 @@ from websocket.client import WebSocketClient
 from screens.set_threshold_popup import SetThresholdPopup
 from screens.loading_screen import LoadingScreen
 from screens.error_popup import ErrorPopup
+from screens.image_button import ImageButton
 from dataclasses import dataclass
 
 import sys
@@ -113,14 +114,19 @@ class AnalyzerScreen(Screen):
 
         legend_items = [
             ("T", [1, 0, 0, 1]),
-            ("CH1-P", [0, 1, 0, 1]),
-            ("CH1-N", [1, 0.5, 0, 1]),
-            ("CH2-P", [0, 0.5, 1, 1]),
-            ("CH2-N", [1, 0, 1, 1]),
+            ("C1-P", [0, 1, 0, 1]),
+            ("C1-N", [1, 0.5, 0, 1]),
+            ("C2-P", [0, 0.5, 1, 1]),
+            ("C2-N", [1, 0, 1, 1]),
         ]
 
-        self.bp_button = Button(text="Setting", size_hint_x=1, 
-            on_press=self.open_threshold_popup)
+        self.bp_button = ImageButton(
+            source="assets/threshold.png",
+            allow_stretch=True,
+            keep_ratio=True,
+            pos_hint={"center_y": 0.5}
+        )
+        self.bp_button.bind(on_release=self.open_threshold_popup)
         legend_layout.add_widget(self.bp_button)
 
         for name, color in legend_items:
