@@ -16,6 +16,7 @@ class CustomSlider(Slider):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.highlight_state = False
+        self.current_step = 1
         with self.canvas.before:
             self.bg_color = Color(0.15, 0.15, 0.2, 1)
             self.bg_rect = Rectangle(pos=self.pos, size=self.size)
@@ -50,6 +51,17 @@ class CustomSlider(Slider):
 
     def is_highlight(self)->bool:
         return self.highlight_state
+    
+    def increase_value(self):
+        if self.value + self.current_step < self.max:
+            self.value += self.current_step
+
+    def decrease_value(self):
+        if self.value - self.current_step > self.min:
+            self.value -= self.current_step
+
+    def reset_value(self, value=1500):
+        self.value = value
     
 class SetThresholdPopup(Popup):
     def __init__(self, on_confirm_callback=None, **kwargs):
@@ -109,11 +121,11 @@ class SetThresholdPopup(Popup):
         self.cancel_button.state = "normal"
         self.confirm_button.state = "normal"
         self.reset_slider_color()
+        # self.slider.reset_value()
         
     def on_left_pressed(self):
         if self.slider.is_highlight():
-            if self.slider.value > self.slider.min:
-                self.slider.value -= 1
+            self.slider.decrease_value()
         else:
             self.current_button = self.cancel_button
             self.cancel_button.state = "down"
@@ -122,8 +134,7 @@ class SetThresholdPopup(Popup):
 
     def on_right_pressed(self):
         if self.slider.is_highlight():
-            if self.slider.value < self.slider.max:
-                self.slider.value += 1
+            self.slider.increase_value()
         else:
             self.cancel_button.state = "normal"
             self.confirm_button.state = "normal"
