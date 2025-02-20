@@ -184,7 +184,7 @@ class SerialServer:
             import RPi.GPIO as GPIO
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(17, GPIO.OUT)
-            GPIO.output(17, GPIO.HIGH)
+            GPIO.output(17, GPIO.LOW)
             print("set GPIO17 pin off.")
         else:
             print("No run on rpi, no need to set server status off.")
