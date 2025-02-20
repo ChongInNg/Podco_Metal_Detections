@@ -26,12 +26,12 @@
                 spacing: 5
                 Label:
                     text: "Bypass Status:"
-                    font_size: "12sp"
+                    font_size: "15sp"
                     size_hint_x: 0.5
                 Label:
                     id: bypass_status_label
                     text: root.bypass_status_value
-                    font_size: "12sp"
+                    font_size: "15sp"
                     size_hint_x: 0.5
 
             # Brightness Adjustment
@@ -40,12 +40,12 @@
                 spacing: 5
                 Label:
                     text: "Brightness:"
-                    font_size: "12sp"
+                    font_size: "15sp"
                     size_hint_x: 0.4
                 Label:
                     id: brightness_value_label
                     text: str(int(root.brightness))
-                    font_size: "12sp"
+                    font_size: "15sp"
                     size_hint_x: 0.1
                 Slider:
                     id: brightness_slider
@@ -68,7 +68,7 @@
                 spacing: 5
                 Label:
                     text: "Reset to Factory:"
-                    font_size: "12sp"
+                    font_size: "15sp"
                     size_hint_x: 0.5
                     size_hint_y: 0.5
                 Button:
@@ -76,7 +76,7 @@
                     text: "Reset"
                     size_hint_x: 0.5
                     size_hint_y: 0.5
-                    font_size: "12sp"
+                    font_size: "15sp"
                     on_release: root.on_reset_factory_click()
                     background_color: root.reset_button_color
 
@@ -86,7 +86,7 @@
                 spacing: 5
                 Label:
                     text: "Log Backup:"
-                    font_size: "12sp"
+                    font_size: "15sp"
                     size_hint_x: 0.5
                     size_hint_y: 0.5
                 Button:
@@ -94,7 +94,7 @@
                     text: "Copy Log"
                     size_hint_x: 0.5
                     size_hint_y: 0.5
-                    font_size: "12sp"
+                    font_size: "15sp"
                     on_release: root.on_copy_log_click()
 
         # back_btn
@@ -109,6 +109,6 @@
             Button:
                 id: back_btn
                 text: "Back"
-                font_size: "12sp"
+                font_size: "15sp"
                 size_hint_x: 0.5
                 on_release: root.on_back_btn_click()
