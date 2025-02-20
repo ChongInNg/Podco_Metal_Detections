@@ -12,6 +12,7 @@ from screens.stack_widget import StackWidget
 from screens.main_screen import MainScreen
 from screens.logo_screen import LogoScreen 
 from websocket.client import WebSocketClient
+from config.config import ConfigManager
 import asyncio
 import sys
 import os
@@ -32,13 +33,13 @@ Config.set('graphics', 'multisamples', '0')
 Config.set('graphics', 'fullscreen', '0')
 Config.set('graphics', 'dpi', '96')  
 
-# test
-
-
-
 from kivy.core.window import Window
 # Window.size = (640, 480)
 #Window.fullscreen = True
+
+def get_current_program_folder():
+  return os.path.dirname(os.path.abspath(__file__))
+
 class MetalDetectionApp(App):
     def build(self):
         sm = ScreenManager()
@@ -55,8 +56,14 @@ class MetalDetectionApp(App):
         self.loop_thread = threading.Thread(target=self._run_event_loop, daemon=True)
         self.loop_thread.start()
         
-        # self.monitor_joystick()
-        Window.bind(on_key_down=self.handle_keyboard)
+        if ConfigManager.instance().run_on_rpi():
+            self.monitor_joystick()
+            print("start monitor_joystick........")
+        
+        if ConfigManager.instance().is_support_keyboard():
+            Window.bind(on_key_down=self.handle_keyboard)
+            print("start listening keyboard input.")
+            
         self.start_websocket()
         return sm
 
@@ -91,9 +98,10 @@ class MetalDetectionApp(App):
     def start_websocket(self):
         if not self.event_loop.is_running():
             raise RuntimeError("Event loop is not running.. make sure it running first")
-       
+
+        url = f"ws://{ConfigManager.instance().server_address}:{ConfigManager.instance().server_port}"
         WebSocketClient.instance().start(
-            url="ws://127.0.0.1:8765",
+            url=url,
             event_loop=self.event_loop,
             message_callback=self.main_screen.handle_websocket_messages,
             disconnect_callback=self.main_screen.handle_websocket_disconnect,
@@ -119,9 +127,9 @@ class MetalDetectionApp(App):
             self.handle_signal(direction)
 
 if __name__ == "__main__":
+    config_path = f"{get_current_program_folder()}/config/config.json"
+    ConfigManager.instance().read_config(config_path)
     app = MetalDetectionApp()
-    BaseWsMessage(Header("", ""))
-    
     app.run()
     app.stop_joystick()
 

@@ -7,11 +7,9 @@ class ConfigManager:
 
     def __init__(self):
         self.metal_detection_id: str = ""
-        self.slider_range_min: int = 0
-        self.slider_range_max: int = 0
-        self.slider_step: int = 0
         self.win_serial_port: str = ""
         self.rpi_serial_port: str = ""
+        self.serial_baudrate: int = 0
         self.server_address: str = ""
         self.server_port: int = 0
         self.run_on: str = ""
@@ -31,9 +29,9 @@ class ConfigManager:
                 data = json.load(f)
 
             self.metal_detection_id = data.get("metal_detection_id", "")
-            self.slider_range_min = data.get("slider_range_min", 0)
-            self.slider_range_max = data.get("slider_range_max", 0)
-            self.slider_step = data.get("slider_step", 0)
+            self.win_serial_port = data.get("win_serial_port", "")
+            self.rpi_serial_port = data.get("rpi_serial_port", "")
+            self.serial_baudrate = data.get("serial_baudrate", 0)
             self.server_address = data.get("server_address", "")
             self.server_port = data.get("server_port", 0)
             self.run_on = data.get("run_on", "")

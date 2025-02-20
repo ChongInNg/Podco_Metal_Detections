@@ -1,0 +1,10 @@
+{
+    "metal_detection_id": "detection_server",
+    "win_serial_port": "COM2",
+    "rpi_serial_port": "/dev/ttyAMA0",
+    "serial_baudrate": 115200,
+    "server_address": "127.0.0.1",
+    "server_port": 8765,
+    "run_on": "win",
+    "server_status_pin": 17
+}

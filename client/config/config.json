@@ -1,7 +1,10 @@
 {
-    "metal_detection_id": "detection1",
-    "analyze_range_min": 500,
-    "analyze_range_max": 2500,
-    "serial_port": "COM2",
-    "websocket_port": 8765
+    "metal_detection_id": "detection_client",
+    "slider_range_min": 500,
+    "slider_range_max": 2500,
+    "slider_step": 50,
+    "server_address": "127.0.0.1",
+    "server_port": 8765,
+    "run_on": "win",
+    "support_keyboard": "True"
 }

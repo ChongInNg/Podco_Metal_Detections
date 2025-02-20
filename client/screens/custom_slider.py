@@ -8,7 +8,6 @@ class CustomSlider(Slider):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.highlight_state = False
-        self.current_step = 100
         with self.canvas.before:
             self.bg_color = Color(0.15, 0.15, 0.2, 1)
             self.bg_rect = Rectangle(pos=self.pos, size=self.size)
@@ -45,12 +44,12 @@ class CustomSlider(Slider):
         return self.highlight_state
     
     def increase_value(self):
-        if self.value + self.current_step < self.max:
-            self.value += self.current_step
+        if self.value + self.step <= self.max:
+            self.value += self.step
 
     def decrease_value(self):
-        if self.value - self.current_step > self.min:
-            self.value -= self.current_step
+        if self.value - self.step >= self.min:
+            self.value -= self.step
 
     def reset_value(self, value=1500):
         self.value = value

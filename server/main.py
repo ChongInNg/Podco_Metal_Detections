@@ -5,14 +5,15 @@ from log.logger import Logger
 import time
 import os
 from websocket.websocket_server import WebSocketServer
+from config.config import ConfigManager
 
 def get_current_program_folder():
   return os.path.dirname(os.path.abspath(__file__))
 
 async def start_web_server():
     websocketsrv = WebSocketServer(
-        "0.0.0.0", 
-        8765
+        ConfigManager.instance().server_address, 
+        ConfigManager.instance().server_port
     )
     try:
         await websocketsrv.run()
@@ -23,9 +24,16 @@ async def start_web_server():
 
 if __name__ == "__main__":
     Logger.info("Podco Metal Detection Server Start")
-    port = 'COM2'
+    port = ''
+    config_path = f"{get_current_program_folder()}/config/config.json"
+    ConfigManager.instance().read_config(config_path)
     # port = 'ttyAMA0'
-    if not SerialServer.instance().connect(port=port, baudrate=115200, timeout=None):
+    if ConfigManager.instance().run_on_rpi():
+        port = ConfigManager.instance().rpi_serial_port
+    else:
+        port = ConfigManager.instance().win_serial_port
+    baudrate = ConfigManager.instance().serial_baudrate
+    if not SerialServer.instance().connect(port=port, baudrate=baudrate, timeout=None):
         Logger.error("Podco Metal Detection Serial Server exited")
         exit(100)
 

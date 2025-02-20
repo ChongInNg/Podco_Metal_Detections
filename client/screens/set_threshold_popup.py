@@ -3,6 +3,7 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from screens.custom_slider import CustomSlider
+from config.config import ConfigManager
 
 class SetThresholdPopup(Popup):
     def __init__(self, on_confirm_callback=None, **kwargs):
@@ -10,14 +11,15 @@ class SetThresholdPopup(Popup):
 
         self.on_confirm_callback = on_confirm_callback
         self.current_threshold = 1500
-        self.min_value = 500
-        self.max_value = 2500
-
+        self.min_value = ConfigManager.instance().slider_range_min
+        self.max_value = ConfigManager.instance().slider_range_max
+        self.step = ConfigManager.instance().slider_step
         popup_layout = BoxLayout(orientation="vertical", spacing=5, padding=5)
         self.label = Label(text=f"Threshold: {self.current_threshold}", size_hint_y=0.2)
         self.slider = CustomSlider(
             min=self.min_value, 
-            max=self.max_value, 
+            max=self.max_value,
+            step=self.step,
             value=self.current_threshold, 
             size_hint_y=0.4,
         )
