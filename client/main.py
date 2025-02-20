@@ -1,28 +1,18 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-from kivy.lang import Builder
 
-from screens.screen_header import ScreenHeader
-from screens.detection_screen import DetectionScreen
-from screens.calibration_screen import CalibrationScreen
-from screens.analyzer_screen import AnalyzerScreen
-from screens.setting_screen import SettingScreen
-from screens.option_screen import OptionScreen
-from screens.stack_widget import StackWidget
 from screens.main_screen import MainScreen
 from screens.logo_screen import LogoScreen 
 from websocket.client import WebSocketClient
 from config.config import ConfigManager
+from screens.flip_screen_manager import FlippedScreenManager
 import asyncio
 import sys
 import os
 import threading
-import time
 
-# Dynamically add the parent directory to sys.path
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Now import the shared file
 from share.wsmessage import *
 
 from kivy.config import Config
@@ -42,8 +32,10 @@ def get_current_program_folder():
 
 class MetalDetectionApp(App):
     def build(self):
-        sm = ScreenManager()
-        # print(f"Current window size: {Window.size}") 
+        if ConfigManager.instance().run_on_rpi():
+            sm = FlippedScreenManager()
+        else:
+            sm = ScreenManager()
 
         self.joystick = None
         # Add LogoScreen first, then other screens
@@ -63,7 +55,7 @@ class MetalDetectionApp(App):
         if ConfigManager.instance().is_support_keyboard():
             Window.bind(on_key_down=self.handle_keyboard)
             print("start listening keyboard input.")
-            
+
         self.start_websocket()
         return sm
 
