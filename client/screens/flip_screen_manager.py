@@ -12,8 +12,8 @@ class FlippedScreenManager(ScreenManager):
     def apply_flip_transformation(self):
         with self.canvas.before:
             PushMatrix()
-            Scale(-1, -1, 1)  # x-scale=-1, y-scale=-1, z-scale=1
-            Translate(-self.width, -self.height, 0) # Shift back into view
+            Scale(-1, -1, 1)
+            Translate(-self.width, -self.height, 0)
         with self.canvas.after:
             PopMatrix()
 
