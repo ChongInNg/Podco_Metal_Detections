@@ -15,7 +15,7 @@ class SetThresholdPopup(Popup):
         self.max_value = ConfigManager.instance().slider_range_max
         self.step = ConfigManager.instance().slider_step
         popup_layout = BoxLayout(orientation="vertical", spacing=5, padding=5)
-        self.label = Label(text=f"Threshold: {self.current_threshold}", size_hint_y=0.2)
+        self.label = Label(text=f"{self.current_threshold}", size_hint_y=0.2)
         self.slider = CustomSlider(
             min=self.min_value, 
             max=self.max_value,
@@ -25,13 +25,13 @@ class SetThresholdPopup(Popup):
         )
         self.slider.bind(value=self.update_label)
 
-        button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.3)
-        cancel_button = Button(text="Cancel", size_hint=(0.5, 0.8))
+        button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.5)
+        cancel_button = Button(text="Cancel", size_hint=(0.5, 0.5))
         cancel_button.bind(on_press=self.handle_dismiss)
 
         confirm_button = Button(
             text="Confirm", 
-            size_hint=(0.5, 0.8), 
+            size_hint=(0.5, 0.5), 
             background_color=(1, 0, 0, 1),
         )
         confirm_button.bind(on_press=self._on_confirm)
@@ -51,7 +51,7 @@ class SetThresholdPopup(Popup):
         self.current_state = "dismiss"
 
     def update_label(self, instance, value):
-        self.label.text = f"Threshold: {int(value)}"
+        self.label.text = f"{int(value)}"
 
     def _on_confirm(self, instance):
         self.handle_dismiss(instance)

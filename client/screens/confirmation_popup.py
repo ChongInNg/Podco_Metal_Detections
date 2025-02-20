@@ -14,7 +14,7 @@ class ConfirmationPopup(Popup):
         self.message_label = Label(text=message, halign="center", valign="middle")
         self.message_label.bind(size=self.message_label.setter("text_size"))
 
-        button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.3)
+        button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.5)
 
         self.cancel_button = Button(text="Cancel", size_hint_x=0.5)
         self.confirm_button = Button(text="Confirm", size_hint_x=0.5, background_color=(1, 0, 0, 1))
