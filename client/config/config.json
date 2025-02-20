@@ -1,5 +1,5 @@
 {
-    "metal_detection_id": "detection_client",
+    "id": "detection_client",
     "slider_range_min": 500,
     "slider_range_max": 2500,
     "slider_step": 50,
@@ -7,5 +7,6 @@
     "server_port": 8765,
     "run_on": "win",
     "support_keyboard": "True",
-    "idle_time": 30
+    "idle_time": "True",
+    "brightness": 69
 }
