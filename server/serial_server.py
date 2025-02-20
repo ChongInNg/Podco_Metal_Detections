@@ -4,6 +4,7 @@ import queue
 from typing import  Optional
 from command_handler import CommandHandler
 from log.logger import Logger
+from config.config import ConfigManager
 
 SET_THRESHOLD_RESPONSE_COMMAND:int = 0x0B
 SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND: int = 0xB0
@@ -47,9 +48,11 @@ class SerialServer:
             self.running = True
             Logger.info(f"Serial connection established. port:{self.port}, baudrate: {self.baudrate}, timeout mode: {self.timeout}")
             self.start()
+            self.set_server_status_on()
             return True
         except Exception as e:
             Logger.error(f"Failed to connect to Serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
+            self.set_server_status_off()
             return False
 
     def start(self):
@@ -115,18 +118,23 @@ class SerialServer:
 
     def _process_queue_data(self):
         while self.running:
-            Logger.info("waitting for the queue data.")
-            command_data: CommandData = self.cmd_queue.get()
             try:
-                result = self.command_handler.handle_command(
-                    command_type=command_data.command_type,
-                    data_length=command_data.data_length,
-                    data=command_data.data,
-                )
-                Logger.info("Processed Command:", result)
-            except ValueError as e:
-                self._send_error_response(command_data.command_type)
-                Logger.error(f"Command handling error: {e}, raw_command:{command_data}")
+                command_data: CommandData = self.cmd_queue.get(timeout=0.5)
+                try:
+                    result = self.command_handler.handle_command(
+                        command_type=command_data.command_type,
+                        data_length=command_data.data_length,
+                        data=command_data.data,
+                    )
+                    Logger.info("Processed Command:", result)
+                except ValueError as e:
+                    self._send_error_response(command_data.command_type)
+                    Logger.error(f"Command handling error: {e}, raw_command:{command_data}")
+                finally:
+                    self.cmd_queue.task_done()
+            except queue.Empty:
+                # Logger.info("Queue is waitting for command.")
+                continue
 
     def close(self):
         self.running = False
@@ -137,6 +145,8 @@ class SerialServer:
             Logger.info("Read queue thread closed.")
             self.proces_thread.join()
             Logger.info("Process queue thread closed.")
+        
+        self.set_server_status_off()
 
     def _send_response(self, command_type: int) -> int:
         resp_value = 1
@@ -158,3 +168,23 @@ class SerialServer:
         if command_type == SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND or command_type == SET_THRESHOLD_RESPONSE_COMMAND:
             return False
         return True
+    
+    def set_server_status_on(self):
+        if ConfigManager.instance().run_on_rpi():
+            import RPi.GPIO as GPIO
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(17, GPIO.OUT)
+            GPIO.output(17, GPIO.HIGH)
+            print("set GPIO17 pin on.")
+        else:
+            print("No run on rpi, no need to set server status on.")
+
+    def set_server_status_off(self):
+        if ConfigManager.instance().run_on_rpi():
+            import RPi.GPIO as GPIO
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(17, GPIO.OUT)
+            GPIO.output(17, GPIO.HIGH)
+            print("set GPIO17 pin off.")
+        else:
+            print("No run on rpi, no need to set server status off.")

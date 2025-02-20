@@ -43,5 +43,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         Logger.info("Shutting down web server...")
     finally:
+        SerialServer.instance().close()
         Logger.info("All Servers shutdown complete.")
-    print("This is metal detection server.")
+    print(f"This is {ConfigManager.instance().metal_detection_id}.")
