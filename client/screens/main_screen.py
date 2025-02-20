@@ -108,6 +108,7 @@ class MainScreen(Screen):
     
     def _handle_bypass_data(self, msg: NotifyByPassMessage) -> None:
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_setting_screen().update_bypass(msg.bypass))
+        Clock.schedule_once(lambda dt: self.get_stack_widget().get_analyzer_screen().update_bypass(msg.bypass))
 
     def _handle_registration_response(self, msg: RegistrationWsResponse) -> None:
         on_status = False 

@@ -45,7 +45,7 @@ class AnalyzerScreen(Screen):
             on_confirm_callback=self.set_threshold
         )
         self.error_popup = ErrorPopup()
-        self.bypass_status_image = "assets/bypass_on.png"
+        self.bypass = 0 # indicate the button show or hide
         self._create_graph()
 
     def reset_data(self):
@@ -96,10 +96,7 @@ class AnalyzerScreen(Screen):
         self.ch2_n_plot.points = []
         self.ch2_n_data = []
 
-        self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
-        self.threshold_plot.points = []
-
-        self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
+        self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=1)
         self.threshold_plot.points = []
 
         self.graph.add_plot(self.ch1_p_plot)
@@ -119,24 +116,6 @@ class AnalyzerScreen(Screen):
             ("C2-N", [1, 0, 1, 1]),
         ]
 
-        bp_layout = BoxLayout(
-            orientation="horizontal",
-            spacing=5,
-            size_hint_x=0.2,
-            size_hint_y=1,
-            pos_hint={"center_y": 0.5},
-        )
-
-        self.bypass_image = Image(
-            source=self.bypass_status_image,
-            size_hint=(None, None),
-            size=(30, 30),
-            allow_stretch=True,
-            keep_ratio=True,
-            pos_hint={"center_y": 0.5}
-        )
-        bp_layout.add_widget(self.bypass_image)
-
         self.bp_button = ImageButton(
             source="assets/threshold.png",
             size_hint=(None, None),
@@ -146,16 +125,15 @@ class AnalyzerScreen(Screen):
             pos_hint={"center_y": 0.5}
         )
         self.bp_button.bind(on_release=self.open_threshold_popup)
-        bp_layout.add_widget(self.bp_button)
+        self.hide_button() #default hide this button
 
-        
         legend_layout = BoxLayout(
             orientation="horizontal",
             size_hint_y=0.1,
             padding=[10, 5],
             spacing=5
         )
-        legend_layout.add_widget(bp_layout)
+        legend_layout.add_widget(self.bp_button)
 
         for name, color in legend_items:
             label = Label(text=name, color=color)
@@ -244,6 +222,10 @@ class AnalyzerScreen(Screen):
         self.error_popup.handle_open()
 
     def handle_on_enter(self) -> bool:
+        if not self.enable_bypass():
+            print("analyzer screen is not handle enter when not enable bypass mode.")
+            return
+        
         if self.is_showing_threshold_popup():
             self.threshold_popup.handle_on_enter()
             return True
@@ -305,3 +287,20 @@ class AnalyzerScreen(Screen):
         if self.is_showing_threshold_popup() or self.is_showing_error_popup() or self.is_showing_loading_screen():
             return True
         return False
+
+    def update_bypass(self, value: int):
+        self.bypass = value
+        if self.bypass == 1:
+            self.show_button()
+        else:
+            self.hide_button()
+        print(f"analyzer screen update bypass successfully, val: {self.bypass}")
+
+    def hide_button(self):
+        self.bp_button.opacity = 0
+
+    def show_button(self):
+        self.bp_button.opacity = 1
+
+    def enable_bypass(self) -> bool:
+        return self.bypass == 1

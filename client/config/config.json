@@ -6,5 +6,6 @@
     "server_address": "127.0.0.1",
     "server_port": 8765,
     "run_on": "win",
-    "support_keyboard": "True"
+    "support_keyboard": "True",
+    "idle_time": 30
 }
