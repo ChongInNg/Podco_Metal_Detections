@@ -119,7 +119,7 @@ class SerialServer:
     def _process_queue_data(self):
         while self.running:
             try:
-                command_data: CommandData = self.cmd_queue.get()
+                command_data: CommandData = self.cmd_queue.get(timeout=0.5)
                 try:
                     result = self.command_handler.handle_command(
                         command_type=command_data.command_type,
