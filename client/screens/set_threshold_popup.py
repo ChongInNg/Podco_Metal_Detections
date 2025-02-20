@@ -62,8 +62,8 @@ class SetThresholdPopup(Popup):
         self.current_state = "dismiss"
         self.current_button = self.confirm_button
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "normal"
-        self.reset_slider_color()
+        self.confirm_button.state = "down"
+        self.highlight_slider()
         # self.slider.reset_value()
         
     def on_left_pressed(self):
