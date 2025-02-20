@@ -6,6 +6,7 @@ from kivy.clock import Clock
 from screens.loading_screen import LoadingScreen
 from screens.error_popup import ErrorPopup
 from screens.confirmation_popup import ConfirmationPopup
+from config.config import ConfigManager
 
 import sys
 import os
@@ -18,7 +19,7 @@ Builder.load_file("kv/setting_screen.kv")
 
 class SettingScreen(Screen):
     title = StringProperty('Setting')
-    brightness = NumericProperty(50)
+    brightness = NumericProperty(0)
     bypass_status = NumericProperty(0)
     bypass_status_value = StringProperty("OFF")
     component_ids = component_ids = [
@@ -36,12 +37,13 @@ class SettingScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.brightness = ConfigManager.instance().brightness
         self.bypass = 1
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.copy_loading_screen = LoadingScreen(message="Copying", timeout=5, on_timeout_callback=self.on_copy_timeout)
         self.response_received = False
         self.current_component_id = ""
-
+        self.bg_pwm = None
         self.reset_popup = ConfirmationPopup(
             title="Reset Factory",
             message="Reset settings to defaults?",
@@ -65,8 +67,12 @@ class SettingScreen(Screen):
         return self.title
     
     def on_back_btn_click(self):
-        self.reset_data()
+        if self.brightness != ConfigManager.instance().brightness:
+            if not ConfigManager.instance().save_brightness(self.brightness):
+                self.show_error_popup("Save brigntness data error.")
+                return
 
+        self.reset_data()
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         stack_widget.change_to_screen_name("option")
@@ -90,6 +96,7 @@ class SettingScreen(Screen):
 
     def on_brightness_change(self, value: int):
         self.brightness = value
+        self.apply_brightness_to_lcd(self.brightness)
         print("Update brightness of LCD screen successully.")
 
     def on_copy_log_click(self):
@@ -249,3 +256,21 @@ class SettingScreen(Screen):
         if self.is_showing_reset_popup() or self.is_showing_error_popup() or self.is_showing_loading_screen():
             return True
         return False
+    
+    def apply_brightness_to_lcd(self, brightness: int):
+        if ConfigManager.instance().run_on_rpi():
+            self._get_bg_pwm_instance().ChangeDutyCycle(brightness)
+            print(f"set brigness {brightness} success.")
+        else:
+            print("Not run on rpi, cannot update brightness")
+
+    def _get_bg_pwm_instance(self):
+        if self.bg_pwm is None:
+            import RPi.GPIO as GPIO
+            bg_pin = 18
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(bg_pin, GPIO.OUT)
+            self.bg_pwm = GPIO.PWM(bg_pin,1000)
+            self.bg_pwm.start(self.brightness)	
+        else:
+            return self.bg_pwm
