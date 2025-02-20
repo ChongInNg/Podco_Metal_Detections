@@ -45,13 +45,13 @@
                 Label:
                     text: "Brightness:"
                     font_size: "15sp"
-                    size_hint_x: 0.4
+                    size_hint_x: 0.5
                 Slider:
                     id: brightness_slider
                     min: 0
                     max: 100
                     value: root.brightness
-                    size_hint_x: 0.6
+                    size_hint_x: 1
                     on_value: root.on_brightness_change(self.value)
                     canvas.before:
                         Color:
@@ -59,6 +59,11 @@
                         Rectangle:
                             pos: self.x + 5, self.y + (self.height * 0.2)
                             size: self.width - 10, self.height * 0.6
+                Label:
+                    id: brightness_value_label
+                    text: str(int(root.brightness))
+                    font_size: "12sp"
+                    size_hint_x: 0.1
 
             BoxLayout:
                 orientation: "horizontal"
