@@ -73,6 +73,9 @@ class SettingScreen(Screen):
             if not ConfigManager.instance().save_brightness(self.brightness):
                 self.show_error_popup("Save brigntness data error.")
                 return
+            
+            if ConfigManager.instance().run_on_rpi():
+                self._get_bg_pwm_instance().stop()
 
         self.reset_data()
         app = App.get_running_app()
