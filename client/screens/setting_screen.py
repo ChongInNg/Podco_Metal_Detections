@@ -18,7 +18,7 @@ from share.wsmessage import *
 Builder.load_file("kv/setting_screen.kv")
 
 class SettingScreen(Screen):
-    title = StringProperty('Setting')
+    title = StringProperty('Settings')
     brightness = NumericProperty(0)
     bypass_status = NumericProperty(0)
     bypass_status_value = StringProperty("OFF")
