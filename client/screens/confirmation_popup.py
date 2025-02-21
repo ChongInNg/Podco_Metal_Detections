@@ -5,19 +5,19 @@ from kivy.uix.button import Button
 
 class ConfirmationPopup(Popup):
     def __init__(self, title="Confirm", message="Are you sure?", on_confirm_callback=None, **kwargs):
-        super().__init__(size_hint=(None, None), size=(320, 240), title=title, auto_dismiss=False, **kwargs)
+        super().__init__(title_size="20sp",size_hint=(None, None), size=(320, 240), title=title, auto_dismiss=False, **kwargs)
         
         self.on_confirm_callback = on_confirm_callback
 
         layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
 
-        self.message_label = Label(text=message, halign="center", valign="middle")
+        self.message_label = Label(text=message, halign="center", valign="middle", font_size=20)
         self.message_label.bind(size=self.message_label.setter("text_size"))
 
         button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.5)
 
-        self.cancel_button = Button(text="Cancel", size_hint_x=0.5)
-        self.confirm_button = Button(text="Confirm", size_hint_x=0.5)
+        self.cancel_button = Button(text="Cancel", size_hint_x=0.5, font_size=20)
+        self.confirm_button = Button(text="Confirm", size_hint_x=0.5, font_size=20)
 
         button_layout.add_widget(self.cancel_button)
         button_layout.add_widget(self.confirm_button)

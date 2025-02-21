@@ -5,14 +5,14 @@ from kivy.uix.button import Button
 
 class ErrorPopup(Popup):
     def __init__(self, message="An error occurred!", **kwargs):
-        super().__init__(size_hint=(None, None), size=(320, 240), title="Error", auto_dismiss=False, **kwargs)
+        super().__init__(title_size="20sp", size_hint=(None, None), size=(320, 240), title="Error", auto_dismiss=False, **kwargs)
 
         layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
 
         self.message_label = Label(text=message, halign="center", valign="middle")
         self.message_label.bind(size=self.message_label.setter("text_size"))
 
-        self.ok_button = Button(text="OK", size_hint=(1, 0.5))
+        self.ok_button = Button(text="OK", size_hint=(1, 0.5), font_size=20)
         self.ok_button.bind(on_release=self.handle_dismiss)
         self.ok_button.state = "down"
 

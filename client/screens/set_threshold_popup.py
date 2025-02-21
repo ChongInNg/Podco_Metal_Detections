@@ -7,7 +7,7 @@ from config.config import ConfigManager
 
 class SetThresholdPopup(Popup):
     def __init__(self, on_confirm_callback=None, **kwargs):
-        super().__init__(size_hint=(None, None), size=(320, 240), title="Set Threshold", auto_dismiss=False, **kwargs)
+        super().__init__(title_size="20sp",size_hint=(None, None), size=(320, 240), title="Set Threshold", auto_dismiss=False, **kwargs)
 
         self.on_confirm_callback = on_confirm_callback
         self.current_threshold = 1500
@@ -26,12 +26,13 @@ class SetThresholdPopup(Popup):
         self.slider.bind(value=self.update_label)
 
         button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.5)
-        cancel_button = Button(text="Cancel", size_hint=(0.5, 0.5))
+        cancel_button = Button(text="Cancel",font_size=20, size_hint=(0.5, 0.5))
         cancel_button.bind(on_press=self.handle_dismiss)
 
         confirm_button = Button(
             text="Confirm", 
             size_hint=(0.5, 0.5),
+            font_size=20
         )
         confirm_button.bind(on_press=self._on_confirm)
 

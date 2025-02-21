@@ -6,14 +6,14 @@ from kivy.clock import Clock
 
 class LoadingScreen(Popup):
     def __init__(self, message="Loading...", timeout=3, on_timeout_callback=None, **kwargs):
-        super().__init__(size_hint=(None, None), size=(320, 240), auto_dismiss=False, title="Please Wait", **kwargs)
+        super().__init__(title_size="20sp",size_hint=(None, None), size=(320, 240), auto_dismiss=False, title="Please Wait", **kwargs)
 
         self.timeout = timeout
         self.on_timeout_callback = on_timeout_callback
         self.timeout_event = None
 
         layout = BoxLayout(orientation="vertical", padding=0, spacing=10)
-        self.message_label = Label(text=message, halign="center", valign="middle", size_hint=(1, 1))
+        self.message_label = Label(text=message, halign="center", valign="middle", size_hint=(1, 1), font_size=20)
         self.message_label.bind(size=self.message_label.setter("text_size"))
         self.loading_icon = AsyncImage(source="assets/loading.gif", size_hint=(1, 0.7))
 
