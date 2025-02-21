@@ -9,7 +9,7 @@ class ErrorPopup(Popup):
 
         layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
 
-        self.message_label = Label(text=message, halign="center", valign="middle")
+        self.message_label = Label(text=message, halign="center", valign="middle", font_size=20)
         self.message_label.bind(size=self.message_label.setter("text_size"))
 
         self.ok_button = Button(text="OK", size_hint=(1, 0.5), font_size=20)
