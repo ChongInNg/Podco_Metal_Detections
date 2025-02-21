@@ -54,6 +54,7 @@ class SettingScreen(Screen):
     
     def on_kv_post(self, base_widget):
        self.reset_data()
+       self.apply_brightness_to_lcd(self.brightness)
 
     def reset_data(self):
         self.reset_popup.reset_state()
@@ -271,7 +272,6 @@ class SettingScreen(Screen):
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(bg_pin, GPIO.OUT)
             self.bg_pwm = GPIO.PWM(bg_pin,1000)
-            self.bg_pwm.start(self.brightness)	
+            self.bg_pwm.start(self.brightness)
             
         return self.bg_pwm
-            
