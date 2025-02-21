@@ -45,6 +45,7 @@ class ConfigManager:
         self.idle_seconds: int = 0
         self.enable_idle_checking: str = ""
         self.brightness = 0
+        self.brightness_step = 0
         self.joystick_pins = JoyStickPins(0,0,0,0,0)
         self.keypad_pins = KeypadPins(0,0,0,0,0)
         self.control_mode: str = ""
@@ -65,6 +66,7 @@ class ConfigManager:
             "idle_seconds": self.idle_seconds,
             "enable_idle_checking": self.enable_idle_checking,
             "brightness": self.brightness,
+            "brightness_step": self.brightness_step,
             "joystick": self.joystick_pins.to_dict(),
             "keypad": self.keypad_pins.to_dict(),
             "control_mode": self.control_mode,
@@ -100,6 +102,7 @@ class ConfigManager:
             self.idle_seconds = data.get("idle_seconds", 30)
             self.enable_idle_checking = data.get("enable_idle_checking", "")
             self.brightness = data.get("brightness", 50)
+            self.brightness_step = data.get("brightness_step", 1)
             joystick:dict = data.get("joystick")
             if joystick is None or not isinstance(joystick, dict):
                 raise ValueError("missing joystick config")

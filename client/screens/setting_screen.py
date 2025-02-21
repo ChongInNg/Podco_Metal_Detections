@@ -38,6 +38,7 @@ class SettingScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.brightness = ConfigManager.instance().brightness
+        self.brightness_step = ConfigManager.instance().brightness_step
         self.bypass = 1
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.copy_loading_screen = LoadingScreen(message="Copying", timeout=5, on_timeout_callback=self.on_copy_timeout)
@@ -224,16 +225,16 @@ class SettingScreen(Screen):
         if self.is_showing_reset_popup():
             self.reset_popup.on_left_pressed()
         elif self.current_component_id == "brightness_slider":
-            if self.brightness > 1:
-                self.brightness = self.brightness - 1
+            if self.brightness - self.brightness_step >= 0:
+                self.brightness = self.brightness - self.brightness_step
         print("setting screen on_left_pressed")
 
     def on_right_pressed(self):
         if self.is_showing_reset_popup():
             self.reset_popup.on_right_pressed()
         elif self.current_component_id == "brightness_slider":
-            if self.brightness < 100:
-                self.brightness = self.brightness + 1
+            if self.brightness + self.brightness_step <= 100:
+                self.brightness = self.brightness + self.brightness_step
         print("setting screen on_right_pressed")
     
     def highlight_slider(self):
