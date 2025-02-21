@@ -225,8 +225,9 @@ class SettingScreen(Screen):
         if self.is_showing_reset_popup():
             self.reset_popup.on_left_pressed()
         elif self.current_component_id == "brightness_slider":
-            if self.brightness - self.brightness_step >= 0:
+            if self.brightness - self.brightness_step >= 10:
                 self.brightness = self.brightness - self.brightness_step
+
         print("setting screen on_left_pressed")
 
     def on_right_pressed(self):
