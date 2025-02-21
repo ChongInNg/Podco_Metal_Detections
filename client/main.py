@@ -1,11 +1,13 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-
+from kivy.clock import Clock
 from screens.main_screen import MainScreen
 from screens.logo_screen import LogoScreen 
 from websocket.client import WebSocketClient
 from config.config import ConfigManager
 from screens.flip_screen_manager import FlippedScreenManager
+from controller.idle_controller import IdleController
+
 import asyncio
 import sys
 import os
@@ -44,6 +46,9 @@ class MetalDetectionApp(App):
         sm.add_widget(self.logo_screen) 
         sm.add_widget(self.main_screen)
         
+        self.logo_screen.set_title(ConfigManager.instance().logo_tile)
+        self.logo_screen.set_version(ConfigManager.instance().version)
+
         self.event_loop = asyncio.new_event_loop()
         self.loop_thread = threading.Thread(target=self._run_event_loop, daemon=True)
         self.loop_thread.start()
@@ -56,6 +61,10 @@ class MetalDetectionApp(App):
             Window.bind(on_key_down=self.handle_keyboard)
             print("start listening keyboard input.")
 
+        if ConfigManager.instance().is_enable_idle_checking():
+            self.start_idle_handling()
+            print("start idle handling thread.")
+
         self.start_websocket()
         return sm
 
@@ -66,27 +75,58 @@ class MetalDetectionApp(App):
     def monitor_joystick(self):
         from controller.joystick import JoyStick
         self.joystick = JoyStick(callback=self.handle_signal)
+        self.joystick.setup(
+            up=ConfigManager.instance().joystick_pins.up,
+            down=ConfigManager.instance().joystick_pins.down,
+            left=ConfigManager.instance().joystick_pins.left,
+            right=ConfigManager.instance().joystick_pins.right,
+            center=ConfigManager.instance().joystick_pins.center,
+        )
         self.joystick.run()
 
-    def stop_joystick(self):
+    def _stop_joystick(self):
         if self.joystick is not None:
             self.joystick.stop()
 
+    def stop(self):
+        self._stop_joystick()
+
+    def start_idle_handling(self):
+        idle_seconds = ConfigManager.instance().idle_seconds
+        self.idle_controller = IdleController(idle_seconds, self.switch_to_logo_screen)
+        self.idle_controller.start()
+
+    def _stop_idle_handling(self):
+        if self.idle_controller is not None:
+            self.idle_controller.stop()
+
+    def switch_to_logo_screen(self):
+        if self.root.current != "logo":
+            self.root.current = "logo"
+
     def handle_signal(self, direction: str):
         print(f"Received direction signal: {direction}")
+        if ConfigManager.instance().is_enable_idle_checking():
+            self.idle_controller.update_clicked()
 
-        app = App.get_running_app()
-
-        current_screen = app.root.current
+        current_screen = self.root.current
         if current_screen == "main":
-            stack_widget = app.root.get_screen("main").ids.stack_widget     
+            stack_widget = self.root.get_screen("main").ids.stack_widget     
             stack_widget.handle_direction(direction)
+            skip_flag = False
+            if stack_widget.is_analyzer():
+                skip_flag = True
+            
+            if ConfigManager.instance().is_enable_idle_checking():
+                self.idle_controller.set_skip_checking(is_skip=skip_flag)
         else:
-            logo_screen = app.root.get_screen("logo")
+            logo_screen = self.root.get_screen("logo")
             logo_screen.handle_direction(direction)
+            if ConfigManager.instance().is_enable_idle_checking():
+                self.idle_controller.set_skip_checking(is_skip=True)
         print(f"Handle direction signal done: {direction}")
 
-
+    
     def start_websocket(self):
         if not self.event_loop.is_running():
             raise RuntimeError("Event loop is not running.. make sure it running first")
@@ -123,5 +163,5 @@ if __name__ == "__main__":
     ConfigManager.instance().read_config(config_path)
     app = MetalDetectionApp()
     app.run()
-    app.stop_joystick()
+    app.stop()
 

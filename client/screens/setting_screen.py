@@ -94,8 +94,8 @@ class SettingScreen(Screen):
             self.loading_screen.hide()
             self.show_error_popup("Reset failed! Please try again.")
 
-    def on_brightness_change(self, value: int):
-        self.brightness = value
+    def on_brightness_change(self, value: float):
+        self.brightness = int(round(value))
         self.apply_brightness_to_lcd(self.brightness)
         print("Update brightness of LCD screen successully.")
 

@@ -1,5 +1,7 @@
 {
     "id": "detection_client",
+    "logo_title": "   STEEL\nSTOPPER",
+    "version": "Version 1.0",
     "slider_range_min": 500,
     "slider_range_max": 2500,
     "slider_step": 50,
@@ -7,6 +9,22 @@
     "server_port": 8765,
     "run_on": "win",
     "support_keyboard": "True",
-    "idle_time": "True",
-    "brightness": 69
+    "idle_seconds": 5,
+    "enable_idle_checking": "True",
+    "brightness": 68,
+    "joystick": {
+        "up": 5,
+        "down": 6,
+        "left": 13,
+        "right": 19,
+        "center": 26
+    },
+    "keypad": {
+        "up": 5,
+        "down": 6,
+        "left": 13,
+        "right": 19,
+        "center": 26
+    },
+    "control_mode": "joystick"
 }
