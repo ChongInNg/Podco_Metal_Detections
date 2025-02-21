@@ -272,5 +272,6 @@ class SettingScreen(Screen):
             GPIO.setup(bg_pin, GPIO.OUT)
             self.bg_pwm = GPIO.PWM(bg_pin,1000)
             self.bg_pwm.start(self.brightness)	
-        else:
-            return self.bg_pwm
+            
+        return self.bg_pwm
+            
