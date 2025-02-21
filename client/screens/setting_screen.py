@@ -41,7 +41,7 @@ class SettingScreen(Screen):
         self.brightness_step = ConfigManager.instance().brightness_step
         self.bypass = 1
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
-        self.copy_loading_screen = LoadingScreen(message="Copying", timeout=5, on_timeout_callback=self.on_copy_timeout)
+     
         self.response_received = False
         self.current_component_id = ""
         self.bg_pwm = None
@@ -89,6 +89,7 @@ class SettingScreen(Screen):
 
     def update_reset_factory_status(self, success: bool):
         self.response_received = True
+        self.loading_screen_for = ""
         if success:
             self.loading_screen.hide()
             print("Reset factory config to controller successful!")
@@ -102,7 +103,9 @@ class SettingScreen(Screen):
         print("Update brightness of LCD screen successully.")
 
     def on_copy_log_click(self):
-        self.copy_loading_screen.show()
+        self.loading_screen.update_message("Copying")
+        self.loading_screen_for = "copying"
+        self.loading_screen.show()
         print("Copy log successfully.")
 
     def on_reset_factory_click(self):
@@ -113,7 +116,9 @@ class SettingScreen(Screen):
             self.show_error_popup("Cannot reset without connectting with server")
             return
         self.response_received = False
+        self.loading_screen.update_message("Waitting for response")
         self.loading_screen.show()
+        self.loading_screen_for = "reset"
         msg = SetDefaultCalibrationRequest.create_message()
         WebSocketClient.instance().send_json_sync(
             msg.to_json()
@@ -127,14 +132,14 @@ class SettingScreen(Screen):
           
     def on_timeout(self):
         self.loading_screen.hide()
-        self.showing_loading_screen = ""
-        if not self.response_received:  
-           self.show_error_popup("Request timed out! Please try again.")
+        if self.loading_screen_for == "reset":
+            if not self.response_received:  
+                self.show_error_popup("Request timed out! Please try again.")
+        else:
+            self.show_error_popup("Copy timed out! Please try again.")
+        
+        self.loading_screen_for = ""
 
-    def on_copy_timeout(self):
-        self.copy_loading_screen.hide()
-        self.show_error_popup("Copy timed out! Please try again.")
-           
     def clear_focus(self):
         for component_id, component_type  in self.component_ids:
             component = self.ids[component_id]
@@ -247,7 +252,7 @@ class SettingScreen(Screen):
         return self.error_popup.is_showing()
     
     def is_showing_loading_screen(self) -> bool:
-        return self.loading_screen.is_showing() or self.copy_loading_screen.is_showing()
+        return self.loading_screen.is_showing()
     
     def is_showing_popup_or_loading_screen(self):
         if self.is_showing_reset_popup() or self.is_showing_error_popup() or self.is_showing_loading_screen():

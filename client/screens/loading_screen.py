@@ -12,8 +12,8 @@ class LoadingScreen(Popup):
         self.on_timeout_callback = on_timeout_callback
         self.timeout_event = None
 
-        layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
-        self.message_label = Label(text=message, halign="center", valign="middle", size_hint=(1, 0.3))
+        layout = BoxLayout(orientation="vertical", padding=0, spacing=10)
+        self.message_label = Label(text=message, halign="center", valign="middle", size_hint=(1, 1))
         self.message_label.bind(size=self.message_label.setter("text_size"))
         self.loading_icon = AsyncImage(source="assets/loading.gif", size_hint=(1, 0.7))
 
