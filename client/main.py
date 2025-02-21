@@ -34,7 +34,7 @@ def get_current_program_folder():
 
 class MetalDetectionApp(App):
     def build(self):
-        if ConfigManager.instance().run_on_rpi():
+        if ConfigManager.instance().is_flip_screen():
             sm = FlippedScreenManager()
         else:
             sm = ScreenManager()

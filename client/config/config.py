@@ -48,6 +48,7 @@ class ConfigManager:
         self.joystick_pins = JoyStickPins(0,0,0,0,0)
         self.keypad_pins = KeypadPins(0,0,0,0,0)
         self.control_mode: str = ""
+        self.flip_screen: str = ""
 
     def to_dict(self):
         return {
@@ -66,7 +67,8 @@ class ConfigManager:
             "brightness": self.brightness,
             "joystick": self.joystick_pins.to_dict(),
             "keypad": self.keypad_pins.to_dict(),
-            "control_mode": self.control_mode
+            "control_mode": self.control_mode,
+            "flip_screen": self.flip_screen
         }
     @classmethod
     def instance(cls) -> "ConfigManager":
@@ -119,6 +121,8 @@ class ConfigManager:
             self.control_mode = data.get("control_mode", "")
             if self.control_mode != "joystick" and self.control_mode != "keypad":
                 raise ValueError("control_mode value is wrong")
+            
+            self.flip_screen = data.get("flip_screen", "")
 
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading config: {e}")
@@ -126,6 +130,9 @@ class ConfigManager:
 
     def run_on_rpi(self) -> bool:
         return self.run_on == "rpi"
+    
+    def is_flip_screen(self) -> bool:
+        return self.flip_screen.lower() == "true"
     
     def is_support_keyboard(self) -> bool:
         return self.support_keyboard.lower() == "true"
