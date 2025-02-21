@@ -73,9 +73,6 @@ class SettingScreen(Screen):
             if not ConfigManager.instance().save_brightness(self.brightness):
                 self.show_error_popup("Save brigntness data error.")
                 return
-            
-            if ConfigManager.instance().run_on_rpi():
-                self._get_bg_pwm_instance().stop()
 
         self.reset_data()
         app = App.get_running_app()
@@ -276,6 +273,6 @@ class SettingScreen(Screen):
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(bg_pin, GPIO.OUT)
             self.bg_pwm = GPIO.PWM(bg_pin,1000)
-            self.bg_pwm.start(self.brightness)
+            self.bg_pwm.start(0)
             
         return self.bg_pwm
