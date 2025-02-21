@@ -122,8 +122,6 @@ class MetalDetectionApp(App):
         else:
             logo_screen = self.root.get_screen("logo")
             logo_screen.handle_direction(direction)
-            if ConfigManager.instance().is_enable_idle_checking():
-                self.idle_controller.set_skip_checking(is_skip=True)
         print(f"Handle direction signal done: {direction}")
 
     
