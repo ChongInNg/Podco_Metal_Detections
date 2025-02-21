@@ -31,8 +31,7 @@ class SetThresholdPopup(Popup):
 
         confirm_button = Button(
             text="Confirm", 
-            size_hint=(0.5, 0.5), 
-            background_color=(1, 0, 0, 1),
+            size_hint=(0.5, 0.5),
         )
         confirm_button.bind(on_press=self._on_confirm)
 
@@ -62,7 +61,7 @@ class SetThresholdPopup(Popup):
         self.current_state = "dismiss"
         self.current_button = self.confirm_button
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "down"
+        self.confirm_button.state = "normal"
         self.highlight_slider()
         # self.slider.reset_value()
         
@@ -72,7 +71,7 @@ class SetThresholdPopup(Popup):
         else:
             self.current_button = self.cancel_button
             self.cancel_button.state = "down"
-            self.confirm_button.state = "down"
+            self.confirm_button.state = "normal"
         print("SetThresholdPopup on_left_pressed")
 
     def on_right_pressed(self):
@@ -80,7 +79,7 @@ class SetThresholdPopup(Popup):
             self.slider.increase_value()
         else:
             self.cancel_button.state = "normal"
-            self.confirm_button.state = "normal"
+            self.confirm_button.state = "down"
             self.current_button = self.confirm_button
         print("SetThresholdPopup on_right_pressed")
 
@@ -115,12 +114,12 @@ class SetThresholdPopup(Popup):
 
     def on_up_pressed(self):
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "down"
+        self.confirm_button.state = "normal"
         self.current_button = None
         self.highlight_slider()
 
     def on_down_pressed(self):
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "normal"
+        self.confirm_button.state = "down"
         self.current_button = self.confirm_button
         self.reset_slider_color()

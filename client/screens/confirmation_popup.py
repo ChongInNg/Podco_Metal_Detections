@@ -17,7 +17,7 @@ class ConfirmationPopup(Popup):
         button_layout = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=0.5)
 
         self.cancel_button = Button(text="Cancel", size_hint_x=0.5)
-        self.confirm_button = Button(text="Confirm", size_hint_x=0.5, background_color=(1, 0, 0, 1))
+        self.confirm_button = Button(text="Confirm", size_hint_x=0.5)
 
         button_layout.add_widget(self.cancel_button)
         button_layout.add_widget(self.confirm_button)
@@ -37,7 +37,7 @@ class ConfirmationPopup(Popup):
         self.current_state = "dismiss"
         self.current_button = self.confirm_button
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "normal"
+        self.confirm_button.state = "down"
 
     def _on_confirm(self, instance):
         self.handle_dismiss(instance)
@@ -47,12 +47,12 @@ class ConfirmationPopup(Popup):
     def on_left_pressed(self):
         self.current_button = self.cancel_button
         self.cancel_button.state = "down"
-        self.confirm_button.state = "down"
+        self.confirm_button.state = "normal"
         print("ConfirmationPopup on_left_pressed")
 
     def on_right_pressed(self):
         self.cancel_button.state = "normal"
-        self.confirm_button.state = "normal"
+        self.confirm_button.state = "down"
         self.current_button = self.confirm_button
         print("ConfirmationPopup on_right_pressed")
     

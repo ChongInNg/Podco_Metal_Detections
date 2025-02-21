@@ -12,17 +12,19 @@ class ErrorPopup(Popup):
         self.message_label = Label(text=message, halign="center", valign="middle")
         self.message_label.bind(size=self.message_label.setter("text_size"))
 
-        ok_button = Button(text="OK", size_hint=(1, 0.5))
-        ok_button.bind(on_release=self.handle_dismiss)
+        self.ok_button = Button(text="OK", size_hint=(1, 0.5))
+        self.ok_button.bind(on_release=self.handle_dismiss)
+        self.ok_button.state = "down"
 
         layout.add_widget(self.message_label)
-        layout.add_widget(ok_button)
+        layout.add_widget(self.ok_button)
         self.content = layout
 
         self.current_state = "dismiss"
 
     def reset_state(self):
         self.current_state = "dismiss"
+        self.ok_button.state = "down"
 
     def update_message(self, new_message):
         self.message_label.text = new_message

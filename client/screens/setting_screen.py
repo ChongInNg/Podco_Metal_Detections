@@ -33,7 +33,7 @@ class SettingScreen(Screen):
     DEFAULT_slider_color = [0.15, 0.15, 0.2, 1]
     
     slider_color = ListProperty(DEFAULT_slider_color)
-    reset_button_color = ListProperty([1, 0, 0, 1]) 
+    # reset_button_color = ListProperty([1, 0, 0, 1]) 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -139,10 +139,7 @@ class SettingScreen(Screen):
         for component_id, component_type  in self.component_ids:
             component = self.ids[component_id]
             if component_type == "button":
-                if component_id == "reset_factory_btn":
-                    component.state = "down" # this button should be special handle because of background color
-                else:
-                    component.state = "normal"
+                component.state = "normal"
             elif component_type == "slider":
                 self.reset_slider_color()
 
@@ -156,10 +153,7 @@ class SettingScreen(Screen):
         focused_component = self.ids[component_id]
         
         if component_type == "button":
-            if component_id == "reset_factory_btn":
-                focused_component.state = "normal"
-            else:
-                focused_component.state = "down"
+            focused_component.state = "down"
         elif component_type == "slider":
             self.highlight_slider() 
 
