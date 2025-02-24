@@ -76,7 +76,7 @@ class ConfigManager:
             "flip_screen": self.flip_screen,
             "mount_point": self.mount_point,
             "src_folders": self.src_folders,
-            "need_copy_files_suffix ": self.need_copy_files_suffix
+            "need_copy_files_suffix": self.need_copy_files_suffix
         }
     @classmethod
     def instance(cls) -> "ConfigManager":
@@ -136,6 +136,7 @@ class ConfigManager:
             self.mount_point = data.get("mount_point")
             self.need_copy_files_suffix = data.get("need_copy_files_suffix")
 
+            print("44444444444444444444444444444444444444", self.need_copy_files_suffix)
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading config: {e}")
             raise e

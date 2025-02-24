@@ -11,7 +11,7 @@
     "support_keyboard": "True",
     "idle_seconds": 30,
     "enable_idle_checking": "True",
-    "brightness": 50,
+    "brightness": 100,
     "brightness_step": 10,
     "joystick": {
         "up": 5,
