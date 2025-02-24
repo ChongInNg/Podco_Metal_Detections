@@ -2,6 +2,7 @@
 import os
 import shutil
 import re
+import datetime
 
 class FileOperation:
     def __init__(self, src_folders: list[str], mount_point: str, need_copy_files_suffix: list[str]) -> None:
@@ -23,7 +24,8 @@ class FileOperation:
 
     def copy_files(self, src_folder) -> int:
         last_directory = os.path.basename(src_folder)
-        dest_log_folder = os.path.join(self.mount_point, last_directory)
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        dest_log_folder = os.path.join(self.mount_point, last_directory, timestamp)
         if not os.path.exists(src_folder):
             print(f"src folder:{src_folder} deosn't exist.")
             return 0
@@ -39,19 +41,12 @@ class FileOperation:
                 pattern = rf"\.{suffix}$"
                 
                 if re.search(pattern, filename, re.IGNORECASE):
-                    print(f"111111111111111111111 {filename}, {pattern}")
                     src_file_path = os.path.join(src_folder, filename)
                     dest_file_path = os.path.join(dest_log_folder, filename)
-                    if not self._check_file_exist(dest_file_path):
-                        print(f"file: {src_file_path} is not exist in {dest_file_path}, so copy it: {filename}")
-                        shutil.copyfile(src_file_path, dest_file_path)
-                        count += 1
-                    elif self._check_file_change(src_file_path, dest_file_path):
-                        print(f"file:{src_file_path} was changed in {dest_file_path}, so copy it: {filename}")
-                        shutil.copyfile(src_file_path, dest_file_path)
-                        count += 1
-                    else:
-                        print(f"This file was exist and no change, no need to copy. file: {src_file_path}")
+                    shutil.copyfile(src_file_path, dest_file_path)
+                    count += 1
+                    print(f"copy file success {src_file_path}, {dest_file_path}, current git scount: {count}")
+                    
 
         print(f"Total copy {count} files from {src_folder} to {dest_log_folder}\n\n")
         return count
