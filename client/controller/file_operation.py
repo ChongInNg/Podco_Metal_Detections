@@ -13,9 +13,12 @@ class FileOperation:
         count = 0
         for folder in self.src_folders:
             print(f"copying files from {folder}")
-            ncount = self.copy_files(folder)
-            count += ncount
-            print(f"Total copy files count: {ncount} from {folder}")
+            try:
+                ncount = self.copy_files(folder)
+                count += ncount
+                print(f"Total copy files count: {ncount} from {folder}")
+            except Exception as e:
+                print(f"copy files from {folder} error: {e}")
         return count
 
     def copy_files(self, src_folder) -> int:
@@ -34,7 +37,9 @@ class FileOperation:
         for filename in file_list:
             for suffix in self.need_copy_files_suffix:
                 pattern = rf"\.{suffix}$"
+                
                 if re.search(pattern, filename, re.IGNORECASE):
+                    print(f"111111111111111111111 {filename}, {pattern}")
                     src_file_path = os.path.join(src_folder, filename)
                     dest_file_path = os.path.join(dest_log_folder, filename)
                     if not self._check_file_exist(dest_file_path):
