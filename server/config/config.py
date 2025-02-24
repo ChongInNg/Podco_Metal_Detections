@@ -14,6 +14,7 @@ class ConfigManager:
         self.server_port: int = 0
         self.run_on: str = ""
         self.support_keyboard: str = ""
+        self.server_status_pin: int = 0
 
     @classmethod
     def instance(cls) -> "ConfigManager":
@@ -36,6 +37,7 @@ class ConfigManager:
             self.server_port = data.get("server_port", 0)
             self.run_on = data.get("run_on", "")
             self.support_keyboard = data.get("support_keyboard", "")
+            self.server_status_pin = data.get("server_status_pin", 0)
 
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading config: {e}")

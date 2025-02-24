@@ -172,19 +172,21 @@ class SerialServer:
     def set_server_status_on(self):
         if ConfigManager.instance().run_on_rpi():
             import RPi.GPIO as GPIO
+            pin = ConfigManager.instance().server_status_pin
             GPIO.setmode(GPIO.BCM)
-            GPIO.setup(17, GPIO.OUT)
-            GPIO.output(17, GPIO.HIGH)
-            print("set GPIO17 pin on.")
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, GPIO.HIGH)
+            print(f"set GPIO{pin} pin on.")
         else:
             print("No run on rpi, no need to set server status on.")
 
     def set_server_status_off(self):
         if ConfigManager.instance().run_on_rpi():
             import RPi.GPIO as GPIO
+            pin = ConfigManager.instance().server_status_pin
             GPIO.setmode(GPIO.BCM)
-            GPIO.setup(17, GPIO.OUT)
-            GPIO.output(17, GPIO.LOW)
-            print("set GPIO17 pin off.")
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, GPIO.LOW)
+            print(f"set GPIO{pin} pin off.")
         else:
             print("No run on rpi, no need to set server status off.")
