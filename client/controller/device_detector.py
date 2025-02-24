@@ -44,7 +44,7 @@ class DeviceDetector:
 
     def mount_device(self):
         try:
-            subprocess.run(['sudo', 'mount', self.device_name, self.mount_point], check=True)
+            subprocess.run(['sudo', 'mount', '-o', 'uid=1000,gid=1000', self.device_name, self.mount_point], check=True)
             print(f"Device {self.device_name} mounted at {self.mount_point}.")
             return True
         except subprocess.CalledProcessError as e:

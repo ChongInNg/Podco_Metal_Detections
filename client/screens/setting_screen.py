@@ -313,7 +313,7 @@ class SettingScreen(Screen):
         # total_copy = 4
         print(f"Total copy {total_copy}")
 
-        # device_detector.eject()
+        device_detector.umount_device()
         # time.sleep(2)
         Clock.schedule_once(lambda dt: self._finish_copy(total_copy))
 
