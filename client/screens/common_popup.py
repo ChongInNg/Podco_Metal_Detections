@@ -3,7 +3,7 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 
-class ErrorPopup(Popup):
+class CommonPopup(Popup):
     def __init__(self, message="An error occurred!", **kwargs):
         super().__init__(title_size="20sp", size_hint=(None, None), size=(320, 240), title="Error", auto_dismiss=False, **kwargs)
 
@@ -22,22 +22,25 @@ class ErrorPopup(Popup):
 
         self.current_state = "dismiss"
 
+    def update_title(self, tilte: str):
+        self.title = tilte
+
     def reset_state(self):
         self.current_state = "dismiss"
         self.ok_button.state = "down"
 
-    def update_message(self, new_message):
+    def update_message(self, new_message: str):
         self.message_label.text = new_message
 
     def on_left_pressed(self):
-        print("ErrorPopup on_left_pressed")
+        print("CommonPopup on_left_pressed")
 
     def on_right_pressed(self):
-        print("ErrorPopup on_right_pressed")
+        print("CommonPopup on_right_pressed")
     
     def handle_on_enter(self):
         self.handle_dismiss(self)
-        print("ErrorPopup handle_on_enter")
+        print("CommonPopup handle_on_enter")
 
     def handle_dismiss(self, instance):
         self.dismiss()

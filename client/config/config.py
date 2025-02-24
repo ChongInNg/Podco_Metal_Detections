@@ -50,6 +50,9 @@ class ConfigManager:
         self.keypad_pins = KeypadPins(0,0,0,0,0)
         self.control_mode: str = ""
         self.flip_screen: str = ""
+        self.mount_point: str = ""
+        self.src_folders: list[str] = []
+        self.need_copy_files_suffix : list[str] = ""
 
     def to_dict(self):
         return {
@@ -70,7 +73,10 @@ class ConfigManager:
             "joystick": self.joystick_pins.to_dict(),
             "keypad": self.keypad_pins.to_dict(),
             "control_mode": self.control_mode,
-            "flip_screen": self.flip_screen
+            "flip_screen": self.flip_screen,
+            "mount_point": self.mount_point,
+            "src_folders": self.src_folders,
+            "need_copy_files_suffix ": self.need_copy_files_suffix
         }
     @classmethod
     def instance(cls) -> "ConfigManager":
@@ -126,6 +132,9 @@ class ConfigManager:
                 raise ValueError("control_mode value is wrong")
             
             self.flip_screen = data.get("flip_screen", "")
+            self.src_folders = data.get("src_folders")
+            self.mount_point = data.get("mount_point")
+            self.need_copy_files_suffix = data.get("need_copy_files_suffix")
 
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading config: {e}")

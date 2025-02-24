@@ -13,7 +13,7 @@ from kivy.uix.slider import Slider
 from websocket.client import WebSocketClient
 from screens.set_threshold_popup import SetThresholdPopup
 from screens.loading_screen import LoadingScreen
-from screens.error_popup import ErrorPopup
+from screens.common_popup import CommonPopup
 from screens.image_button import ImageButton
 from kivy.uix.image import Image
 from dataclasses import dataclass
@@ -44,7 +44,7 @@ class AnalyzerScreen(Screen):
         self.threshold_popup = SetThresholdPopup(
             on_confirm_callback=self.set_threshold
         )
-        self.error_popup = ErrorPopup()
+        self.error_popup = CommonPopup()
         self.bypass = 0 # indicate the button show or hide
         self._create_graph()
 

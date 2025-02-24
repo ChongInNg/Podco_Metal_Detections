@@ -11,7 +11,7 @@
     "support_keyboard": "True",
     "idle_seconds": 30,
     "enable_idle_checking": "True",
-    "brightness": 90,
+    "brightness": 50,
     "brightness_step": 10,
     "joystick": {
         "up": 5,
@@ -28,5 +28,11 @@
         "center": 26
     },
     "control_mode": "joystick",
-    "flip_screen": "false"
+    "flip_screen": "false",
+    "mount_point": "/home/podco",
+    "src_folders": [
+        
+        "/home/podco/Podco_Metal_Detections/server/system_logs"
+    ],
+    "need_copy_files_suffix ": ["json", "log"]
 }

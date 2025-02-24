@@ -4,12 +4,15 @@ from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
 from screens.loading_screen import LoadingScreen
-from screens.error_popup import ErrorPopup
+from screens.common_popup import CommonPopup
 from screens.confirmation_popup import ConfirmationPopup
 from config.config import ConfigManager
-
+from controller.device_detector import DeviceDetector
+from controller.file_operation import FileOperation
+import threading
 import sys
 import os
+import time
 
 from websocket.client import WebSocketClient
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -51,7 +54,7 @@ class SettingScreen(Screen):
             on_confirm_callback=self.reset_factory
         )
 
-        self.error_popup = ErrorPopup()
+        self.common_popup = CommonPopup()
     
     def on_kv_post(self, base_widget):
        self.reset_data()
@@ -59,7 +62,7 @@ class SettingScreen(Screen):
 
     def reset_data(self):
         self.reset_popup.reset_state()
-        self.error_popup.reset_state()
+        self.common_popup.reset_state()
 
         self.clear_focus()
         self.current_component_id = "brightness_slider"
@@ -103,9 +106,19 @@ class SettingScreen(Screen):
         print("Update brightness of LCD screen successully.")
 
     def on_copy_log_click(self):
+        device_detector = DeviceDetector(mount_point=ConfigManager.instance().mount_point)
+        if ConfigManager.instance().run_on_rpi():
+            exist = device_detector.detect()
+            if not exist:
+                self.show_error_popup("Cannot detect usb device, cannot copy now.")
+                return
+        
         self.loading_screen.update_message("Copying")
         self.loading_screen_for = "copying"
         self.loading_screen.show()
+
+        copy_thread = threading.Thread(target=self._copy_files, args=(device_detector,), daemon=True)
+        copy_thread.start()
         print("Copy log successfully.")
 
     def on_reset_factory_click(self):
@@ -127,9 +140,15 @@ class SettingScreen(Screen):
         print("Send set_default_calibration message to server successfully.")
         
     def show_error_popup(self, message):
-        self.error_popup.update_message(message)
-        self.error_popup.handle_open()
-          
+        self.common_popup.update_title("Error")
+        self.common_popup.update_message(message)
+        self.common_popup.handle_open()
+
+    def show_confirmation_popup(self, message):
+        self.common_popup.update_title("Confirmation")
+        self.common_popup.update_message(message)
+        self.common_popup.handle_open()
+    
     def on_timeout(self):
         self.loading_screen.hide()
         if self.loading_screen_for == "reset":
@@ -168,8 +187,8 @@ class SettingScreen(Screen):
         if self.current_component_id == "reset_factory_btn":
             if self.is_showing_reset_popup():
                 self.reset_popup.handle_on_enter()
-            elif self.is_showing_error_popup():
-                self.error_popup.handle_on_enter()
+            elif self.is_showing_common_popup():
+                self.common_popup.handle_on_enter()
             elif self.is_showing_loading_screen():
                 print("Setting Screen is showing loading screen, no need to handle enter")
             else:
@@ -178,8 +197,8 @@ class SettingScreen(Screen):
         elif self.current_component_id == "copy_log_btn":
             if self.is_showing_loading_screen():
                 print("Setting Screen is copy log showing loading screen, no need to handle enter")
-            elif self.is_showing_error_popup():
-                self.error_popup.handle_on_enter()
+            elif self.is_showing_common_popup():
+                self.common_popup.handle_on_enter()
             else:
                 self.on_copy_log_click()
         elif self.current_component_id == "back_btn":
@@ -248,14 +267,14 @@ class SettingScreen(Screen):
     def is_showing_reset_popup(self) -> bool:
         return self.reset_popup.is_showing()
     
-    def is_showing_error_popup(self) -> bool:
-        return self.error_popup.is_showing()
+    def is_showing_common_popup(self) -> bool:
+        return self.common_popup.is_showing()
     
     def is_showing_loading_screen(self) -> bool:
         return self.loading_screen.is_showing()
     
     def is_showing_popup_or_loading_screen(self):
-        if self.is_showing_reset_popup() or self.is_showing_error_popup() or self.is_showing_loading_screen():
+        if self.is_showing_reset_popup() or self.is_showing_common_popup() or self.is_showing_loading_screen():
             return True
         return False
     
@@ -276,3 +295,28 @@ class SettingScreen(Screen):
             self.bg_pwm.start(0)
             
         return self.bg_pwm
+    
+    def _copy_files(self, device_detector: DeviceDetector):
+        if not ConfigManager.instance().run_on_rpi():
+            print("Not run on rasberry pi, cannot to copy files.")
+            return
+
+        src_folders = ConfigManager.instance().src_folders
+        mount_point = device_detector.mount_point
+        need_copy_files_suffix = ConfigManager.instance().need_copy_files_suffix
+        file_operation = FileOperation(
+            src_folders=src_folders, 
+            mount_point=mount_point,
+            need_copy_files_suffix=need_copy_files_suffix
+        )
+        total_copy = file_operation.copy_from_folders()
+        # total_copy = 4
+        print(f"Total copy {total_copy}")
+
+        device_detector.eject()
+        # time.sleep(2)
+        Clock.schedule_once(lambda dt: self._finish_copy(total_copy))
+
+    def _finish_copy(self, total_copy):
+        self.loading_screen.hide()
+        self.show_confirmation_popup(f"Total copy {total_copy} logs")
