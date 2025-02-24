@@ -2,7 +2,7 @@
 import os
 import shutil
 import re
-import datetime
+from datetime import datetime
 
 class FileOperation:
     def __init__(self, src_folders: list[str], mount_point: str, need_copy_files_suffix: list[str]) -> None:
