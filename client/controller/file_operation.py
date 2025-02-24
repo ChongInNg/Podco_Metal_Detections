@@ -10,8 +10,13 @@ class FileOperation:
         self.need_copy_files_suffix = need_copy_files_suffix
 
     def copy_from_folders(self):
+        count = 0
         for folder in self.src_folders:
-            self.copy_files(folder)
+            print(f"copying files from {folder}")
+            ncount = self.copy_files(folder)
+            count += ncount
+            print(f"Total copy files count: {ncount} from {folder}")
+        return count
 
     def copy_files(self, src_folder) -> int:
         last_directory = os.path.basename(src_folder)

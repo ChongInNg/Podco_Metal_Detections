@@ -29,10 +29,9 @@
     },
     "control_mode": "joystick",
     "flip_screen": "false",
-    "mount_point": "/home/podco",
+    "mount_point": "/home/podco/mount_point",
     "src_folders": [
-        
         "/home/podco/Podco_Metal_Detections/server/system_logs"
     ],
-    "need_copy_files_suffix ": ["json", "log"]
+    "need_copy_files_suffix": ["json", "log"]
 }
