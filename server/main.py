@@ -4,8 +4,20 @@ from log_manager import LogManager
 from log.logger import Logger
 import time
 import os
+import signal
+import sys
 from websocket.websocket_server import WebSocketServer
 from config.config import ConfigManager
+
+
+def signal_handler(sig, frame):
+    sig_name = signal.Signals(sig).name 
+    print(f"Received signal: {sig_name} (#{sig})")
+    SerialServer.instance().close()
+    print("Shutting down server gracefully...")
+    sys.exit(1)
+
+signal.signal(signal.SIGTERM, signal_handler)
 
 def get_current_program_folder():
   return os.path.dirname(os.path.abspath(__file__))

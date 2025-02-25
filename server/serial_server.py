@@ -147,6 +147,7 @@ class SerialServer:
             Logger.info("Process queue thread closed.")
         
         self.set_server_status_off()
+        print("Serial server close successfully..")
 
     def _send_response(self, command_type: int) -> int:
         resp_value = 1
@@ -189,4 +190,4 @@ class SerialServer:
             GPIO.output(pin, GPIO.LOW)
             print(f"set GPIO{pin} pin off.")
         else:
-            print("No run on rpi, no need to set server status off.")
+            print("Serial Server No run on rpi, no need to set server status off.")
