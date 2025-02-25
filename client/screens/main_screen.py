@@ -9,8 +9,8 @@ from screens.detection_screen import DetectionViewData
 from screens.calibration_screen import CalibrationViewData
 from screens.analyzer_screen import AnalyzerData
 
-from .stack_widget import StackWidget
-from .screen_header import ScreenHeader
+from screens.stack_widget import StackWidget
+from screens.screen_header import ScreenHeader
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
