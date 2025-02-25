@@ -33,9 +33,10 @@ if __name__ == "__main__":
     else:
         port = ConfigManager.instance().win_serial_port
     baudrate = ConfigManager.instance().serial_baudrate
-    if not SerialServer.instance().connect(port=port, baudrate=baudrate, timeout=None):
-        Logger.error("Podco Metal Detection Serial Server exited")
-        exit(100)
+
+    while not SerialServer.instance().connect(port=port, baudrate=baudrate, timeout=None):
+        Logger.error(f"Serial Server cannot connect to {port} with baudrate: {baudrate} now, keep trying...")
+        time.sleep(1)
 
     LogManager.instance().setup(f"{get_current_program_folder()}/system_logs")
     try:
