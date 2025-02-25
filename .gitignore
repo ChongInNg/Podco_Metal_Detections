@@ -169,6 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-server/system_logs/*
+server/system_logs/*.json
+server/system_logs/*.log
 
 test/*
