@@ -54,6 +54,8 @@ class MainScreen(Screen):
                 self._handle_system_error_response(msg)
             elif isinstance(msg, GetCalibrationResponse):
                 self._get_calibration_response(msg)
+            elif isinstance(msg, NotifyCalibrationFailedMessage):
+                self._handle_calibration_failed(msg)
             else:
                 print(f"Cannot handle this message: {msg}\n")
         except Exception as ex:
@@ -154,3 +156,8 @@ class MainScreen(Screen):
                 CH2_M=str(msg.calibration_data.mid_ch2)
             )
         )
+
+    def _handle_calibration_failed(self, msg: NotifyCalibrationFailedMessage):
+        Clock.schedule_once(lambda dt: self.get_stack_widget().show_calibration_failed_popup(msg.reason))
+        print(f"_handle_calibration_failed success. reason: {msg.reason}")
+

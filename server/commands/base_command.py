@@ -2,6 +2,7 @@ class BaseCommand:
     def __init__(self):
         self.name = "Base"
         self.data_len = 0
+        self.bytes_endian = "big"
 
     def process(self, data):
         raise NotImplementedError("Subclasses must implement the process method")
@@ -12,7 +13,7 @@ class BaseCommand:
         
     
     def _convert_bytes_to_int(self, data: bytes, start_pos:int, end_pos:int)->int:
-        return int.from_bytes(data[start_pos:end_pos], "big")
+        return int.from_bytes(data[start_pos:end_pos], self.bytes_endian)
     
     def to_dict(self):
         return {

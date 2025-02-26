@@ -11,6 +11,7 @@ from screens.calibration_screen import CalibrationScreen
 from screens.analyzer_screen import AnalyzerScreen
 from screens.screen_header import ScreenHeader
 from screens.setting_screen import SettingScreen
+from screens.common_popup import CommonPopup
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -178,5 +179,18 @@ class StackWidget(Screen):
         app = App.get_running_app()
         main_screen = app.root.get_screen("main")
         return main_screen.ids.screen_header
+    
+    def show_calibration_failed_popup(self, reason: int):
+        self.common_popup = CommonPopup()
+        self.common_popup.update_title("Calibration Failed")
+        reason_str = ""
+        if reason == 1:
+            reason_str = "Sequence Failed."
+        elif reason == 2:
+            reason_str = "Signal Failed."
+        else:
+            reason_str = "Unknow error."
+        self.common_popup.update_message(f"Reason: {reason_str}")
+        self.common_popup.handle_open()
     
     

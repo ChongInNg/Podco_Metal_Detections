@@ -6,6 +6,7 @@ from commands.bypass_command import BypassCommand
 from commands.base_command import BaseCommand
 from commands.set_threshold_command_resp import SetThresholdCommandResp
 from commands.set_default_calibration_command_resp import SetDefaultCalibrationCommandResp
+from commands.calibration_failed_command import CalibrationFailedCommand
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
@@ -27,6 +28,7 @@ class CommandHandler:
         0x0F: BypassCommand,
         0x0B: SetThresholdCommandResp,
         0xB0: SetDefaultCalibrationCommandResp,
+        0xC0: CalibrationFailedCommand,
     }
 
     def __init__(self):
@@ -96,6 +98,8 @@ class CommandHandler:
                 code="OK",
                 message="Set threshold to controller success."
             )
+        elif isinstance(command, CalibrationFailedCommand):
+            return NotifyCalibrationFailedMessage.create_message(reason=command.reason)
         else:
             raise ValueError(f"Unknown command: {command.name}")
         

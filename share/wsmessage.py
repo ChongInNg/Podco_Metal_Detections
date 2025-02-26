@@ -20,12 +20,7 @@ MessageName_NotifyCalibration = "notify_calibration"
 MessageName_NotifyDetection = "notify_detection"
 MessageName_NotifyRawData = "notify_raw_data"
 MessageName_NotifyThresholdAdjusted = "notify_threshold_adjusted"
-
-class Message:
-    def __init__(self, header, data):
-        self.header = header
-        self.data = data
-        pass
+MessageName_NotifyCalibration_Failed = "notify_calibration_failed"
 
 class Header:
     def __init__(self, name: str, message_type: str, id: str=None, ts: str = None):
@@ -83,6 +78,9 @@ class Header:
     
     def is_system_error_message(self):
         return self.name == MessageName_SystemError
+    
+    def is_notify_calibration_failed_message(self):
+        return self.name == MessageName_NotifyCalibration_Failed
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
@@ -107,7 +105,8 @@ class Header:
             MessageName_SetDefaultCalibration,
             MessageName_SetThreshold,
             MessageName_GetCalibration,
-            MessageName_SystemError
+            MessageName_SystemError,
+            MessageName_NotifyCalibration_Failed,
         ]:
             if name == message_name:
                 return
@@ -178,6 +177,8 @@ class BaseWsMessage:
             return NotifyRawDataMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_threshold_adjusted_message():
             return NotifyThresholdAdjustedMessage.from_dict(header=header, data=msg_data)
+        elif header.is_notify_calibration_failed_message():
+            return NotifyCalibrationFailedMessage.from_dict(header=header, data=msg_data)
         else:
             raise ValueError(f"Message name is wrong. {header.to_dict()}")
         
@@ -876,6 +877,37 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
         return cls(
             header, 
             area_threshold=area_threshold,
+        )
+
+class NotifyCalibrationFailedMessage(BaseWsNotify):
+    def __init__(self ,header: Header, reason: int):
+        super().__init__(header=header)
+        self.reason = reason
+    
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "reason": self.reason
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'NotifyCalibrationFailedMessage':
+        reason = data.get("reason")
+        return cls(
+            header=header,
+            reason=reason
+        )
+    
+    @classmethod
+    def create_message(cls, reason: int) -> 'NotifyCalibrationFailedMessage':
+        if reason is None or not isinstance(reason, int):
+            raise ValueError("reason is not valid")
+        
+        header = Header(name=MessageName_NotifyCalibration_Failed, message_type=MessageType_Notify)
+        return cls(
+            header, 
+            reason=reason,
         )
     
 class SystemErrorResponse(BaseWsResponse):
