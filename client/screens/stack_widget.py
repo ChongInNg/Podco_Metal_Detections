@@ -18,6 +18,10 @@ Builder.load_file("kv/stack_widget.kv")
 class StackWidget(Screen):
     current_screen = StringProperty('option')
 
+    def __init__(self, **kwargs):
+        self.common_popup = CommonPopup()
+        super().__init__(**kwargs)
+    
     def handle_direction(self, direction):
         if direction == "left":
             if self.is_detection():
@@ -181,7 +185,6 @@ class StackWidget(Screen):
         return main_screen.ids.screen_header
     
     def show_calibration_failed_popup(self, reason: int):
-        self.common_popup = CommonPopup()
         self.common_popup.update_title("Calibration Failed")
         reason_str = ""
         if reason == 1:
@@ -194,3 +197,21 @@ class StackWidget(Screen):
         self.common_popup.handle_open()
     
     
+    def hide_popups_when_idle(self):
+        if self.is_analyzer():
+            self.get_analyzer_screen().hide_popups()
+        elif self.is_setting():
+            self.get_setting_screen().hide_popups()
+        else:
+            print("no need to handle idle in current screen.")
+
+    def show_popups_when_exit_idle(self):
+        if self.common_popup.is_showing():
+            self.common_popup.handle_dismiss(self)
+
+        if self.is_analyzer():
+            self.get_analyzer_screen().show_popups()
+        elif self.is_setting():
+            self.get_setting_screen().show_popups()
+        else:
+            print("no need to handle idle in current screen.")

@@ -320,3 +320,15 @@ class SettingScreen(Screen):
     def _finish_copy(self, total_copy):
         self.loading_screen.hide()
         self.show_confirmation_popup(f"Total copy {total_copy} logs")
+
+    def hide_popups(self):
+        if self.common_popup.is_showing():
+            self.common_popup.opacity = 0
+        elif self.reset_popup.is_showing():
+            self.reset_popup.opacity = 0
+
+    def show_popups(self):
+        if self.common_popup.is_showing():
+            self.common_popup.opacity = 1
+        elif self.reset_popup.is_showing():
+            self.reset_popup.opacity = 1

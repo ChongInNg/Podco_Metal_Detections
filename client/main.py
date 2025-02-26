@@ -43,6 +43,9 @@ class MetalDetectionApp(App):
         # Add LogoScreen first, then other screens
         self.logo_screen = LogoScreen(name="logo")
         self.main_screen = MainScreen(name="main")
+        self.logo_screen.set_recover_func(
+            callback=self.main_screen.get_stack_widget().show_popups_when_exit_idle
+        )
         sm.add_widget(self.logo_screen) 
         sm.add_widget(self.main_screen)
         
@@ -103,6 +106,8 @@ class MetalDetectionApp(App):
     def switch_to_logo_screen(self):
         if self.root.current != "logo":
             self.root.current = "logo"
+
+        self.main_screen.get_stack_widget().hide_popups_when_idle()
 
     def handle_signal(self, direction: str):
         print(f"Received direction signal: {direction}")
