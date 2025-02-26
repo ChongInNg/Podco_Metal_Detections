@@ -92,8 +92,10 @@ class SerialServer:
                 Logger.info(f"There are data comming from serial, len:{self.serial.in_waiting}")
                 header = self.serial.read(2) 
                 if len(header) < 2: 
+                    Logger.info(f"Header length is less than 2, cannot handle this message. {header}")
                     continue
-
+                
+                Logger.info(f"Read the header is: {header}")
                 command_type = header[0]
                 data_length = header[1]
 
