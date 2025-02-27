@@ -48,7 +48,7 @@ class SerialServer:
             self.running = True
             Logger.info(f"Serial connection established. port:{self.port}, baudrate: {self.baudrate}, timeout mode: {self.timeout}")
             self.start()
-            self.set_server_status_on()
+            # self.set_server_status_on()
             return True
         except Exception as e:
             Logger.error(f"Failed to connect to Serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")

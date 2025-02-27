@@ -5,6 +5,7 @@ import logging
 from log.logger import Logger
 from .connection_manager import ConnectionManager 
 from .ws_message_queue import WsMessageQueue
+from server.serial_server import SerialServer
 
 import sys
 import os
@@ -40,7 +41,9 @@ class WebSocketServer:
             connection_manager.set_ws_queue(ws_queue)
             asyncio.create_task(connection_manager.ws_queue.start())
 
+
             async with websockets.serve(self.on_connect, self.host, self.port):
+                SerialServer.instance().set_server_status_on()
                 await asyncio.Future()
             Logger.debug(f"Web server started....")
         except KeyboardInterrupt:
