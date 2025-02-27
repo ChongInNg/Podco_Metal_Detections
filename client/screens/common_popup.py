@@ -2,10 +2,13 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from screens.flip_popup import FlippedPopup
 
-class CommonPopup(Popup):
+
+class CommonPopup(FlippedPopup):
     def __init__(self, message="An error occurred!", **kwargs):
-        super().__init__(title_size="20sp", size_hint=(None, None), size=(320, 240), title="Error", auto_dismiss=False, **kwargs)
+        super().__init__(**kwargs)
+        self.init_attributes(title="Title")
 
         layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
 

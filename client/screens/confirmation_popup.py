@@ -2,11 +2,13 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from screens.flip_popup import FlippedPopup
 
-class ConfirmationPopup(Popup):
+class ConfirmationPopup(FlippedPopup):
     def __init__(self, title="Confirm", message="Are you sure?", on_confirm_callback=None, **kwargs):
-        super().__init__(title_size="20sp",size_hint=(None, None), size=(320, 240), title=title, auto_dismiss=False, **kwargs)
-        
+        super().__init__(**kwargs)
+        self.init_attributes(title=title)
+
         self.on_confirm_callback = on_confirm_callback
 
         layout = BoxLayout(orientation="vertical", padding=10, spacing=10)

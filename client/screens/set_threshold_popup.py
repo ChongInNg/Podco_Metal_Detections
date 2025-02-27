@@ -4,10 +4,12 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from screens.custom_slider import CustomSlider
 from config.config import ConfigManager
+from screens.flip_popup import FlippedPopup
 
-class SetThresholdPopup(Popup):
+class SetThresholdPopup(FlippedPopup):
     def __init__(self, on_confirm_callback=None, **kwargs):
-        super().__init__(title_size="20sp",size_hint=(None, None), size=(320, 240), title="Set Threshold", auto_dismiss=False, **kwargs)
+        super().__init__(**kwargs)
+        self.init_attributes(title="Set Threshold")
 
         self.on_confirm_callback = on_confirm_callback
         self.current_threshold = 1500
