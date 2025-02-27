@@ -3,10 +3,12 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import AsyncImage
 from kivy.clock import Clock
+from screens.flip_popup import FlippedPopup
 
-class LoadingScreen(Popup):
+class LoadingScreen(FlippedPopup):
     def __init__(self, message="Loading...", timeout=3, on_timeout_callback=None, **kwargs):
-        super().__init__(title_size="20sp",size_hint=(None, None), size=(320, 240), auto_dismiss=False, title="Please Wait", **kwargs)
+        super().__init__(**kwargs)
+        self.init_attributes(title="Please Wait")
 
         self.timeout = timeout
         self.on_timeout_callback = on_timeout_callback
