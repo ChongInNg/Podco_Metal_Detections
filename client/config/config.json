@@ -21,11 +21,11 @@
         "center": 26
     },
     "keypad": {
-        "up": 5,
+        "up": 26,
         "down": 6,
-        "left": 13,
-        "right": 19,
-        "center": 26
+        "left": 19,
+        "right": 5,
+        "center": 13
     },
     "control_mode": "joystick",
     "flip_screen": "false",
