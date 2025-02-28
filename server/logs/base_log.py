@@ -23,3 +23,7 @@ class BaseLog:
                 json.dump(data, f, indent=4)
 
    
+    def update_file_name(self, file_name: str):
+        with self.file_lock:
+            self.file_name = file_name
+            self.full_name = f"{self.log_directory}/{self.file_name}"

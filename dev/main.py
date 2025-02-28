@@ -1,6 +1,7 @@
 from command_processor import CommandProcessor
 from serial_handler import SerialHandler, CommandData
 from log.logger import Logger
+from datetime import time
 import os
 
 def get_current_program_folder():
@@ -29,7 +30,7 @@ if __name__ == "__main__":
         exit(100)
     while True:
         command_mapping = {i + 1: command["name"] for i, command in enumerate(processor.commands)}
-
+        command_mapping[9] = "raw data stress test"
         print("\nAvailable commands:")
         for number, name in command_mapping.items():
             print(f" {number}. {name}")
@@ -45,6 +46,15 @@ if __name__ == "__main__":
             if choice == 0:
                 Logger.info("Exiting the program.")
                 break
+            elif choice == 9:
+                count = 0
+                while True:
+                    raw_data_command = processor.encode_raw_data_command()
+                    serial_handler.send(raw_data_command)
+                    command_data:CommandData = serial_handler.receive()
+                    handle_response(f"raw_data: {count}", command_data)
+                    count += 1
+                    # time.sleep(0.1)
 
             if choice not in command_mapping:
                 print("Invalid choice. Please select a valid command number.")

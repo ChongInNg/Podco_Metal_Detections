@@ -17,6 +17,6 @@ class BaseCommand:
     
     def to_dict(self):
         return {
-            "command_name": self.name,
-            "data_len": self.data_len
+            "name": self.name,
+            "len": self.data_len
         }

@@ -308,15 +308,9 @@ class AnalyzerScreen(Screen):
     def hide_popups(self):
         if self.error_popup.is_showing():
             self.error_popup.opacity = 0
-            print("set error_popup opacity = 0")
-        elif self.reset_popup.is_showing():
-            self.reset_popup.opacity = 0
-            print("set reset_popup opacity = 0")
+            print("analyzer screen hide_popups")
 
     def show_popups(self):
         if self.error_popup.is_showing():
             self.error_popup.opacity = 1
-            print("set error_popup opacity = 1")
-        elif self.reset_popup.is_showing():
-            self.reset_popup.opacity = 1
-            print("set reset_popup opacity = 1")
+            print("analyzer screen show_popups")

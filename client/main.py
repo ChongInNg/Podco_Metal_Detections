@@ -106,7 +106,6 @@ class MetalDetectionApp(App):
     def switch_to_logo_screen(self):
         if self.root.current != "logo":
             self.root.current = "logo"
-
         self.main_screen.get_stack_widget().hide_popups_when_idle()
 
     def handle_signal(self, direction: str):

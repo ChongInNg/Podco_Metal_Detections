@@ -4,7 +4,7 @@ from typing import  Optional
 import json
 import os
 from logs.global_log import GlobalLog
-from logs.system_log import SystemLog
+from logs.command_log import CommandLog
 from logs.detection_log import DetectionLog, DetectionLogData
 from logs.calibration_log import CalibrationLog, CalibrationLogData
 
@@ -16,7 +16,7 @@ class LogManager:
         self.running = False
         self.global_log = None
         self.session_log = None
-        self.system_log = None
+        self.command_log = None
         self.detection_log: DetectionLog = None
         self.calibration_log: CalibrationLog = None
     
@@ -34,7 +34,7 @@ class LogManager:
     def setup(self, log_directory: str="./"):
         self.global_log = GlobalLog(log_directory=log_directory)
         global_log_data = self.global_log.get_global_log()
-        self.system_log = SystemLog(
+        self.command_log = CommandLog(
             log_directory=log_directory,
             log_index=global_log_data.log_index, 
             max_file_size=global_log_data.max_file_size,
@@ -44,12 +44,12 @@ class LogManager:
         self.calibration_log = CalibrationLog(log_directory=log_directory)
         self.running = True
     
-        self.system_log.start_session()
+        self.command_log.start_session()
         self.thd = threading.Thread(target=self._run_periodic_updates, daemon=True)
         self.thd.start()
 
     def log_message(self, message: str):
-        self.system_log.log_event(message=message)
+        self.command_log.log_event(message=message)
 
     def save_detection(self, detection_data: DetectionLogData):
         self.detection_log.save_detection_data(detection_data)
