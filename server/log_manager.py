@@ -19,7 +19,7 @@ class LogManager:
         self.command_log = None
         self.detection_log: DetectionLog = None
         self.calibration_log: CalibrationLog = None
-    
+
     @classmethod
     def instance(cls) -> 'LogManager':
         if cls._instance is None:
@@ -48,7 +48,7 @@ class LogManager:
         self.thd = threading.Thread(target=self._run_periodic_updates, daemon=True)
         self.thd.start()
 
-    def log_message(self, message: str):
+    def log_command(self, message: str):
         self.command_log.log_event(message=message)
 
     def save_detection(self, detection_data: DetectionLogData):

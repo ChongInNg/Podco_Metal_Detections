@@ -1,16 +1,16 @@
 import logging
+import os
 from abc import ABC, abstractmethod
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 
-# output print or logging
-GLOABLE_OUTPUT_PRINT = True
-
-
+RED = '\033[91m'
+RESET = '\033[0m'
 
 class Identifiable(ABC):
     @abstractmethod
     def get_identity(self) -> str:
-        """Returns the identity of the object."""
+        # returns the identity of the object. the object have to provide
         pass
 
 class Logger:
@@ -23,9 +23,28 @@ class Logger:
     def instance(cls):
         if cls._instance is None:
             cls._instance = cls.__new__(cls)
-            log_level = logging.DEBUG
-            cls._instance.__init_manual__(log_level)
+            cls._instance.logger = logging.getLogger('server_logger')
+            cls._instance.logger.handlers = []
         return cls._instance
+    
+    def init(self, log_folder:str, log_file_level: int, 
+             max_bytes=1024, backup_count=10):
+        self.log_file_level = log_file_level
+        os.makedirs(log_folder, exist_ok=True)
+
+        log_file = "server.log"
+        full_log_path = os.path.join(log_folder, log_file)
+        self.logger.setLevel(self.log_file_level)
+        formatter = logging.Formatter('[%(levelname)s]-%(message)s')
+        self.file_handler = RotatingFileHandler(
+            filename=full_log_path,
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+        )
+        self.file_handler.setFormatter(formatter)
+        self.file_handler.setLevel(logging.ERROR)
+        self.logger.addHandler(self.file_handler)
+        self.log_file = full_log_path
 
     @classmethod
     def debug(cls, message: str, *args):
@@ -67,13 +86,6 @@ class Logger:
     def critical_with_identity(cls, obj: Identifiable, message: str, *args):
         cls.instance()._critical(f"{obj.get_identity()} {message}", *args)
 
-    def __init_manual__(self, log_level=logging.DEBUG):
-        logging.basicConfig(
-            level=log_level,
-            format='%(asctime)s [%(levelname)s] - %(message)s',
-        )
-        self.logger = logging.getLogger('BlackJack_logger')
-
     def _debug(self, message, *args):
         self._log(logging.DEBUG, message, *args)
 
@@ -85,19 +97,47 @@ class Logger:
 
     def _error(self, message, *args):
         self._log(logging.ERROR, message, *args)
+        self.file_handler.flush()
 
     def _critical(self, message, *args):
         self._log(logging.CRITICAL, message, *args)
+        self.file_handler.flush()
 
     def _log(self, log_level, message, *args):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        timestamp = datetime.now().isoformat(timespec='milliseconds')
         log_message = f"[{timestamp}] {message}"
         if args:
             log_message += ', ' + ', '.join(map(str, args))
-        
-        log_message += '\n'
-        global GLOABLE_OUTPUT_PRINT
-        if not GLOABLE_OUTPUT_PRINT:
-            self.logger.log(log_level, log_message)
+
+        if log_level < logging.ERROR:
+            print(f"[{self.get_level_name(log_level)}]-{log_message}")
         else:
-            print(f"{log_level}: {log_message}")
+            print(f"{RED}[{self.get_level_name(log_level)}]-{log_message}{RESET}")
+
+        if log_level >= self.log_file_level:
+            self.logger.log(log_level, log_message)
+
+    def get_level_name(self, log_level: int)->str:
+        # CRITICAL = 50
+        # FATAL = CRITICAL
+        # ERROR = 40
+        # WARNING = 30
+        # WARN = WARNING
+        # INFO = 20
+        # DEBUG = 10
+        # NOTSET = 0
+        if log_level == 0:
+            return "NOTSET"
+        elif log_level == 10:
+            return "DEBUG"
+        elif log_level == 20:
+            return "INFO"
+        elif log_level == 30:
+            return "WARNING"
+        elif log_level == 40:
+            return "ERROR"
+        elif log_level == 50:
+            return "CRITICAL"
+        else:
+            return "UNKNOWN"
+        

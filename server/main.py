@@ -35,11 +35,16 @@ async def start_web_server():
         Logger.info("Web server cleanup completed.")
 
 if __name__ == "__main__":
-    Logger.info("Podco Metal Detection Server Start")
+    Logger.instance().init(
+        log_folder=f"{get_current_program_folder()}/system_logs",
+        log_file_level=40,
+        max_bytes=1024*1024*50,
+        backup_count=10
+    )
+
     port = ''
     config_path = f"{get_current_program_folder()}/config/config.json"
     ConfigManager.instance().read_config(config_path)
-    # port = 'ttyAMA0'
     if ConfigManager.instance().run_on_rpi():
         port = ConfigManager.instance().rpi_serial_port
     else:
@@ -58,4 +63,7 @@ if __name__ == "__main__":
     finally:
         SerialServer.instance().close()
         Logger.info("All Servers shutdown complete.")
-    print(f"This is {ConfigManager.instance().metal_detection_id}.")
+    Logger.error(f"Podco Metal Detection Server Stoped...")
+
+
+    

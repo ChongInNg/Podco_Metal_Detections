@@ -38,6 +38,7 @@ class Connection:
             import traceback
             traceback.print_stack()
             await self.send_system_error(f"Handle message error:{e}")
+            Logger.error(f"Handle message error:{e}")
             
     
     async def handle_registration(self, message: RegistrationWsRequest):

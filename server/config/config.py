@@ -1,5 +1,6 @@
 import json
 import threading
+from log.logger import Logger
 
 class ConfigManager:
     _instance = None
@@ -40,7 +41,7 @@ class ConfigManager:
             self.server_status_pin = data.get("server_status_pin", 0)
 
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error loading config: {e}")
+            Logger.error(f"Error loading config: {e}")
 
     def run_on_rpi(self) -> bool:
         return self.run_on == "rpi"

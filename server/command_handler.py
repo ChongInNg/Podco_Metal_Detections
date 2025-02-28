@@ -104,7 +104,7 @@ class CommandHandler:
             raise ValueError(f"Unknown command: {command.name}")
         
     def log_to_file(self, command: BaseCommand):
-        LogManager.instance().log_message(f"{command.to_dict()}")
+        LogManager.instance().log_command(f"{command.to_dict()}")
         if isinstance(command, DetectionCommand):
             log_data = DetectionLogData.from_dict(command.to_dict())
             log_data.t_value = LogManager.instance().get_current_engine_time()

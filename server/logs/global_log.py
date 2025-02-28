@@ -7,6 +7,10 @@ class SessionLog:
         self.started_at:datetime = None
         self.last_updated_at:datetime = None
         self.total_run_minutes = 0
+        self.current_engine_minutes = 0
+
+    def set_current_engine_minutes(self, engine_minutes: int):
+        self.current_engine_minutes = engine_minutes
 
     def init_data(self):
         self.started_at = datetime.now()
@@ -24,12 +28,14 @@ class SessionLog:
         self.started_at = datetime.fromisoformat(data.get("started_at"))
         self.last_updated_at = datetime.fromisoformat(data.get("last_updated_at"))
         self.total_run_minutes = data.get("total_run_minutes")
+        self.current_engine_minutes = data.get("current_engine_minutes")
     
     def to_dict(self):
         return {
             "started_at": self.started_at.isoformat(),
             "last_updated_at": self.last_updated_at.isoformat(),
-            "total_run_minutes": self.total_run_minutes
+            "total_run_minutes": self.total_run_minutes,
+            "current_engine_minutes": self.current_engine_minutes
         }
 
 class SessionLogHistory:
@@ -100,6 +106,7 @@ class GlobalLog(BaseLog):
         else:
             self.global_data.parse_data(global_log)
             # put current session log to the histories
+            self.global_data.current_session.set_current_engine_minutes(self.global_data.orig_total_run_minutes)
             self.global_data.session_histories.add_session_log(self.global_data.current_session)
             self.global_data.current_session = SessionLog()
             self.global_data.current_session.init_data()

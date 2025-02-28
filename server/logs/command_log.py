@@ -1,6 +1,6 @@
-from datetime import datetime
 from .base_log import BaseLog
 import os
+from log.logger import Logger
 
 class CommandLog(BaseLog):
     def __init__(self,log_directory:str, log_index, max_file_size, update_index_callback,  file_name="command_log"):
@@ -19,11 +19,9 @@ class CommandLog(BaseLog):
             if self._is_over_size():
                 self._increase_index()
 
-            with open(self.full_name, "a+") as f:
-                timestamp = datetime.now().isoformat(timespec='milliseconds')
-                f.write(f"{timestamp} - {message}\n")
+            self._write_message(message)
         except IOError as e:
-            print(f"Error writing to system log file: {e}")
+            Logger.error(f"Error writing to system log file: {e}")
 
     def _is_over_size(self)->bool:
         if os.path.exists(self.full_name) and os.path.getsize(self.full_name) > self.max_file_size:
