@@ -36,9 +36,8 @@ class LogManager:
         global_log_data = self.global_log.get_global_log()
         self.command_log = CommandLog(
             log_directory=log_directory,
-            log_index=global_log_data.log_index, 
             max_file_size=global_log_data.max_file_size,
-            update_index_callback=self.global_log.increment_log_index,
+            log_file_count=global_log_data.log_file_count, 
         )
         self.detection_log = DetectionLog(log_directory=log_directory)
         self.calibration_log = CalibrationLog(log_directory=log_directory)

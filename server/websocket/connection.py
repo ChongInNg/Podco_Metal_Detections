@@ -68,7 +68,7 @@ class Connection:
                 message="Send threshold request to controller failed."
             )
             await self.conn.send(rsp.to_json())
-            Logger.debug(f"Handle threshold request to controller failed: {rsp.to_dict()}")
+            Logger.error(f"Handle threshold request to controller failed: {rsp.to_dict()}")
         
 
     async def handle_set_default_calibration(self, message: SetDefaultCalibrationRequest):
@@ -85,7 +85,7 @@ class Connection:
                 message="Send default calibration request to controller failed."
             )
             await self.conn.send(rsp.to_json())
-            Logger.debug(f"Handle set default calibration failed: {rsp.to_dict()}")
+            Logger.error(f"Handle set default calibration failed: {rsp.to_dict()}")
 
     async def handle_get_last_n_detections(self, message: GetLastNDetectionsRequest):
         if self.status != Connection.Status_Registered:

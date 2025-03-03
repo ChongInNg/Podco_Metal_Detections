@@ -42,6 +42,7 @@ if __name__ == "__main__":
         backup_count=10
     )
 
+    Logger.error(f"Podco Metal Detection Server started...")
     port = ''
     config_path = f"{get_current_program_folder()}/config/config.json"
     ConfigManager.instance().read_config(config_path)

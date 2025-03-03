@@ -30,7 +30,7 @@ class SerialHandler:
 
     def send(self, data):
         self.serial.write(data)
-        Logger.info(f"Sent: {data.hex()}")
+        Logger.debug(f"Sent: {data.hex()}")
 
     def receive(self):
         try:

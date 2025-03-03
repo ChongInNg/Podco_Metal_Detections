@@ -95,7 +95,6 @@ class Logger:
         if args:
             log_message += ', ' + ', '.join(map(str, args))
         
-        log_message += '\n'
         global GLOABLE_OUTPUT_PRINT
         if not GLOABLE_OUTPUT_PRINT:
             self.logger.log(log_level, log_message)

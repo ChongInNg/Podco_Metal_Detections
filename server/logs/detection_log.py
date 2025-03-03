@@ -52,6 +52,6 @@ class DetectionLog(BaseLog):
         detection_log.append(detection_data.to_dict())
         try:
             self._write_json(detection_log)
-            Logger.info(f"Detection data appended successfully to {self.full_name}.")
+            Logger.debug(f"Detection data appended successfully to {self.full_name}.")
         except Exception as e:
             Logger.error(f"Failed to save detection data: {e}")

@@ -58,7 +58,7 @@ class GlobalLogData:
     def __init__(self):
         self.total_run_minutes = 0
         self.orig_total_run_minutes = 0
-        self.log_index = 0
+        self.log_file_count = 0
         self.max_file_size = 1024 * 1024 * 100
         self.session_histories = SessionLogHistory()
         self.current_session = SessionLog()
@@ -66,7 +66,7 @@ class GlobalLogData:
     def to_dict(self):
         return {
             "total_run_minutes": self.total_run_minutes,
-            "log_index": self.log_index,
+            "log_file_count": self.log_file_count,
             "max_file_size": self.max_file_size,
             "current_session": self.current_session.to_dict(),
             "session_histories": self.session_histories.to_dict(),
@@ -82,10 +82,13 @@ class GlobalLogData:
     def parse_data(self, data: dict):
         self.total_run_minutes = data.get("total_run_minutes")
         self.orig_total_run_minutes = self.total_run_minutes
-        self.log_index = data.get("log_index")
+        self.log_file_count = data.get("log_file_count")
         self.max_file_size = data.get("max_file_size")
         self.current_session.parse_data(data.get("current_session"))
         self.session_histories.parse_data(data.get("session_histories"))
+
+        if self.log_file_count is None or self.log_file_count == 0:
+            self.log_file_count = 50
     
 class GlobalLog(BaseLog):
     def __init__(self, log_directory:str, file_name:str="global_log.json"):
@@ -112,9 +115,6 @@ class GlobalLog(BaseLog):
             self.global_data.current_session.init_data()
             self._write_json(self.global_data.to_dict())
 
-    def increment_log_index(self, index: int):
-        self.global_data.log_index = index
-        self._write_json(self.global_data.to_dict())
 
     def get_global_log(self) -> GlobalLogData:
         return self.global_data

@@ -15,7 +15,7 @@ def handle_response(command_name, command_data: CommandData):
     if command_data.data_length == 1:
         result = command_data.data[0]
         if result == 1:
-            Logger.info(f"Command: {command_name}, Received response success of: {hex(command_data.command_type)}, result: {result}")
+            Logger.debug(f"Command: {command_name}, response success: {hex(command_data.command_type)}, result: {result}")
         else:
             Logger.error(f"Command: {command_name}, Received response failed of: {hex(command_data.command_type)}, result: {result}")
     else:

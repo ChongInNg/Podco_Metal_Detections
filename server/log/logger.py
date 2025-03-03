@@ -104,6 +104,10 @@ class Logger:
         self.file_handler.flush()
 
     def _log(self, log_level, message, *args):
+        if log_level < logging.INFO:
+            # no need to log
+            return
+
         timestamp = datetime.now().isoformat(timespec='milliseconds')
         log_message = f"[{timestamp}] {message}"
         if args:

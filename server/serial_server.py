@@ -89,7 +89,7 @@ class SerialServer:
     def _read_data(self):
         while self.running:
             if self.serial.in_waiting:
-                Logger.info(f"There are data comming from serial, len:{self.serial.in_waiting}")
+                Logger.debug(f"There are data comming from serial, len:{self.serial.in_waiting}")
                 header = self.serial.read(2) 
                 if len(header) < 2: 
                     continue
@@ -97,20 +97,20 @@ class SerialServer:
                 command_type = header[0]
                 data_length = header[1]
 
-                Logger.info(f"command type hex: {hex(command_type)}, data_length: {data_length}")
+                Logger.debug(f"command type hex: {hex(command_type)}, data_length: {data_length}")
                 data = self.serial.read(data_length)
                 command_data = CommandData(command_type, data_length, data)
                 self.cmd_queue.put(command_data)
-                Logger.info(f"Read data from the serial port: {command_data.to_dict()}")
+                Logger.info(f"Read serial: {command_data.to_dict()}")
 
                 if self.need_send_back_response_to_controller(command_data.command_type):
                     self._send_response(command_data.command_type)
-                    Logger.info(f"Send response to controller, command_type: {hex(command_type)}")
+                    Logger.debug(f"Send response to controller, command_type: {hex(command_type)}")
 
     def _write_data(self, data: bytes) -> int:
         if self.serial and self.serial.is_open:
             buf_num = self.serial.write(data)
-            Logger.info(f"Write to serial success. {data.hex()}, buf_num: {buf_num}")
+            Logger.info(f"Write serial. {data.hex()}, buf_num: {buf_num}")
             return buf_num
         else:
             Logger.error(f"Didn't connect to serial port, cannot send. {data.hex()}")
@@ -119,14 +119,14 @@ class SerialServer:
     def _process_queue_data(self):
         while self.running:
             try:
-                command_data: CommandData = self.cmd_queue.get(timeout=0.5)
+                command_data: CommandData = self.cmd_queue.get(block=True)
                 try:
                     result = self.command_handler.handle_command(
                         command_type=command_data.command_type,
                         data_length=command_data.data_length,
                         data=command_data.data,
                     )
-                    Logger.info("Processed Command:", result)
+                    Logger.debug("Processed Command:", result)
                 except ValueError as e:
                     self._send_error_response(command_data.command_type)
                     Logger.error(f"Command handling error: {e}, raw_command:{command_data}")
@@ -143,11 +143,12 @@ class SerialServer:
             Logger.info("Serial connection closed.")
             self.read_thread.join()
             Logger.info("Read queue thread closed.")
-            self.proces_thread.join()
+            # cannot join this thread because the queue is using block mode for better performance.
+            # self.proces_thread.join()
             Logger.info("Process queue thread closed.")
         
         self.set_server_status_off()
-        print("Serial server close successfully..")
+        Logger.info("Serial server close successfully..")
 
     def _send_response(self, command_type: int) -> int:
         resp_value = 1

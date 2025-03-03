@@ -1,34 +1,39 @@
 from .base_log import BaseLog
 import os
+from datetime import datetime
 from log.logger import Logger
 
 class CommandLog(BaseLog):
-    def __init__(self,log_directory:str, log_index, max_file_size, update_index_callback,  file_name="command_log"):
-        self.orgin_file_name = file_name
-        file_name_with_index = f"{file_name}_{log_index}.log"
-        super().__init__(log_directory=log_directory, file_name=file_name_with_index)
-        self.log_index = log_index
+    def __init__(self,log_directory:str, max_file_size, log_file_count: int, file_name="command.log"):
+        super().__init__(log_directory=log_directory, file_name=file_name)
         self.max_file_size = max_file_size
-        self.update_index_callback = update_index_callback
+        self.log_file_count = log_file_count
 
     def start_session(self):
         self.log_event("Log Session Started")
 
     def log_event(self, message):
         try:
-            if self._is_over_size():
-                self._increase_index()
-
             self._write_message(message)
         except IOError as e:
             Logger.error(f"Error writing to system log file: {e}")
 
-    def _is_over_size(self)->bool:
+    def _write_message(self, message: str):
+        # no need to lock: only one thread will write, better for performenance
         if os.path.exists(self.full_name) and os.path.getsize(self.full_name) > self.max_file_size:
-            return True
-        return False
-    
-    def _increase_index(self):
-        self.log_index += 1
-        self.update_file_name(f"{self.orgin_file_name}_{self.log_index}.log")
-        self.update_index_callback(self.log_index)
+            self._roll_files()
+
+        with open(self.full_name, "a+") as f:
+            timestamp = datetime.now().isoformat(timespec='milliseconds')
+            f.write(f"{timestamp} - {message}\n")
+
+    def _roll_files(self):
+        for i in range(self.log_file_count - 1, 0, -1):
+            old_name = f"{self.full_name}.{i}"
+            new_name = f"{self.full_name}.{i + 1}"
+            if os.path.exists(old_name):
+                os.rename(old_name, new_name)
+                
+        # change current one to this name
+        if os.path.exists(self.full_name):
+            os.rename(self.full_name, f"{self.full_name}.1")
