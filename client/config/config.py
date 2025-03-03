@@ -162,6 +162,9 @@ class ConfigManager:
         except Exception as e:
             print(f"save brightness failed. error: {e}")
             return False
+        
+    def is_keypad_mode(self)->bool:
+        return self.control_mode == "keypad"
 # config = Config.instance()
 # config.read_config("config.json")
 # print(config) 

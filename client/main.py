@@ -78,13 +78,22 @@ class MetalDetectionApp(App):
     def monitor_joystick(self):
         from controller.joystick import JoyStick
         self.joystick = JoyStick(callback=self.handle_signal)
-        self.joystick.setup(
-            up=ConfigManager.instance().joystick_pins.up,
-            down=ConfigManager.instance().joystick_pins.down,
-            left=ConfigManager.instance().joystick_pins.left,
-            right=ConfigManager.instance().joystick_pins.right,
-            center=ConfigManager.instance().joystick_pins.center,
-        )
+        if ConfigManager.instance().is_keypad_mode():
+            self.joystick.setup(
+                up=ConfigManager.instance().keypad_pins.up,
+                down=ConfigManager.instance().keypad_pins.down,
+                left=ConfigManager.instance().keypad_pins.left,
+                right=ConfigManager.instance().keypad_pins.right,
+                center=ConfigManager.instance().keypad_pins.center,
+            )
+        else:
+            self.joystick.setup(
+                up=ConfigManager.instance().joystick_pins.up,
+                down=ConfigManager.instance().joystick_pins.down,
+                left=ConfigManager.instance().joystick_pins.left,
+                right=ConfigManager.instance().joystick_pins.right,
+                center=ConfigManager.instance().joystick_pins.center,
+            )
         self.joystick.run()
 
     def _stop_joystick(self):
