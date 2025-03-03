@@ -84,7 +84,7 @@ class MetalDetectionApp(App):
                 down=ConfigManager.instance().keypad_pins.down,
                 left=ConfigManager.instance().keypad_pins.left,
                 right=ConfigManager.instance().keypad_pins.right,
-                center=ConfigManager.instance().keypad_pins.center,
+                center=ConfigManager.instance().keypad_pins.center
             )
         else:
             self.joystick.setup(
