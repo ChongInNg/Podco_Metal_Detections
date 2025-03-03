@@ -115,7 +115,7 @@ class SettingScreen(Screen):
         
         self.loading_screen.update_message("Copying")
         self.loading_screen_for = "copying"
-        self.loading_screen.show()
+        self.loading_screen.show(enable_timeout=False)
 
         copy_thread = threading.Thread(target=self._copy_files, args=(device_detector,), daemon=True)
         copy_thread.start()
@@ -298,7 +298,9 @@ class SettingScreen(Screen):
     
     def _copy_files(self, device_detector: DeviceDetector):
         if not ConfigManager.instance().run_on_rpi():
-            print("Not run on rasberry pi, cannot to copy files.")
+            self.update_loading_screen_text_while_copying("Not run on rasberry pi, cannot copy file.")
+            time.sleep(2.5)
+            Clock.schedule_once(lambda dt: self.loading_screen.hide())
             return
 
         src_folders = ConfigManager.instance().src_folders
@@ -307,8 +309,13 @@ class SettingScreen(Screen):
         file_operation = FileOperation(
             src_folders=src_folders, 
             mount_point=mount_point,
-            need_copy_files_suffix=need_copy_files_suffix
+            need_copy_files_suffix=need_copy_files_suffix,
+            update_progress_callback=self.handle_copy_files_progress
         )
+
+        self.total_files_need_to_copy = file_operation.count_total_files_need_to_copy()
+        self.update_loading_screen_text_while_copying(f"Total need copy: {self.total_files_need_to_copy}\nCurrent completed: 0")
+        time.sleep(0.5)
         total_copy = file_operation.copy_from_folders()
         # total_copy = 4
         print(f"Total copy {total_copy}")
@@ -332,3 +339,10 @@ class SettingScreen(Screen):
             self.common_popup.opacity = 1
         elif self.reset_popup.is_showing():
             self.reset_popup.opacity = 1
+
+    def update_loading_screen_text_while_copying(self, message: str):
+        Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))
+
+    def handle_copy_files_progress(self, filename: str, complete_count: int):
+        message = f"Total need copy: {self.total_files_need_to_copy}\nCurrent completed: {complete_count}"
+        Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))

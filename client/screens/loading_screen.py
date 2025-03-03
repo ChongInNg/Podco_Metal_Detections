@@ -31,9 +31,12 @@ class LoadingScreen(FlippedPopup):
     def update_message(self, new_message):
         self.message_label.text = new_message
 
-    def show(self):
+    def show(self, enable_timeout: bool=True):
         self.handle_open()
-        self.timeout_event = Clock.schedule_once(self._on_timeout, self.timeout)
+        if enable_timeout:
+            self.timeout_event = Clock.schedule_once(self._on_timeout, self.timeout)
+        else:
+            print("Loading screen not detect timeout, need to manually closed.")
 
     def hide(self):
         if self.timeout_event:

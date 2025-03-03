@@ -3,26 +3,34 @@ import os
 import shutil
 import re
 from datetime import datetime
+from typing import Callable
 
 class FileOperation:
-    def __init__(self, src_folders: list[str], mount_point: str, need_copy_files_suffix: list[str]) -> None:
+    def __init__(self, src_folders: list[str], mount_point: str, need_copy_files_suffix: list[str],
+            update_progress_callback: Callable[[str, int], None]) -> None:
         self.src_folders = src_folders
         self.mount_point = mount_point
         self.need_copy_files_suffix = need_copy_files_suffix
+        self.update_progress_callback = update_progress_callback
+        self.total_files_need_to_copy = 0
 
-    def copy_from_folders(self):
+    def copy_from_folders(self, only_count=False):
         count = 0
         for folder in self.src_folders:
             print(f"copying files from {folder}")
             try:
-                ncount = self.copy_files(folder)
+                ncount = self.copy_files(folder, only_count)
                 count += ncount
                 print(f"Total copy files count: {ncount} from {folder}")
             except Exception as e:
                 print(f"copy files from {folder} error: {e}")
         return count
 
-    def copy_files(self, src_folder) -> int:
+    def count_total_files_need_to_copy(self) -> int:
+        self.total_files_need_to_copy = self.copy_from_folders(only_count=True)
+        return self.total_files_need_to_copy
+
+    def copy_files(self, src_folder, only_count=False) -> int:
         last_directory = os.path.basename(src_folder)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         dest_log_folder = os.path.join(self.mount_point, last_directory, timestamp)
@@ -43,12 +51,16 @@ class FileOperation:
                 if re.search(pattern, filename, re.IGNORECASE):
                     src_file_path = os.path.join(src_folder, filename)
                     dest_file_path = os.path.join(dest_log_folder, filename)
-                    shutil.copyfile(src_file_path, dest_file_path)
-                    count += 1
-                    print(f"copy file success {src_file_path}, {dest_file_path}, current git scount: {count}")
-                    
+                    if not only_count:
+                        shutil.copyfile(src_file_path, dest_file_path)
+                        if self.update_progress_callback:
+                            self.update_progress_callback(src_file_path, count)
 
-        print(f"Total copy {count} files from {src_folder} to {dest_log_folder}\n\n")
+                        print(f"copy file success {src_file_path}, {dest_file_path}, current count: {count}")
+
+                    count += 1
+        if not only_count:
+            print(f"Total copy {count} files from {src_folder} to {dest_log_folder}\n\n")
         return count
     
     def _check_file_exist(self, full_file_path: str) -> bool:
