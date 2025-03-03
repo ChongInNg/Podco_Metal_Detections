@@ -60,6 +60,7 @@ class GlobalLogData:
         self.orig_total_run_minutes = 0
         self.log_file_count = 0
         self.max_file_size = 1024 * 1024 * 100
+        self.current_threshold = 0
         self.session_histories = SessionLogHistory()
         self.current_session = SessionLog()
 
@@ -68,6 +69,7 @@ class GlobalLogData:
             "total_run_minutes": self.total_run_minutes,
             "log_file_count": self.log_file_count,
             "max_file_size": self.max_file_size,
+            "current_threshold": self.current_threshold,
             "current_session": self.current_session.to_dict(),
             "session_histories": self.session_histories.to_dict(),
         }
@@ -84,6 +86,7 @@ class GlobalLogData:
         self.orig_total_run_minutes = self.total_run_minutes
         self.log_file_count = data.get("log_file_count")
         self.max_file_size = data.get("max_file_size")
+        self.current_threshold = data.get("current_threshold")
         self.current_session.parse_data(data.get("current_session"))
         self.session_histories.parse_data(data.get("session_histories"))
 

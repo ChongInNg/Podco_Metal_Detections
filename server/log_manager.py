@@ -69,4 +69,9 @@ class LogManager:
         if self.thd:
             self.thd.join()
 
+    def get_current_threshold(self)->int:
+        return self.global_log.global_data.current_threshold
+    
+    def set_current_threshold(self, threshold: int):
+        self.global_log.global_data.current_threshold = threshold
     

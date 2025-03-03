@@ -68,7 +68,7 @@ class CommandHandler:
         elif isinstance(command, DetectionCommand):
             return NotifyDetectionMessage.create_message(
                 t_value=LogManager.instance().get_current_engine_time(),
-                d_value=LogManager.instance().get_current_calibration_data().area_threshold,
+                d_value=LogManager.instance().get_current_threshold(),
                 ch1_area_n=command.ch1_area_n,
                 ch1_area_p=command.ch1_area_p,
                 ch2_area_n=command.ch2_area_n,
@@ -85,6 +85,7 @@ class CommandHandler:
                 timestamp=time.time()
             )
         elif isinstance(command, ThresholdAdjustedCommand):
+            LogManager.instance().set_current_threshold(command.area_threshold)
             return NotifyThresholdAdjustedMessage.create_message(area_threshold=command.area_threshold)
         elif isinstance(command, SetDefaultCalibrationCommandResp):
             return SetDefaultCalibrationResponse.create_message(
@@ -104,15 +105,16 @@ class CommandHandler:
             raise ValueError(f"Unknown command: {command.name}")
         
     def log_to_file(self, command: BaseCommand):
-        LogManager.instance().log_command(f"{command.to_dict()}")
+        cmd_dict = command.to_dict()
+        LogManager.instance().log_command(f"{cmd_dict}")
         if isinstance(command, DetectionCommand):
-            log_data = DetectionLogData.from_dict(command.to_dict())
+            log_data = DetectionLogData.from_dict(cmd_dict)
             log_data.t_value = LogManager.instance().get_current_engine_time()
-            log_data.d_value = LogManager.instance().get_current_calibration_data().area_threshold
+            log_data.d_value = LogManager.instance().get_current_threshold()
             LogManager.instance().save_detection(log_data)
 
         elif isinstance(command, CalibrationCommand):
-            log_data = CalibrationLogData.from_dict(command.to_dict())
+            log_data = CalibrationLogData.from_dict(cmd_dict)
             log_data.t_value = LogManager.instance().get_current_engine_time()
             log_data.d_value = command.area_threshold
             LogManager.instance().update_calibration_data(log_data)
