@@ -147,7 +147,10 @@ class Connection:
             return
 
         calibration_log = LogManager.instance().get_current_calibration_data()
-        calibration_data = CalibrationData.from_dict(calibration_log.to_dict())
+        cl_dict = calibration_log.to_dict()
+        # merge the current threshold data to the client
+        cl_dict.update({"current_threshold": LogManager.instance().get_current_threshold()})
+        calibration_data = CalibrationData.from_dict(cl_dict)
         rsp = GetCalibrationResponse.create_message(
             id=message.id, code="OK",
             message="get calibration data successfully.",
