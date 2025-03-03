@@ -3,6 +3,7 @@ import time
 import threading
 from typing import Callable
 from kivy.clock import Clock
+from log.logger import Logger
 
 class JoyStick:
     def __init__(self, callback: Callable[[str], None]):
@@ -28,19 +29,18 @@ class JoyStick:
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     def stop(self):
-        print("Stopping application...")
         self.running = False
         if self.joystick_thread is not None:
             self.joystick_thread.join()
         GPIO.cleanup() 
-        print("Application stopped cleanly.")
+        Logger.info("JoyStick stopped.")
 
     def run(self):
         self.joystick_thread = threading.Thread(target=self.monitor_joystick)
         self.joystick_thread.start()
 
     def monitor_joystick(self):
-        print("monitor_joystick running..........")
+        Logger.debug("monitor_joystick running..........")
         while self.running:
             if GPIO.input(self.JOYSTICK_PINS["LEFT"]) == GPIO.LOW:
                 Clock.schedule_once(lambda dt: self.callback("left"))

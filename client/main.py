@@ -7,6 +7,7 @@ from websocket.client import WebSocketClient
 from config.config import ConfigManager
 from screens.flip_screen_manager import FlippedScreenManager
 from controller.idle_controller import IdleController
+from log.logger import Logger
 
 import asyncio
 import sys
@@ -58,15 +59,15 @@ class MetalDetectionApp(App):
         
         if ConfigManager.instance().run_on_rpi():
             self.monitor_joystick()
-            print("start monitor_joystick........")
+            Logger.info("start monitor_joystick........")
         
         if ConfigManager.instance().is_support_keyboard():
             Window.bind(on_key_down=self.handle_keyboard)
-            print("start listening keyboard input.")
+            Logger.info("start listening keyboard input.")
 
         if ConfigManager.instance().is_enable_idle_checking():
             self.start_idle_handling()
-            print("start idle handling thread.")
+            Logger.info("start idle handling thread.")
 
         self.start_websocket()
         return sm
@@ -118,7 +119,7 @@ class MetalDetectionApp(App):
         self.main_screen.get_stack_widget().hide_popups_when_idle()
 
     def handle_signal(self, direction: str):
-        print(f"Received direction signal: {direction}")
+        Logger.debug(f"Received direction signal: {direction}")
         if ConfigManager.instance().is_enable_idle_checking():
             self.idle_controller.update_clicked()
 
@@ -135,7 +136,7 @@ class MetalDetectionApp(App):
         else:
             logo_screen = self.root.get_screen("logo")
             logo_screen.handle_direction(direction)
-        print(f"Handle direction signal done: {direction}")
+        Logger.debug(f"Handle direction signal done: {direction}")
 
     
     def start_websocket(self):
@@ -166,13 +167,23 @@ class MetalDetectionApp(App):
 
         if key in key_mapping:
             direction = key_mapping[key]
-            print(f"Keyboard event detected: {direction}")
+            Logger.debug(f"Keyboard event detected: {direction}")
             self.handle_signal(direction)
 
 if __name__ == "__main__":
     config_path = f"{get_current_program_folder()}/config/config.json"
     ConfigManager.instance().read_config(config_path)
+    Logger.instance().init(
+        log_folder=f"{get_current_program_folder()}/../server/system_logs",
+        log_file_level=40, # only write the error log of server
+        max_bytes=1024*1024*50, # 50M for server.log file size
+        backup_count=10, # 10 server.log file can keep
+        print_log_level=20
+    )
+
+    Logger.error(f"Podco Metal Detection Client started...")
     app = MetalDetectionApp()
     app.run()
     app.stop()
+    Logger.error(f"Podco Metal Detection Client stoped...")
 

@@ -4,6 +4,7 @@ import shutil
 import re
 from datetime import datetime
 from typing import Callable
+from log.logger import Logger
 
 class FileOperation:
     def __init__(self, src_folders: list[str], mount_point: str, need_copy_files_suffix: list[str],
@@ -17,13 +18,13 @@ class FileOperation:
     def copy_from_folders(self, only_count=False):
         count = 0
         for folder in self.src_folders:
-            print(f"copying files from {folder}")
+            Logger.debug(f"copying files from {folder}")
             try:
                 ncount = self.copy_files(folder, only_count)
                 count += ncount
-                print(f"Total copy files count: {ncount} from {folder}")
+                Logger.debug(f"Total copy files count: {ncount} from {folder}")
             except Exception as e:
-                print(f"copy files from {folder} error: {e}")
+                Logger.error(f"copy files from {folder} error: {e}")
         return count
 
     def count_total_files_need_to_copy(self) -> int:
@@ -35,12 +36,12 @@ class FileOperation:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         dest_log_folder = os.path.join(self.mount_point, last_directory, timestamp)
         if not os.path.exists(src_folder):
-            print(f"src folder:{src_folder} deosn't exist.")
+            Logger.warning(f"src folder:{src_folder} deosn't exist.")
             return 0
         
         if not os.path.exists(dest_log_folder):
             os.makedirs(dest_log_folder)
-            print(f"dest folder isn't exist, so create the folder: {dest_log_folder}")
+            Logger.warning(f"dest folder isn't exist, so create the folder: {dest_log_folder}")
 
         count = 0
         file_list = os.listdir(src_folder)
@@ -56,11 +57,11 @@ class FileOperation:
                         if self.update_progress_callback:
                             self.update_progress_callback(src_file_path, count)
 
-                        print(f"copy file success {src_file_path}, {dest_file_path}, current count: {count}")
+                        Logger.debug(f"copy file success {src_file_path}, {dest_file_path}, current count: {count}")
 
                     count += 1
         if not only_count:
-            print(f"Total copy {count} files from {src_folder} to {dest_log_folder}\n\n")
+            Logger.debug(f"Total copy {count} files from {src_folder} to {dest_log_folder}\n\n")
         return count
     
     def _check_file_exist(self, full_file_path: str) -> bool:
@@ -73,7 +74,7 @@ class FileOperation:
             if src_file_info.st_size == dest_file_info.st_size:
                 return False
             else:
-                print(f"file size was changed, src:{src_file_info.st_size}, dest:{dest_file_info.st_size}")
+                Logger.debug(f"file size was changed, src:{src_file_info.st_size}, dest:{dest_file_info.st_size}")
                 return True
         except FileNotFoundError:
             return True

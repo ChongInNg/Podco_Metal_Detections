@@ -3,7 +3,7 @@ from datetime import datetime
 import threading
 import time
 from kivy.clock import Clock
-
+from log.logger import Logger
 
 class IdleController:
     def __init__(self, idle_seconds: int, callback: Callable):
@@ -36,7 +36,7 @@ class IdleController:
 
     def update_clicked(self):
         self.last_clicked_at = datetime.now()
-        print(f"update last click at. {self.last_clicked_at}")
+        Logger.debug(f"update last click at. {self.last_clicked_at}")
 
     def _monitor_idle(self):
         while not self._stop_event.is_set():

@@ -157,14 +157,10 @@ class ConfigManager:
             self.brightness = brightness
             with open(self.file_path, "w") as f:
                 json.dump(self.to_dict(), f, indent=4)
-            print(f"save brightness success. value: {brightness}")
             return True
         except Exception as e:
-            print(f"save brightness failed. error: {e}")
             return False
         
     def is_keypad_mode(self)->bool:
         return self.control_mode == "keypad"
-# config = Config.instance()
-# config.read_config("config.json")
-# print(config) 
+

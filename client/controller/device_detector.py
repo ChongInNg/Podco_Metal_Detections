@@ -1,5 +1,6 @@
 import subprocess
 import os
+from log.logger import Logger
 
 class DeviceDetector:
     def __init__(self, mount_point) -> None:   
@@ -8,12 +9,12 @@ class DeviceDetector:
 
     def detect(self):
         if not self.get_device_name():
-           print("There is no device found now.")
+           Logger.debug("There is no device found now.")
            return False
        
         self.create_mnt_folder()
         if not self.mount_device():
-            print("Mounting device has error.")
+            Logger.warning("Mounting device has error.")
             return False
         
         return True
@@ -40,36 +41,36 @@ class DeviceDetector:
     
     def create_mnt_folder(self):
         os.makedirs(self.mount_point, exist_ok=True)
-        print(f"The folder {self.mount_point} has been created")
+        Logger.debug(f"The folder {self.mount_point} has been created")
 
     def mount_device(self):
         try:
             subprocess.run(['sudo', 'mount', '-o', 'uid=1000,gid=1000', self.device_name, self.mount_point], check=True)
-            print(f"Device {self.device_name} mounted at {self.mount_point}.")
+            Logger.debug(f"Device {self.device_name} mounted at {self.mount_point}.")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"Error mounting device: {e}")
+            Logger.error(f"Error mounting device: {e}")
             return False
 
     def umount_device(self):
         try:
             subprocess.run(['sudo', 'umount', self.device_name], check=True)
-            print(f"Device {self.device_name} umounted success.")
+            Logger.debug(f"Device {self.device_name} umounted success.")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"Error umounting device: {e}")
+            Logger.error(f"Error umounting device: {e}")
             return False
     
     def eject_device(self) -> bool:
         eject_command = ["sudo", "eject", self.device_name]
         try:
             subprocess.check_output(eject_command)
-            print(f"eject the device:{self.device_name} success")
+            Logger.debug(f"eject the device:{self.device_name} success")
             flag = self.detect()
-            print(f"detect the usb device again, did device still exist?: {flag}")
+            Logger.debug(f"detect the usb device again, did device still exist?: {flag}")
             return True
         except Exception as e:
-            print(f"eject the device:{self.device_name} has something wrong: {str(e)}")
+            Logger.error(f"eject the device:{self.device_name} has something wrong: {str(e)}")
             return False
     
 
