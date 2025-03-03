@@ -28,8 +28,12 @@ class Logger:
         return cls._instance
     
     def init(self, log_folder:str, log_file_level: int, 
-             max_bytes=1024, backup_count=10):
+             max_bytes=1024, backup_count=10, print_log_level: int=logging.INFO):
+        
+        self.validate_log_level(log_file_level)
+        self.validate_log_level(print_log_level)
         self.log_file_level = log_file_level
+        self.print_log_level = print_log_level
         os.makedirs(log_folder, exist_ok=True)
 
         log_file = "server.log"
@@ -104,7 +108,7 @@ class Logger:
         self.file_handler.flush()
 
     def _log(self, log_level, message, *args):
-        if log_level < logging.INFO:
+        if log_level < self.print_log_level:
             # no need to log
             return
 
@@ -145,3 +149,7 @@ class Logger:
         else:
             return "UNKNOWN"
         
+    def validate_log_level(self, log_level: int):
+        name = self.get_level_name(log_level)
+        if name == "NOTSET" or name == "UNKNOWN":
+            raise ValueError(f"Log level:{log_level} is not valid.")
