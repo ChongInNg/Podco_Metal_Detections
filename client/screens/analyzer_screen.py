@@ -45,6 +45,7 @@ class AnalyzerScreen(Screen):
         self.threshold_popup = SetThresholdPopup(
             on_confirm_callback=self.set_threshold
         )
+        
         self.error_popup = CommonPopup()
         self.bypass = 0 # indicate the button show or hide
         self._create_graph()
@@ -55,13 +56,17 @@ class AnalyzerScreen(Screen):
         self.loading_screen.hide()
         self.threshold_popup.reset_state()
         self.error_popup.reset_state()
+        self.refresh_event = Clock.schedule_interval(self.refresh, 3.0)
         
     def get_title(self):
         return self.title
 
-    def stop(self):
+    def stop_update_analyzer_screen(self):
         Clock.unschedule(self.update_graph)
         self.event.cancel()
+        Clock.unschedule(self.refresh)
+        self.refresh_event.cancel()
+
         
     def _create_graph(self):
         self.graph = Graph(
@@ -315,3 +320,6 @@ class AnalyzerScreen(Screen):
         if self.error_popup.is_showing():
             self.error_popup.opacity = 1
             Logger.debug("analyzer screen show_popups")
+
+    def refresh(self, dt):
+        self.graph.canvas.ask_update()

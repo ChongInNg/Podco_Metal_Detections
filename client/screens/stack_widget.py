@@ -111,7 +111,7 @@ class StackWidget(Screen):
         if self.is_analyzer():
             # need to stop the analyzer thread first before switching to another screen
             screen = self.get_analyzer_screen()
-            screen.stop()
+            screen.stop_update_analyzer_screen()
             Logger.debug(f"Stop the analyzer thread before switching to another screen: {screen_name}")
 
         self.ids.stack_manager.current = screen_name
