@@ -15,9 +15,9 @@ from screens.set_threshold_popup import SetThresholdPopup
 from screens.loading_screen import LoadingScreen
 from screens.common_popup import CommonPopup
 from screens.image_button import ImageButton
-from kivy.uix.image import Image
 from dataclasses import dataclass
 from log.logger import Logger
+from config.config import ConfigManager
 
 import sys
 import os
@@ -322,4 +322,17 @@ class AnalyzerScreen(Screen):
             Logger.debug("analyzer screen show_popups")
 
     def refresh(self, dt):
-        self.graph.canvas.ask_update()
+        if ConfigManager.instance().run_on_rpi():
+            self.graph.canvas.ask_update()
+            if self.bp_button.opacity == 0:
+                self.show_button()
+            else:
+                self.hide_button()
+                
+            def force_fb_refresh():
+                FBIOBLANK = 0x4611 
+                import fcntl
+                with open("/dev/fb0", "wb") as fb:
+                    fcntl.ioctl(fb, FBIOBLANK, 0)
+
+            force_fb_refresh()
