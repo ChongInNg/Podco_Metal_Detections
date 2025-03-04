@@ -3,6 +3,7 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from screens.flip_popup import FlippedPopup
+from log.logger import Logger
 
 class ConfirmationPopup(FlippedPopup):
     def __init__(self, title="Confirm", message="Are you sure?", on_confirm_callback=None, **kwargs):
@@ -50,20 +51,20 @@ class ConfirmationPopup(FlippedPopup):
         self.current_button = self.cancel_button
         self.cancel_button.state = "down"
         self.confirm_button.state = "normal"
-        print("ConfirmationPopup on_left_pressed")
+        Logger.debug("ConfirmationPopup on_left_pressed")
 
     def on_right_pressed(self):
         self.cancel_button.state = "normal"
         self.confirm_button.state = "down"
         self.current_button = self.confirm_button
-        print("ConfirmationPopup on_right_pressed")
+        Logger.debug("ConfirmationPopup on_right_pressed")
     
     def handle_on_enter(self):
         if self.current_button == self.confirm_button:
             self._on_confirm(self)
         else:
             self.handle_dismiss(self)  
-        print("ConfirmationPopup handle_on_enter")
+        Logger.debug("ConfirmationPopup handle_on_enter")
 
     def handle_dismiss(self, instance):
         self.dismiss()

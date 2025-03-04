@@ -61,7 +61,7 @@ class FileOperation:
 
                     count += 1
         if not only_count:
-            Logger.debug(f"Total copy {count} files from {src_folder} to {dest_log_folder}\n\n")
+            Logger.debug(f"Total copy {count} files from {src_folder} to {dest_log_folder}")
         return count
     
     def _check_file_exist(self, full_file_path: str) -> bool:

@@ -40,7 +40,6 @@ class CalibrationScreen(Screen):
         return self.title
     
     def update_data(self, data: CalibrationViewData) -> None:
-        print("Updating data...")
         self.current_T = data.T_Value
         self.current_D = data.D_Value
         self.current_CH1_P = data.CH1_P
@@ -49,4 +48,3 @@ class CalibrationScreen(Screen):
         self.current_CH2_P = data.CH2_P
         self.current_CH2_N = data.CH2_N
         self.current_CH2_M = data.CH2_M
-        print(f"Updated data: {data}.")

@@ -8,9 +8,9 @@ import os
 from screens.detection_screen import DetectionViewData
 from screens.calibration_screen import CalibrationViewData
 from screens.analyzer_screen import AnalyzerData
-
 from screens.stack_widget import StackWidget
 from screens.screen_header import ScreenHeader
+from log.logger import Logger
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
@@ -28,7 +28,7 @@ class MainScreen(Screen):
     
     def handle_websocket_disconnect(self):
         self.get_screen_header().update_server_status(False)
-        print(f"handle the websocket disconnect esponse success.")
+        Logger.warning(f"handle the websocket disconnect success.")
     
     def handle_websocket_messages(self, msg: BaseWsMessage):
         try:
@@ -57,11 +57,11 @@ class MainScreen(Screen):
             elif isinstance(msg, NotifyCalibrationFailedMessage):
                 self._handle_calibration_failed(msg)
             else:
-                print(f"Cannot handle this message: {msg}\n")
+                Logger.error(f"Cannot handle this message: {msg}")
         except Exception as ex:
             import traceback
             traceback.print_stack()
-            print(f"handle_websocket_messages failed. error: {ex}\n")
+            Logger.error(f"handle_websocket_messages failed. error: {ex}")
 
     def _handle_detection_data(self, msg: NotifyDetectionMessage) -> None:
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_detection_screen().add_detection(
@@ -116,32 +116,32 @@ class MainScreen(Screen):
         on_status = False 
         if msg.is_success():
             on_status = True
-            print(f"handle the registration response success.status: {on_status}")
+            Logger.debug(f"handle the registration response success.status: {on_status}")
         else:
-            print(f"registration response is wrong.")
+            Logger.error(f"registration response is wrong.")
         Clock.schedule_once(lambda dt: self.get_screen_header().update_server_status(on_status))
 
     def _handle_set_default_calibration_response(self, msg: SetDefaultCalibrationResponse):
         Clock.schedule_once(lambda dt: 
             self.get_stack_widget().get_setting_screen().update_reset_factory_status(msg.is_success())
         )
-        print(f"handle the set default calibration response success. is_success: {msg.is_success()}")
+        Logger.debug(f"handle the set default calibration response success. is_success: {msg.is_success()}")
 
     def _handle_set_threshold_response(self, msg: SetThresholdResponse):
         Clock.schedule_once(lambda dt: 
             self.get_stack_widget().get_analyzer_screen().update_set_threshold_status(msg.is_success())
         )
-        print(f"handle the set threshold response success. is_success: {msg.is_success()}")
+        Logger.debug(f"handle the set threshold response success. is_success: {msg.is_success()}")
 
     def _handle_get_last_n_detections_response(self, msg: GetLastNDetectionsResponse):
         if msg.is_success():
             Clock.schedule_once(lambda dt: self.get_stack_widget().get_detection_screen().init_detections(msg.detections))
         else:
-            print(f"get last n detection response is not success, cannot handle in UI")
+            Logger.error(f"get last n detection response is not success, cannot handle in UI")
             # should popup error
     
     def _handle_system_error_response(self, msg: SystemErrorResponse):
-        pass
+        Logger.debug("Didn't handle sysstem error response now.")
 
     def _get_calibration_response(self, msg: GetCalibrationResponse):
         self.update_calibration_view(
@@ -161,5 +161,5 @@ class MainScreen(Screen):
 
     def _handle_calibration_failed(self, msg: NotifyCalibrationFailedMessage):
         Clock.schedule_once(lambda dt: self.get_stack_widget().show_calibration_failed_popup(msg.reason))
-        print(f"_handle_calibration_failed success. reason: {msg.reason}")
+        Logger.debug(f"_handle_calibration_failed success. reason: {msg.reason}")
 

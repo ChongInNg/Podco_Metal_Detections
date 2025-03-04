@@ -5,6 +5,7 @@ from kivy.uix.button import Button
 from screens.custom_slider import CustomSlider
 from config.config import ConfigManager
 from screens.flip_popup import FlippedPopup
+from log.logger import Logger
 
 class SetThresholdPopup(FlippedPopup):
     def __init__(self, on_confirm_callback=None, **kwargs):
@@ -75,7 +76,7 @@ class SetThresholdPopup(FlippedPopup):
             self.current_button = self.cancel_button
             self.cancel_button.state = "down"
             self.confirm_button.state = "normal"
-        print("SetThresholdPopup on_left_pressed")
+        Logger.debug("SetThresholdPopup on_left_pressed")
 
     def on_right_pressed(self):
         if self.slider.is_highlight():
@@ -84,17 +85,17 @@ class SetThresholdPopup(FlippedPopup):
             self.cancel_button.state = "normal"
             self.confirm_button.state = "down"
             self.current_button = self.confirm_button
-        print("SetThresholdPopup on_right_pressed")
+        Logger.debug("SetThresholdPopup on_right_pressed")
 
     def handle_on_enter(self):
         if self.slider.is_highlight():
-            print("Slider is highlight, SetThresholdPopup ingore to handle_on_enter.")
+            Logger.debug("Slider is highlight, SetThresholdPopup ingore to handle_on_enter.")
             return
         if self.current_button == self.confirm_button:
             self._on_confirm(self)
         else:
             self.handle_dismiss(self)  
-        print("SetThresholdPopup handle_on_enter")
+        Logger.debug("SetThresholdPopup handle_on_enter")
 
     def handle_dismiss(self, instance):
         self.dismiss()
@@ -109,11 +110,11 @@ class SetThresholdPopup(FlippedPopup):
     
     def highlight_slider(self):
         self.slider.highlight_color()
-        print("highlight_slider.........")
+        Logger.debug("highlight_slider.........")
 
     def reset_slider_color(self):
         self.slider.reset_color()
-        print("reset_slider_color.........")
+        Logger.debug("reset_slider_color.........")
 
     def on_up_pressed(self):
         self.cancel_button.state = "normal"

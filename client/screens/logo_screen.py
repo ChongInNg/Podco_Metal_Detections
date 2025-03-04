@@ -1,6 +1,7 @@
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.properties import StringProperty
+from log.logger import Logger
 
 Builder.load_file("kv/logo_screen.kv")
 
@@ -29,11 +30,11 @@ class LogoScreen(Screen):
     
     def handle_direction(self, direction):
         if direction != "center":
-            print(f"Not support: {direction} in logo screen")
+            Logger.debug(f"Not support: {direction} in logo screen")
             return
         self.manager.current = "main"
         self.invoke_callback()
-        print(f"logo screen handle {direction}")
+        Logger.debug(f"logo screen handle {direction}")
 
     def invoke_callback(self):
         if self.callback != None:

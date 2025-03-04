@@ -4,6 +4,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import AsyncImage
 from kivy.clock import Clock
 from screens.flip_popup import FlippedPopup
+from log.logger import Logger
 
 class LoadingScreen(FlippedPopup):
     def __init__(self, message="Loading...", timeout=3, on_timeout_callback=None, **kwargs):
@@ -36,7 +37,7 @@ class LoadingScreen(FlippedPopup):
         if enable_timeout:
             self.timeout_event = Clock.schedule_once(self._on_timeout, self.timeout)
         else:
-            print("Loading screen not detect timeout, need to manually closed.")
+            Logger.debug("Loading screen not detect timeout, need to manually closed.")
 
     def hide(self):
         if self.timeout_event:

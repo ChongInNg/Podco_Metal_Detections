@@ -13,6 +13,7 @@ import threading
 import sys
 import os
 import time
+from log.logger import Logger
 
 from websocket.client import WebSocketClient
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -88,14 +89,14 @@ class SettingScreen(Screen):
             self.bypass_status_value = "ON"
         else:
             self.bypass_status_value = "OFF"
-        print(f"Update bypass successfully, val: {self.bypass}, {self.bypass_status_value}")
+        Logger.debug(f"Update bypass successfully, val: {self.bypass}, {self.bypass_status_value}")
 
     def update_reset_factory_status(self, success: bool):
         self.response_received = True
         self.loading_screen_for = ""
         if success:
             self.loading_screen.hide()
-            print("Reset factory config to controller successful!")
+            Logger.debug("Reset factory config to controller successful!")
         else:
             self.loading_screen.hide()
             self.show_error_popup("Reset failed! Please try again.")
@@ -103,7 +104,7 @@ class SettingScreen(Screen):
     def on_brightness_change(self, value: float):
         self.brightness = int(round(value))
         self.apply_brightness_to_lcd(self.brightness)
-        print("Update brightness of LCD screen successully.")
+        Logger.debug("Update brightness of LCD screen successully.")
 
     def on_copy_log_click(self):
         device_detector = DeviceDetector(mount_point=ConfigManager.instance().mount_point)
@@ -119,7 +120,7 @@ class SettingScreen(Screen):
 
         copy_thread = threading.Thread(target=self._copy_files, args=(device_detector,), daemon=True)
         copy_thread.start()
-        print("Copy log successfully.")
+        Logger.debug("Copy log successfully.")
 
     def on_reset_factory_click(self):
         self.reset_popup.handle_open()
@@ -137,7 +138,7 @@ class SettingScreen(Screen):
             msg.to_json()
         )
     
-        print("Send set_default_calibration message to server successfully.")
+        Logger.debug("Send set_default_calibration message to server successfully.")
         
     def show_error_popup(self, message):
         self.common_popup.update_title("Error")
@@ -169,7 +170,7 @@ class SettingScreen(Screen):
 
     def set_focus_component(self, index: int):
         if index < 0 or index >= len(self.component_ids):
-            print("Index is out of range, set_focus_component failed.")
+            Logger.error("Index is out of range, set_focus_component failed.")
             return
 
         self.clear_focus()
@@ -190,24 +191,24 @@ class SettingScreen(Screen):
             elif self.is_showing_common_popup():
                 self.common_popup.handle_on_enter()
             elif self.is_showing_loading_screen():
-                print("Setting Screen is showing loading screen, no need to handle enter")
+                Logger.debug("Setting Screen is showing loading screen, no need to handle enter")
             else:
                 self.on_reset_factory_click()
 
         elif self.current_component_id == "copy_log_btn":
             if self.is_showing_loading_screen():
-                print("Setting Screen is copy log showing loading screen, no need to handle enter")
+                Logger.debug("Setting Screen is copy log showing loading screen, no need to handle enter")
             elif self.is_showing_common_popup():
                 self.common_popup.handle_on_enter()
             else:
                 self.on_copy_log_click()
         elif self.current_component_id == "back_btn":
             self.on_back_btn_click()
-        print("setting screen handle_on_enter")
+        Logger.debug("setting screen handle_on_enter")
 
     def on_down_pressed(self):
         if self.is_showing_popup_or_loading_screen():
-            print("ingore on_down_pressed when setting screen is showing")
+            Logger.debug("ingore on_down_pressed when setting screen is showing")
             return
          
         if self.current_component_id == "":
@@ -217,11 +218,11 @@ class SettingScreen(Screen):
             new_index = (current_index + 1) % len(self.component_ids)
         
         self.set_focus_component(new_index) 
-        print("setting screen on_down_pressed")
+        Logger.debug("setting screen on_down_pressed")
 
     def on_up_pressed(self):
         if self.is_showing_popup_or_loading_screen():
-            print("ingore on_up_pressed when setting screen is showing")
+            Logger.debug("ingore on_up_pressed when setting screen is showing")
             return
         
         if self.current_component_id == "":
@@ -231,7 +232,7 @@ class SettingScreen(Screen):
             new_index = (current_index - 1) % len(self.component_ids)
 
         self.set_focus_component(new_index)
-        print("setting screen on_up_pressed")
+        Logger.debug("setting screen on_up_pressed")
 
     def get_current_index(self) -> int:
         for i in range(len(self.component_ids)):
@@ -246,7 +247,7 @@ class SettingScreen(Screen):
             if self.brightness - self.brightness_step >= 10:
                 self.brightness = self.brightness - self.brightness_step
 
-        print("setting screen on_left_pressed")
+        Logger.debug("setting screen on_left_pressed")
 
     def on_right_pressed(self):
         if self.is_showing_reset_popup():
@@ -254,15 +255,15 @@ class SettingScreen(Screen):
         elif self.current_component_id == "brightness_slider":
             if self.brightness + self.brightness_step <= 100:
                 self.brightness = self.brightness + self.brightness_step
-        print("setting screen on_right_pressed")
+        Logger.debug("setting screen on_right_pressed")
     
     def highlight_slider(self):
         self.slider_color = SettingScreen.HIGHLIGHT_slider_color
-        print("highlight_slider.........")
+        Logger.debug("highlight_slider.........")
 
     def reset_slider_color(self):
         self.slider_color = SettingScreen.DEFAULT_slider_color
-        print("reset_slider_color.........")
+        Logger.debug("reset_slider_color.........")
 
     def is_showing_reset_popup(self) -> bool:
         return self.reset_popup.is_showing()
@@ -281,9 +282,9 @@ class SettingScreen(Screen):
     def apply_brightness_to_lcd(self, brightness: int):
         if ConfigManager.instance().run_on_rpi():
             self._get_bg_pwm_instance().ChangeDutyCycle(brightness)
-            print(f"set brigness {brightness} success.")
+            Logger.debug(f"set brigness {brightness} success.")
         else:
-            print("Not run on rpi, cannot update brightness")
+            Logger.debug("Not run on rpi, cannot update brightness")
 
     def _get_bg_pwm_instance(self):
         if self.bg_pwm is None:
@@ -318,7 +319,7 @@ class SettingScreen(Screen):
         time.sleep(0.5)
         total_copy = file_operation.copy_from_folders()
         # total_copy = 4
-        print(f"Total copy {total_copy}")
+        Logger.debug(f"Total copy {total_copy}")
 
         device_detector.umount_device()
         time.sleep(0.6)

@@ -2,6 +2,8 @@ from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty, NumericProperty
 from kivy.lang import Builder
 from dataclasses import dataclass
+from log.logger import Logger
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -91,7 +93,7 @@ class DetectionScreen(Screen):
     def add_detection(self, detection_data: DetectionViewData):
         if len(self.detections) >= 10:
             del self.detections[0]
-            print(f"Popup the first detection")
+            Logger.debug(f"Popup the first detection")
         
         self.detections.append(detection_data)
         self.current_index = 0

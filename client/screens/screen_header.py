@@ -2,9 +2,7 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, BooleanProperty
 from kivy.lang import Builder
-from kivy.core.image import Image as CoreImage
-from kivy.clock import Clock
-from screens.image_button import ImageButton
+from log.logger import Logger
 Builder.load_file('kv/screen_header.kv')
 
 class ScreenHeader(BoxLayout):
@@ -23,14 +21,12 @@ class ScreenHeader(BoxLayout):
         self.update_btn_state()
 
     def on_back_clicked(self):
-        print(f"on_back_clicked {self.title}")
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         
         stack_widget.handle_direction("left")
 
     def on_next_clicked(self):
-        print(f"on_next_clicked {self.title}")
         app = App.get_running_app()
         stack_widget = app.root.get_screen("main").ids.stack_widget
         
@@ -74,8 +70,8 @@ class ScreenHeader(BoxLayout):
         if on:
             self.server_status = 1
             self.server_status_image = 'assets/green_circle.png'
-            print("Update to green status.")
+            Logger.debug("Update to green status.")
         else:
             self.server_status = 0
             self.server_status_image = 'assets/red_circle.png'
-            print("Update to red status.")
+            Logger.debug("Update to red status.")

@@ -4,7 +4,7 @@ import threading
 import os
 import sys
 from typing import Optional
-
+from log.logger import Logger
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
@@ -55,7 +55,7 @@ class WebSocketClient:
         while self.running:
             try:
                 async with websockets.connect(self.url) as websocket:
-                    print(f"Connected to WebSocket server: {self.url}")
+                    Logger.info(f"Connected to WebSocket server: {self.url}")
                     self.websocket = websocket
                     register_req = RegistrationWsRequest.create_message(device_id="detecotr2")
                     await websocket.send(register_req.to_json())
@@ -64,29 +64,29 @@ class WebSocketClient:
                         await self.handle_websocket_messages(message)
                             
             except Exception as e:
-                print(f"WebSocket connection error: {e}")
+                Logger.error(f"WebSocket connection error: {e}")
                 self.websocket = None
                 self.disconnect_callback()
-                print(f"Excuted disconnect callback.")
+                Logger.info(f"Excuted disconnect callback.")
                 await asyncio.sleep(self.retry_delay)
     
     async def handle_websocket_messages(self, message: str):
         try:
             msg_dict = json.loads(message)
-            print(f"Decode message success: {msg_dict}\n")
+            Logger.info(f"Decode ws message success: {msg_dict}")
             msg = BaseWsMessage.from_dict(msg_dict)
 
             # handle the callback in ui first
             if self.message_callback:
                 self.message_callback(msg)
             else:
-                print(f"cannot handle this message without callback.message: {msg}")
+                Logger.warning(f"cannot handle this message without callback.message: {msg}")
 
             # handle the response after ui updated
             if isinstance(msg, RegistrationWsResponse):
                 await self._handle_registration_response(msg)
         except Exception as ex:
-            print(f"handle_websocket_messages failed. error: {ex}\n")
+            Logger.error(f"handle_websocket_messages failed. source message: {message}, error: {ex}")
 
     async def _handle_registration_response(self, resp: RegistrationWsResponse):
         if resp.is_success():
@@ -110,9 +110,9 @@ class WebSocketClient:
         
         try:
             future.result(timeout=2)
-            print(f"send json success: {jsonstr}")
+            Logger.info(f"send json success: {jsonstr}")
         except Exception as e:
-            print(f"Failed to send message: {e}")
+            Logger.error(f"Failed to send message: {e}")
 
     def is_connected(self) -> bool:
         return self.websocket != None

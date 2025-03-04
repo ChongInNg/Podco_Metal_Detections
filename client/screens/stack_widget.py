@@ -12,6 +12,7 @@ from screens.analyzer_screen import AnalyzerScreen
 from screens.screen_header import ScreenHeader
 from screens.setting_screen import SettingScreen
 from screens.common_popup import CommonPopup
+from log.logger import Logger
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -32,14 +33,14 @@ class StackWidget(Screen):
                 analyzer_screen = self.get_analyzer_screen()
                 is_handled = analyzer_screen.on_left_pressed()
                 if is_handled:
-                    print("Already handle, no need to handle in stackwidget")
+                    Logger.debug("Already handle, no need to handle in stackwidget")
                 else:
                     self.change_to_calibration_screen()
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_left_pressed()
             else:
-                print(f"Not support left direction in this screen: {self.current_screen}")
+                Logger.debug(f"Not support left direction in this screen: {self.current_screen}")
         elif direction == "right":
             if self.is_detection():
                 self.change_to_calibration_screen()
@@ -49,14 +50,14 @@ class StackWidget(Screen):
                 analyzer_screen = self.get_analyzer_screen()
                 is_handled = analyzer_screen.on_right_pressed()
                 if is_handled:
-                    print("Already handle, no need to handle in stackwidget")
+                    Logger.debug("Already handle, no need to handle in stackwidget")
                 else:
                     self.change_to_option_screen()
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_right_pressed()
             else:
-                print(f"Not support left direction in this screen: {self.current_screen}")
+                Logger.debug(f"Not support left direction in this screen: {self.current_screen}")
 
         elif direction == "up":
             if self.is_option():
@@ -72,7 +73,7 @@ class StackWidget(Screen):
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_up_pressed()
             else:
-                print(f"Not support up direction in this screen: {self.current_screen}")
+                Logger.debug(f"Not support up direction in this screen: {self.current_screen}")
 
         elif direction == "down":
             if self.is_option():
@@ -88,7 +89,7 @@ class StackWidget(Screen):
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_down_pressed()
             else:
-                print(f"Not support down direction in this screen: {self.current_screen}")
+                Logger.debug(f"Not support down direction in this screen: {self.current_screen}")
 
         elif direction == "center":
             if self.is_option():
@@ -101,9 +102,9 @@ class StackWidget(Screen):
                 setting_screen = self.get_setting_screen()
                 setting_screen.handle_on_enter()
             else:
-                print(f"Not support center direction in this screen: {self.current_screen}")
+                Logger.debug(f"Not support center direction in this screen: {self.current_screen}")
         else:
-            print(f"Not support direction: {direction}")
+            Logger.warning(f"Not support direction: {direction}")
 
 
     def change_to_screen_name(self, screen_name):
@@ -111,7 +112,7 @@ class StackWidget(Screen):
             # need to stop the analyzer thread first before switching to another screen
             screen = self.get_analyzer_screen()
             screen.stop()
-            print(f"Stop the analyzer thread before switching to another screen: {screen_name}")
+            Logger.debug(f"Stop the analyzer thread before switching to another screen: {screen_name}")
 
         self.ids.stack_manager.current = screen_name
         self.current_screen = screen_name
@@ -203,7 +204,7 @@ class StackWidget(Screen):
         elif self.is_setting():
             self.get_setting_screen().hide_popups()
         else:
-            print("no need to handle idle in current screen.")
+            Logger.debug("no need to handle idle in current screen.")
 
     def show_popups_when_exit_idle(self):
         if self.common_popup.is_showing():
@@ -214,4 +215,4 @@ class StackWidget(Screen):
         elif self.is_setting():
             self.get_setting_screen().show_popups()
         else:
-            print("no need to handle idle in current screen.")
+            Logger.debug("no need to handle idle in current screen.")

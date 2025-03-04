@@ -17,6 +17,7 @@ from screens.common_popup import CommonPopup
 from screens.image_button import ImageButton
 from kivy.uix.image import Image
 from dataclasses import dataclass
+from log.logger import Logger
 
 import sys
 import os
@@ -190,7 +191,7 @@ class AnalyzerScreen(Screen):
         self.response_received = True
         if success:
             self.loading_screen.hide()
-            print("Set threshold to controller successful!")
+            Logger.debug("Set threshold to controller successful!")
         else:
             self.loading_screen.hide() 
             self.show_error_popup("Set threshold failed! Please try again.")
@@ -209,7 +210,7 @@ class AnalyzerScreen(Screen):
         WebSocketClient.instance().send_json_sync(
             msg.to_json()
         )
-        print(f"Threshold updated to {self.threshold}")
+        Logger.debug(f"Threshold updated to {self.threshold}")
         self.loading_screen.show()
 
     def on_timeout(self):
@@ -223,7 +224,7 @@ class AnalyzerScreen(Screen):
 
     def handle_on_enter(self) -> bool:
         if not self.enable_bypass():
-            print("analyzer screen is not handle enter when not enable bypass mode.")
+            Logger.debug("analyzer screen is not handle enter when not enable bypass mode.")
             return
         
         if self.is_showing_threshold_popup():
@@ -233,10 +234,10 @@ class AnalyzerScreen(Screen):
             self.error_popup.handle_on_enter()
             return True
         elif self.is_showing_loading_screen():
-            print(f"analyzer screen ignore to handle handle_on_enter.")
+            Logger.debug(f"analyzer screen ignore to handle handle_on_enter.")
             return True
         self.open_threshold_popup(self)
-        print("analyzer screen handle_on_enter")
+        Logger.debug("analyzer screen handle_on_enter")
         return True
 
     def on_down_pressed(self) -> bool:
@@ -244,14 +245,14 @@ class AnalyzerScreen(Screen):
             self.threshold_popup.on_down_pressed()
             return True
         
-        print("analyzer screen not handle on_down_pressed")
+        Logger.debug("analyzer screen not handle on_down_pressed")
         return False
 
     def on_up_pressed(self) -> bool:
         if self.is_showing_threshold_popup():
             self.threshold_popup.on_up_pressed()
             return True
-        print("analyzer screen not handle on_up_pressed")
+        Logger.debug("analyzer screen not handle on_up_pressed")
         return False
 
     def on_left_pressed(self) -> bool:
@@ -259,9 +260,9 @@ class AnalyzerScreen(Screen):
             self.threshold_popup.on_left_pressed()
             return True
         elif self.is_showing_error_popup() or self.is_showing_loading_screen():
-            print("analyzer screen ingore on_left_pressed")
+            Logger.debug("analyzer screen ingore on_left_pressed")
             return True
-        print("analyzer screen not handle on_left_pressed")
+        Logger.debug("analyzer screen not handle on_left_pressed")
         return False
 
     def on_right_pressed(self) -> bool:
@@ -269,9 +270,9 @@ class AnalyzerScreen(Screen):
             self.threshold_popup.on_right_pressed()
             return True
         elif self.is_showing_error_popup() or self.is_showing_loading_screen():
-            print("analyzer screen ingore on_right_pressed")
+            Logger.debug("analyzer screen ingore on_right_pressed")
             return True
-        print("analyzer screen not handle on_right_pressed")
+        Logger.debug("analyzer screen not handle on_right_pressed")
         return False
 
     def is_showing_threshold_popup(self) -> bool:
@@ -294,7 +295,7 @@ class AnalyzerScreen(Screen):
             self.show_button()
         else:
             self.hide_button()
-        print(f"analyzer screen update bypass successfully, val: {self.bypass}")
+        Logger.debug(f"analyzer screen update bypass successfully, val: {self.bypass}")
 
     def hide_button(self):
         self.bp_button.opacity = 0
@@ -308,9 +309,9 @@ class AnalyzerScreen(Screen):
     def hide_popups(self):
         if self.error_popup.is_showing():
             self.error_popup.opacity = 0
-            print("analyzer screen hide_popups")
+            Logger.debug("analyzer screen hide_popups")
 
     def show_popups(self):
         if self.error_popup.is_showing():
             self.error_popup.opacity = 1
-            print("analyzer screen show_popups")
+            Logger.debug("analyzer screen show_popups")

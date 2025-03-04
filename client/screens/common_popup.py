@@ -3,7 +3,7 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from screens.flip_popup import FlippedPopup
-
+from log.logger import Logger
 
 class CommonPopup(FlippedPopup):
     def __init__(self, message="An error occurred!", **kwargs):
@@ -36,14 +36,14 @@ class CommonPopup(FlippedPopup):
         self.message_label.text = new_message
 
     def on_left_pressed(self):
-        print("CommonPopup on_left_pressed")
+        Logger.debug("CommonPopup no need to handle on_left_pressed")
 
     def on_right_pressed(self):
-        print("CommonPopup on_right_pressed")
+        Logger.debug("CommonPopup no need to handle on_right_pressed")
     
     def handle_on_enter(self):
         self.handle_dismiss(self)
-        print("CommonPopup handle_on_enter")
+        Logger.debug("CommonPopup handle_on_enter")
 
     def handle_dismiss(self, instance):
         self.dismiss()
