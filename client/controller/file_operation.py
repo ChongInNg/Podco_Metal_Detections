@@ -32,16 +32,17 @@ class FileOperation:
         return self.total_files_need_to_copy
 
     def copy_files(self, src_folder, only_count=False) -> int:
-        last_directory = os.path.basename(src_folder)
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        dest_log_folder = os.path.join(self.mount_point, last_directory, timestamp)
         if not os.path.exists(src_folder):
             Logger.warning(f"src folder:{src_folder} deosn't exist.")
             return 0
         
-        if not os.path.exists(dest_log_folder):
-            os.makedirs(dest_log_folder)
-            Logger.warning(f"dest folder isn't exist, so create the folder: {dest_log_folder}")
+        last_directory = os.path.basename(src_folder)
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        dest_log_folder = os.path.join(self.mount_point, last_directory, timestamp)
+        if not only_count:
+            if not os.path.exists(dest_log_folder):
+                os.makedirs(dest_log_folder)
+                Logger.warning(f"dest folder isn't exist, so create the folder: {dest_log_folder}")
 
         count = 0
         file_list = os.listdir(src_folder)
@@ -50,9 +51,9 @@ class FileOperation:
                 pattern = rf"\.{suffix}$"
                 
                 if re.search(pattern, filename, re.IGNORECASE):
-                    src_file_path = os.path.join(src_folder, filename)
-                    dest_file_path = os.path.join(dest_log_folder, filename)
                     if not only_count:
+                        src_file_path = os.path.join(src_folder, filename)
+                        dest_file_path = os.path.join(dest_log_folder, filename)
                         shutil.copyfile(src_file_path, dest_file_path)
                         if self.update_progress_callback:
                             self.update_progress_callback(src_file_path, count)
