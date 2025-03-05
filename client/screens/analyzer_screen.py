@@ -7,9 +7,6 @@ from kivy_garden.graph import Graph, LinePlot
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
-from kivy.uix.slider import Slider
 from websocket.client import WebSocketClient
 from screens.set_threshold_popup import SetThresholdPopup
 from screens.loading_screen import LoadingScreen
@@ -17,7 +14,6 @@ from screens.common_popup import CommonPopup
 from screens.image_button import ImageButton
 from dataclasses import dataclass
 from log.logger import Logger
-from config.config import ConfigManager
 
 import sys
 import os
@@ -56,7 +52,6 @@ class AnalyzerScreen(Screen):
         self.loading_screen.hide()
         self.threshold_popup.reset_state()
         self.error_popup.reset_state()
-        self.refresh_event = Clock.schedule_interval(self.refresh, 3.0)
         
     def get_title(self):
         return self.title
@@ -64,8 +59,6 @@ class AnalyzerScreen(Screen):
     def stop_update_analyzer_screen(self):
         Clock.unschedule(self.update_graph)
         self.event.cancel()
-        Clock.unschedule(self.refresh)
-        self.refresh_event.cancel()
 
         
     def _create_graph(self):
@@ -321,18 +314,3 @@ class AnalyzerScreen(Screen):
             self.error_popup.opacity = 1
             Logger.debug("analyzer screen show_popups")
 
-    def refresh(self, dt):
-        if ConfigManager.instance().run_on_rpi():
-            self.graph.canvas.ask_update()
-            if self.bp_button.opacity == 0:
-                self.show_button()
-            else:
-                self.hide_button()
-                
-            def force_fb_refresh():
-                FBIOBLANK = 0x4611 
-                import fcntl
-                with open("/dev/fb0", "wb") as fb:
-                    fcntl.ioctl(fb, FBIOBLANK, 0)
-
-            force_fb_refresh()
