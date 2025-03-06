@@ -100,6 +100,7 @@ class OptionScreen(Screen):
     def on_exit_btn_click(self):
         App.get_running_app().switch_to_logo_screen()
         self._hide_analyzer_option()
+        self.reset_data()
 
     def _hide_analyzer_option(self):
         self.analyzer_hidden = True
