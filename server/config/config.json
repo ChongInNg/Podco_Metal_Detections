@@ -6,5 +6,7 @@
     "server_address": "127.0.0.1",
     "server_port": 8765,
     "run_on": "win",
-    "server_status_pin": 17
+    "server_status_pin": 17,
+    "back_log_count": 10,
+    "back_log_size": 104857600
 }

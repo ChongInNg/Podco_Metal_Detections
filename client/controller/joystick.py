@@ -3,7 +3,7 @@ import time
 import threading
 from typing import Callable
 from log.logger import Logger
-
+from config.config import ConfigManager
 class JoyStick:
     def __init__(self, callback: Callable[[str], None]):
         self.joystick_thread = None
@@ -16,6 +16,8 @@ class JoyStick:
             "RIGHT": 19,
             "CENTER": 26
         }
+
+        self.keep_pressing_seconds = ConfigManager.instance().keep_pressing_seconds
 
     def setup(self, up: int, down: int, left: int, right: int, center: int):
         self.JOYSTICK_PINS["UP"] = up
@@ -44,7 +46,7 @@ class JoyStick:
             start_time = time.time()
             while (GPIO.input(self.JOYSTICK_PINS["LEFT"]) == GPIO.LOW and 
                    GPIO.input(self.JOYSTICK_PINS["RIGHT"]) == GPIO.LOW):
-                if time.time() - start_time >= 3:
+                if time.time() - start_time >= self.keep_pressing_seconds:
                     return True
                 time.sleep(0.01)
             return False

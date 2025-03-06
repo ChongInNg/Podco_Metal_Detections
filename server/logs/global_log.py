@@ -1,6 +1,7 @@
 from datetime import datetime
 from .base_log import BaseLog
 from log.logger import Logger
+from config.config import ConfigManager
 
 class SessionLog:
     def __init__(self):
@@ -67,8 +68,6 @@ class GlobalLogData:
     def to_dict(self):
         return {
             "total_run_minutes": self.total_run_minutes,
-            "log_file_count": self.log_file_count,
-            "max_file_size": self.max_file_size,
             "current_threshold": self.current_threshold,
             "current_session": self.current_session.to_dict(),
             "session_histories": self.session_histories.to_dict(),
@@ -84,14 +83,14 @@ class GlobalLogData:
     def parse_data(self, data: dict):
         self.total_run_minutes = data.get("total_run_minutes")
         self.orig_total_run_minutes = self.total_run_minutes
-        self.log_file_count = data.get("log_file_count")
-        self.max_file_size = data.get("max_file_size")
+        self.log_file_count = ConfigManager.instance().back_log_count
+        self.max_file_size = ConfigManager.instance().back_log_size
         self.current_threshold = data.get("current_threshold")
         self.current_session.parse_data(data.get("current_session"))
         self.session_histories.parse_data(data.get("session_histories"))
 
         if self.log_file_count is None or self.log_file_count == 0:
-            self.log_file_count = 50
+            self.log_file_count = 10
     
 class GlobalLog(BaseLog):
     def __init__(self, log_directory:str, file_name:str="global_log.json"):
