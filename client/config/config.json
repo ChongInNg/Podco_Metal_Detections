@@ -9,7 +9,7 @@
     "server_port": 8765,
     "run_on": "win",
     "support_keyboard": "True",
-    "idle_seconds": 5,
+    "idle_seconds": 30,
     "enable_idle_checking": "True",
     "brightness": 100,
     "brightness_step": 10,
