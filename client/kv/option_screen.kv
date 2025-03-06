@@ -56,9 +56,11 @@
 
             # "Analyzer"
             BoxLayout:
+                id: analyzer_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: 1
+                size_hint_y: None if root.analyzer_hidden else 1
+                height: 0 if root.analyzer_hidden else self.height
 
                 Image:
                     source: "assets/analyzer_icon.png"
@@ -94,12 +96,9 @@
 
             # "Exit"
             BoxLayout:
-                id: exit_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: None if root.exit_hidden else 1
-                height: 0 if root.exit_hidden else self.minimum_height
-                
+            
                 Image:
                     source: "assets/exit_icon.png"
                     size_hint: None, None

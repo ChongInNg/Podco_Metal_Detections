@@ -106,7 +106,6 @@ class StackWidget(Screen):
         else:
             Logger.warning(f"Not support direction: {direction}")
 
-
     def change_to_screen_name(self, screen_name):
         if self.is_analyzer():
             # need to stop the analyzer thread first before switching to another screen
@@ -197,7 +196,6 @@ class StackWidget(Screen):
         self.common_popup.update_message(f"Reason: {reason_str}")
         self.common_popup.handle_open()
     
-    
     def hide_popups_when_idle(self):
         if self.is_analyzer():
             self.get_analyzer_screen().hide_popups()
@@ -206,21 +204,31 @@ class StackWidget(Screen):
         else:
             Logger.debug("no need to handle hide popups in current screen.")
 
-    def show_popups_when_exit_idle(self):
+    def update_ui_when_user_login(self):
+        setting_screen = self.get_setting_screen()
+        setting_screen.hide_log_backup()
+
         if self.common_popup.is_showing():
             self.common_popup.handle_dismiss(self)
-
         if self.is_analyzer():
             self.get_analyzer_screen().show_popups()
         elif self.is_setting():
-            self.get_setting_screen().show_popups()
+            setting_screen.show_popups()
         else:
             Logger.debug("no need to handle show popups in current screen.")
 
-    def dismiss_popups_when_admin_login(self):
-        if self.is_analyzer():
+    def update_ui_when_admin_login(self):
+        option_screen = self.get_option_screen()
+        option_screen._show_analyzer_option()
+
+        setting_screen = self.get_setting_screen()
+        setting_screen.show_log_backup()
+
+        if self.is_option():
+            option_screen.reset_data()
+        elif self.is_analyzer():
             self.get_analyzer_screen().dismiss_popups()
         elif self.is_setting():
-            self.get_setting_screen().dismiss_popups()
+            setting_screen.dismiss_popups()
         else:
             Logger.debug("no need to handle dismiss popups in current screen.")

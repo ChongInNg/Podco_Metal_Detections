@@ -124,10 +124,10 @@ class MetalDetectionApp(App):
         if self.root.current != "main":
             self.root.current = "main"
             if RoleManager.instance().is_admin():
-                self.main_screen.get_stack_widget().dismiss_popups_when_admin_login()
+                self.main_screen.get_stack_widget().update_ui_when_admin_login()
             else:
                 self._start_idle_handling()
-                self.main_screen.get_stack_widget().show_popups_when_exit_idle()
+                self.main_screen.get_stack_widget().update_ui_when_user_login()
 
     def handle_signal(self, direction: str):
         Logger.debug(f"Received direction signal: {direction}")
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         log_file_level=40, # only write the error log of server
         max_bytes=1024*1024*50, # 50M for server.log file size
         backup_count=10, # 10 server.log file can keep
-        print_log_level=20
+        print_log_level=10
     )
 
     Logger.error(f"Podco Metal Detection Client started...")

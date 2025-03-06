@@ -82,8 +82,12 @@
 
             # Log Backup
             BoxLayout:
+                id: log_backup_layout
                 orientation: "horizontal"
                 spacing: 5
+                size_hint_y: None if root.log_hidden else 1
+                height: 0 if root.log_hidden else self.height
+
                 Label:
                     text: "Log Backup:"
                     font_size: "18sp"

@@ -9,19 +9,17 @@ Builder.load_file("kv/option_screen.kv")
 class OptionScreen(Screen):
     title = StringProperty('Main Menu')
     current_button = StringProperty('')
-    exit_hidden = BooleanProperty(False)
+    analyzer_hidden = BooleanProperty(True)
     button_ids = ["detection_btn", "calibration_btn", 
                   "analyzer_btn", "setting_btn", "exit_btn"]
     
     def on_kv_post(self, base_widget):
         self.reset_data()
-        self.ids.exit_layout.opacity = 0 if self.exit_hidden else 1
-
-       
+        self._hide_analyzer_option()
+ 
     def reset_data(self):
-        self.clear_focus()
         self.current_button = "detection_btn"
-        self.ids[self.current_button].state = "down"
+        self.set_focus_button(self.current_button)
 
     def get_title(self):
         return self.title
@@ -71,9 +69,8 @@ class OptionScreen(Screen):
             self.on_exit_btn_click()
         else:
             Logger.debug("No button selected")
-            
-        self.clear_focus()
-        self.current_button = ""
+            self.clear_focus()
+            self.current_button = ""
 
     def navigate_to_screen(self, screen_name):
         app = App.get_running_app()
@@ -95,4 +92,12 @@ class OptionScreen(Screen):
         
     def on_exit_btn_click(self):
         App.get_running_app().switch_to_logo_screen()
-        pass
+        self._hide_analyzer_option()
+
+    def _hide_analyzer_option(self):
+        self.analyzer_hidden = True
+        self.ids.analyzer_layout.opacity = 0
+
+    def _show_analyzer_option(self):
+        self.analyzer_hidden = False
+        self.ids.analyzer_layout.opacity = 1

@@ -1,6 +1,6 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
-from kivy.properties import StringProperty, NumericProperty, ListProperty
+from kivy.properties import StringProperty, NumericProperty, ListProperty, BooleanProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
 from screens.loading_screen import LoadingScreen
@@ -26,6 +26,7 @@ class SettingScreen(Screen):
     brightness = NumericProperty(0)
     bypass_status = NumericProperty(0)
     bypass_status_value = StringProperty("OFF")
+    log_hidden = BooleanProperty(True)
     component_ids = component_ids = [
         ("brightness_slider", "slider"),
         ("reset_factory_btn", "button"),
@@ -64,6 +65,7 @@ class SettingScreen(Screen):
     def reset_data(self):
         self.reset_popup.reset_state()
         self.common_popup.reset_state()
+        self.hide_log_backup()
 
         self.clear_focus()
         self.current_component_id = "brightness_slider"
@@ -355,3 +357,11 @@ class SettingScreen(Screen):
     def handle_copy_files_progress(self, filename: str, complete_count: int):
         message = f"Total need copy: {self.total_files_need_to_copy}\nCurrent completed: {complete_count}"
         Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))
+
+    def hide_log_backup(self):
+        self.log_hidden = True
+        self.ids.log_backup_layout.opacity = 0
+
+    def show_log_backup(self):
+        self.log_hidden = False
+        self.ids.log_backup_layout.opacity = 1
