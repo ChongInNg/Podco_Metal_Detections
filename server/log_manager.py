@@ -20,6 +20,8 @@ class LogManager:
         self.detection_log: DetectionLog = None
         self.calibration_log: CalibrationLog = None
 
+        self.current_pass = 0 # save current pass when the client isn't started
+
     @classmethod
     def instance(cls) -> 'LogManager':
         if cls._instance is None:
@@ -74,4 +76,10 @@ class LogManager:
     
     def set_current_threshold(self, threshold: int):
         self.global_log.global_data.current_threshold = threshold
+
+    def set_current_bypass(self, bypass: int):
+        self.current_pass = bypass
+
+    def get_current_bypass(self)->int:
+        return self.current_pass
     

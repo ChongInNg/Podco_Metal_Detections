@@ -157,7 +157,10 @@ class MainScreen(Screen):
             )
         )
         current_threshold = msg.calibration_data.current_threshold
-        Clock.schedule_once(lambda dt: self.get_stack_widget().get_analyzer_screen().update_threshold(current_threshold))
+        current_bypass = msg.calibration_data.current_bypass
+        analyzer_screen = self.get_stack_widget().get_analyzer_screen()
+        Clock.schedule_once(lambda dt: analyzer_screen.update_threshold(current_threshold))
+        Clock.schedule_once(lambda dt: analyzer_screen.update_bypass(current_bypass))
 
     def _handle_calibration_failed(self, msg: NotifyCalibrationFailedMessage):
         Clock.schedule_once(lambda dt: self.get_stack_widget().show_calibration_failed_popup(msg.reason))

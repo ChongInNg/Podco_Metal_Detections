@@ -489,7 +489,7 @@ class CalibrationData:
             pos_threshold1: int, neg_threshold1: int, pos_threshold2: int,
             neg_threshold2: int, mid_ch1: int, mid_ch2: int,
             area_threshold: int, t_value: float, d_value: int,
-            current_threshold: int
+            current_threshold: int, current_bypass: int
         ):
 
         self.pos_threshold1 = pos_threshold1
@@ -502,6 +502,7 @@ class CalibrationData:
         self.t_value:float = t_value
         self.d_value = d_value
         self.current_threshold = current_threshold
+        self.current_bypass = current_bypass
 
     def to_dict(self):
         return {
@@ -514,7 +515,8 @@ class CalibrationData:
             "area_threshold": self.area_threshold,
             "t_value": self.t_value,
             "d_value": self.d_value,
-            "current_threshold": self.current_threshold
+            "current_threshold": self.current_threshold,
+            "current_bypass": self.current_bypass,
         }
     
     @classmethod
@@ -529,7 +531,8 @@ class CalibrationData:
             area_threshold=data.get("area_threshold"),
             t_value=data.get("t_value"),
             d_value=data.get("d_value"),
-            current_threshold=data.get("current_threshold")
+            current_threshold=data.get("current_threshold"),
+            current_bypass=data.get("current_bypass")
         )
     
 
