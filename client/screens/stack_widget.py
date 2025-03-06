@@ -13,6 +13,7 @@ from screens.screen_header import ScreenHeader
 from screens.setting_screen import SettingScreen
 from screens.common_popup import CommonPopup
 from log.logger import Logger
+from controller.role_manager import RoleManager
 
 Builder.load_file("kv/stack_widget.kv")
 
@@ -45,7 +46,10 @@ class StackWidget(Screen):
             if self.is_detection():
                 self.change_to_calibration_screen()
             elif self.is_calibration():
-                self.change_to_analyzer_screen()
+                if RoleManager.instance().is_admin():
+                    self.change_to_analyzer_screen()
+                else:
+                    self.change_to_option_screen()
             elif self.is_analyzer():
                 analyzer_screen = self.get_analyzer_screen()
                 is_handled = analyzer_screen.on_right_pressed()
@@ -205,8 +209,10 @@ class StackWidget(Screen):
             Logger.debug("no need to handle hide popups in current screen.")
 
     def update_ui_when_user_login(self):
+        option_screen = self.get_option_screen()
+        option_screen.update_ui_when_user_login()
         setting_screen = self.get_setting_screen()
-        setting_screen.hide_log_backup()
+        setting_screen.update_ui_when_user_login()
 
         if self.common_popup.is_showing():
             self.common_popup.handle_dismiss(self)
@@ -219,10 +225,9 @@ class StackWidget(Screen):
 
     def update_ui_when_admin_login(self):
         option_screen = self.get_option_screen()
-        option_screen._show_analyzer_option()
-
+        option_screen.update_ui_when_admin_login()
         setting_screen = self.get_setting_screen()
-        setting_screen.show_log_backup()
+        setting_screen.update_ui_when_admin_login()
 
         if self.is_option():
             option_screen.reset_data()

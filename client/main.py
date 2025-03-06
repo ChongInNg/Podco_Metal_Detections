@@ -174,8 +174,9 @@ class MetalDetectionApp(App):
             273: "up",
             274: "down",
             276: "left",
-            275: "left_right",
-            13: "center"
+            275: "right",
+            13: "center",
+            48: "left_right"
         }
 
         if key in key_mapping:

@@ -10,9 +10,16 @@ class OptionScreen(Screen):
     title = StringProperty('Main Menu')
     current_button = StringProperty('')
     analyzer_hidden = BooleanProperty(True)
-    button_ids = ["detection_btn", "calibration_btn", 
-                  "analyzer_btn", "setting_btn", "exit_btn"]
+    admin_button_ids = ["detection_btn", "calibration_btn", 
+                "analyzer_btn", "setting_btn", "exit_btn"]
     
+    user_button_ids = ["detection_btn", "calibration_btn", 
+                "setting_btn", "exit_btn"]
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.button_ids = OptionScreen.user_button_ids
+
     def on_kv_post(self, base_widget):
         self.reset_data()
         self._hide_analyzer_option()
@@ -101,3 +108,11 @@ class OptionScreen(Screen):
     def _show_analyzer_option(self):
         self.analyzer_hidden = False
         self.ids.analyzer_layout.opacity = 1
+
+    def update_ui_when_admin_login(self):
+        self._show_analyzer_option()
+        self.button_ids = OptionScreen.admin_button_ids
+
+    def update_ui_when_user_login(self):
+        self._hide_analyzer_option()
+        self.button_ids = OptionScreen.user_button_ids
