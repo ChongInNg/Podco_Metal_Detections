@@ -18,9 +18,11 @@
 
             # "Detections"
             BoxLayout:
+                id: detection_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: 1
+                size_hint_y: None if root.detection_hidden else 1
+                height: 0 if root.detection_hidden else self.height
                 
                 Image:
                     source: "assets/detection_icon.png"
@@ -96,8 +98,11 @@
 
             # "Exit"
             BoxLayout:
+                id: exit_layout
                 orientation: "horizontal"
                 spacing: 5
+                size_hint_y: None if root.exit_hidden else 1
+                height: 0 if root.exit_hidden else self.height
             
                 Image:
                     source: "assets/exit_icon.png"
