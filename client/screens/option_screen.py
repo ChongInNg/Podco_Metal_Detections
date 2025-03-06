@@ -135,11 +135,13 @@ class OptionScreen(Screen):
 
     def update_ui_when_admin_login(self):
         self._show_analyzer_option()
-        self.button_ids = OptionScreen.admin_button_ids
         self._hide_exit_option()
         self._show_detection_option()
+        self.button_ids = OptionScreen.admin_button_ids
 
     def update_ui_when_user_login(self):
         self._hide_analyzer_option()
+        self._show_exit_option()
+        self._show_detection_option()
         self.button_ids = OptionScreen.user_button_ids
 
