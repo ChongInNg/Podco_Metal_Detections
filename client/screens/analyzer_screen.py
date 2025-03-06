@@ -314,3 +314,11 @@ class AnalyzerScreen(Screen):
             self.error_popup.opacity = 1
             Logger.debug("analyzer screen show_popups")
 
+    def dismiss_popups(self):
+        if self.is_showing_error_popup():
+            if self.error_popup.opacity != 1: 
+                #only popup hiding when user idle to logo screen,
+                # then the admin user login
+                self.error_popup.opacity = 1 
+            self.error_popup.handle_dismiss()
+

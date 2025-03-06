@@ -341,6 +341,14 @@ class SettingScreen(Screen):
         elif self.reset_popup.is_showing():
             self.reset_popup.opacity = 1
 
+    def dismiss_popups(self):
+        if self.common_popup.is_showing():
+            self.common_popup.opacity = 1
+            self.common_popup.handle_dismiss()
+        elif self.reset_popup.is_showing():
+            self.reset_popup.opacity = 1
+            self.reset_popup.handle_dismiss()
+
     def update_loading_screen_text_while_copying(self, message: str):
         Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))
 

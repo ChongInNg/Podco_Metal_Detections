@@ -8,6 +8,7 @@ from config.config import ConfigManager
 from screens.flip_screen_manager import FlippedScreenManager
 from controller.idle_controller import IdleController
 from log.logger import Logger
+from controller.role_manager import RoleManager
 
 import asyncio
 import sys
@@ -40,7 +41,10 @@ class MetalDetectionApp(App):
         else:
             sm = ScreenManager()
 
-        self.idle_controller = None
+        self.idle_controller = IdleController(
+            ConfigManager.instance().idle_seconds, 
+            self.switch_to_logo_screen,
+        )
         self.joystick = None
         # Add LogoScreen first, then other screens
         self.logo_screen = LogoScreen(name="logo")
@@ -101,30 +105,29 @@ class MetalDetectionApp(App):
         self._stop_joystick()
 
     def _start_idle_handling(self):
-        if ConfigManager.instance().is_enable_idle_checking():
-            if self.idle_controller is None:
-                idle_seconds = ConfigManager.instance().idle_seconds
-                self.idle_controller = IdleController(idle_seconds, self.switch_to_logo_screen)
+        if ConfigManager.instance().is_enable_idle_checking():   
             self.idle_controller.start()
-            Logger.info("start idle handling thread.")
 
     def _stop_idle_handling(self):
         if ConfigManager.instance().is_enable_idle_checking():
             self.idle_controller.stop()
-            Logger.info("stop idle handling thread.")
-            
 
     def switch_to_logo_screen(self):
         if self.root.current != "logo":
             self.root.current = "logo"
+            #only the user can go to the logo screen
+            RoleManager.instance().logout()
             self._stop_idle_handling()
             self.main_screen.get_stack_widget().hide_popups_when_idle()
 
     def switch_to_main_screen(self):
         if self.root.current != "main":
             self.root.current = "main"
-            self._start_idle_handling()
-            self.main_screen.get_stack_widget().show_popups_when_exit_idle()
+            if RoleManager.instance().is_admin():
+                self.main_screen.get_stack_widget().dismiss_popups_when_admin_login()
+            else:
+                self._start_idle_handling()
+                self.main_screen.get_stack_widget().show_popups_when_exit_idle()
 
     def handle_signal(self, direction: str):
         Logger.debug(f"Received direction signal: {direction}")
@@ -149,7 +152,6 @@ class MetalDetectionApp(App):
     def handle_signal_by_clock(self, direction: str):
         Clock.schedule_once(lambda dt: self.handle_signal(direction))
 
-
     def start_websocket(self):
         if not self.event_loop.is_running():
             raise RuntimeError("Event loop is not running.. make sure it running first")
@@ -172,7 +174,7 @@ class MetalDetectionApp(App):
             273: "up",
             274: "down",
             276: "left",
-            275: "right",
+            275: "left_right",
             13: "center"
         }
 

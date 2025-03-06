@@ -2,7 +2,6 @@ import RPi.GPIO as GPIO
 import time
 import threading
 from typing import Callable
-from kivy.clock import Clock
 from log.logger import Logger
 
 class JoyStick:

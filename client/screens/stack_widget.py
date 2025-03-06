@@ -204,7 +204,7 @@ class StackWidget(Screen):
         elif self.is_setting():
             self.get_setting_screen().hide_popups()
         else:
-            Logger.debug("no need to handle idle in current screen.")
+            Logger.debug("no need to handle hide popups in current screen.")
 
     def show_popups_when_exit_idle(self):
         if self.common_popup.is_showing():
@@ -215,4 +215,12 @@ class StackWidget(Screen):
         elif self.is_setting():
             self.get_setting_screen().show_popups()
         else:
-            Logger.debug("no need to handle idle in current screen.")
+            Logger.debug("no need to handle show popups in current screen.")
+
+    def dismiss_popups_when_admin_login(self):
+        if self.is_analyzer():
+            self.get_analyzer_screen().dismiss_popups()
+        elif self.is_setting():
+            self.get_setting_screen().dismiss_popups()
+        else:
+            Logger.debug("no need to handle dismiss popups in current screen.")
