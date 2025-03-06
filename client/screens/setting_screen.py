@@ -73,8 +73,6 @@ class SettingScreen(Screen):
     def reset_data(self):
         self.reset_popup.reset_state()
         self.common_popup.reset_state()
-        self._hide_log_backup()
-
         self.clear_focus()
         self.current_component_id = "brightness_slider"
         self.highlight_slider() # default make slider high light
