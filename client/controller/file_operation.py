@@ -48,7 +48,7 @@ class FileOperation:
         file_list = os.listdir(src_folder)
         for filename in file_list:
             for suffix in self.need_copy_files_suffix:
-                pattern = rf"\.{suffix}$"
+                pattern = rf"\.{suffix}$|\.{suffix}\.\d+$"
                 
                 if re.search(pattern, filename, re.IGNORECASE):
                     if not only_count:
