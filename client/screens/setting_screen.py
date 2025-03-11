@@ -361,7 +361,7 @@ class SettingScreen(Screen):
         Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))
 
     def handle_copy_files_progress(self, filename: str, complete_count: int):
-        message = f"Total need copy: {self.total_files_need_to_copy}\nCurrent completed: {complete_count}"
+        message = f"Total: {self.total_files_need_to_copy}\nCompleted: {complete_count}"
         Clock.schedule_once(lambda dt: self.loading_screen.update_message(message))
 
     def _hide_log_backup(self):
