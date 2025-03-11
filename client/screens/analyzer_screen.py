@@ -38,8 +38,9 @@ class AnalyzerScreen(Screen):
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.response_received = False
         self.threshold = 1000
+        self.pending_threshold = 0
         self.threshold_popup = SetThresholdPopup(
-            on_confirm_callback=self.set_threshold
+            on_confirm_callback=self.set_threshold_by_popup
         )
         
         self.error_popup = CommonPopup()
@@ -189,30 +190,38 @@ class AnalyzerScreen(Screen):
         self.response_received = True
         if success:
             self.loading_screen.hide()
+            self.threshold = self.pending_threshold
+            self.threshold_popup.update_threshold(self.threshold)
+            self.pending_threshold = 0
             Logger.debug("Set threshold to controller successful!")
         else:
+            self.threshold_popup.update_threshold(self.threshold)
+            self.pending_threshold = 0
             self.loading_screen.hide() 
             self.show_error_popup("Set threshold failed! Please try again.")
 
     def open_threshold_popup(self, instance):
         self.threshold_popup.handle_open()
 
-    def set_threshold(self, new_threshold):
+    def set_threshold_by_popup(self, new_threshold):
         if not WebSocketClient.instance().is_connected(): 
             self.show_error_popup("Cannot reset without connectting with server")
             return
         
-        self.threshold = new_threshold
+        self.pending_threshold = new_threshold
         self.response_received = False
-        msg = SetThresholdRequest.create_message(threshold=self.threshold)
+        msg = SetThresholdRequest.create_message(threshold=self.pending_threshold)
         WebSocketClient.instance().send_json_sync(
             msg.to_json()
         )
-        Logger.debug(f"Threshold updated to {self.threshold}")
+        Logger.debug(f"Threshold will be updated to {self.pending_threshold}")
         self.loading_screen.show()
 
     def on_timeout(self):
         self.loading_screen.hide()
+        self.threshold_popup.update_threshold(self.threshold)
+        self.pending_threshold = 0
+        self.threshold_popup.reset_state()
         if not self.response_received:  
            self.show_error_popup("Request timed out! Please try again.")
     
