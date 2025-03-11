@@ -19,8 +19,8 @@ class LogoScreen(Screen):
 
     def on_touch_down(self, touch):
         if self.collide_point(touch.x, touch.y):
-            self.manager.current = "main"
-            self.invoke_callback()
+            RoleManager.instance().login_as_user()
+            App.get_running_app().switch_to_main_screen()
         return super().on_touch_down(touch)
     
     def handle_direction(self, direction):
