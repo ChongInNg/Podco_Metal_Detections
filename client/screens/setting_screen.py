@@ -323,7 +323,7 @@ class SettingScreen(Screen):
         )
 
         self.total_files_need_to_copy = file_operation.count_total_files_need_to_copy()
-        self.update_loading_screen_text_while_copying(f"Total need copy: {self.total_files_need_to_copy}\nCurrent completed: 0")
+        self.update_loading_screen_text_while_copying(f"Total: {self.total_files_need_to_copy}\nCompleted: 0")
         time.sleep(0.5)
         total_copy = file_operation.copy_from_folders()
         # total_copy = 4
