@@ -26,7 +26,7 @@
             "command_type": "0xF0",
             "data_length_bytes": 2,
             "each_item_bytes": 2,
-            "data": [2024]
+            "data": [1000]
         },
         {
             "name": "bypass",

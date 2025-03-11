@@ -13,7 +13,7 @@ class SetThresholdPopup(FlippedPopup):
         self.init_attributes(title="Set Threshold")
 
         self.on_confirm_callback = on_confirm_callback
-        self.current_threshold = 1500
+        self.current_threshold = 1000
         self.min_value = ConfigManager.instance().slider_range_min
         self.max_value = ConfigManager.instance().slider_range_max
         self.step = ConfigManager.instance().slider_step
@@ -55,6 +55,11 @@ class SetThresholdPopup(FlippedPopup):
 
     def update_label(self, instance, value):
         self.label.text = f"{int(value)}"
+
+    def update_threshold(self, value: int):
+        self.current_threshold = value
+        self.label.text = f"{int(value)}"
+        self.slider.value = value
 
     def _on_confirm(self, instance):
         self.handle_dismiss(instance)

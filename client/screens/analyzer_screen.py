@@ -37,7 +37,7 @@ class AnalyzerScreen(Screen):
         super().__init__(**kwargs)
         self.loading_screen = LoadingScreen(timeout=5, on_timeout_callback=self.on_timeout)
         self.response_received = False
-        self.threshold = 1500
+        self.threshold = 1000
         self.threshold_popup = SetThresholdPopup(
             on_confirm_callback=self.set_threshold
         )
@@ -183,6 +183,7 @@ class AnalyzerScreen(Screen):
 
     def update_threshold(self, threshold: int):
         self.threshold = threshold
+        self.threshold_popup.update_threshold(threshold)
 
     def update_set_threshold_status(self, success: bool):
         self.response_received = True

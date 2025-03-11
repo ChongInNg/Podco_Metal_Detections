@@ -61,7 +61,7 @@ class GlobalLogData:
         self.orig_total_run_minutes = 0
         self.log_file_count = 0
         self.max_file_size = 1024 * 1024 * 100
-        self.current_threshold = 0
+        self.current_threshold = 1000
         self.session_histories = SessionLogHistory()
         self.current_session = SessionLog()
 
