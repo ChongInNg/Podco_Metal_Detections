@@ -1,7 +1,7 @@
 from command_processor import CommandProcessor
 from serial_handler import SerialHandler, CommandData
 from log.logger import Logger
-from datetime import time
+import time
 import os
 
 def get_current_program_folder():
@@ -51,10 +51,10 @@ if __name__ == "__main__":
                 while True:
                     raw_data_command = processor.encode_raw_data_command()
                     serial_handler.send(raw_data_command)
-                    command_data:CommandData = serial_handler.receive()
-                    handle_response(f"raw_data: {count}", command_data)
+                    # command_data:CommandData = serial_handler.receive()
+                    # handle_response(f"raw_data: {count}", command_data)
                     count += 1
-                    # time.sleep(0.1)
+                    time.sleep(0.005)
 
             if choice not in command_mapping:
                 print("Invalid choice. Please select a valid command number.")

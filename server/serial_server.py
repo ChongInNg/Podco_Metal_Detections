@@ -8,6 +8,7 @@ from config.config import ConfigManager
 
 SET_THRESHOLD_RESPONSE_COMMAND:int = 0x0B
 SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND: int = 0xB0
+RAW_DATA_RESPONSE_COMMAND:int = 0xAA
 
 class CommandData:
     def __init__(self, command_type: int, data_length: int, data: bytes):
@@ -110,7 +111,7 @@ class SerialServer:
     def _write_data(self, data: bytes) -> int:
         if self.serial and self.serial.is_open:
             buf_num = self.serial.write(data)
-            Logger.info(f"Write serial. {data.hex()}, buf_num: {buf_num}")
+            Logger.info(f"Write serial. 0x{data.hex()}, buf_num: {buf_num}")
             return buf_num
         else:
             Logger.error(f"Didn't connect to serial port, cannot send. {data.hex()}")
@@ -167,7 +168,11 @@ class SerialServer:
         return self._write_data(encoded)
     
     def need_send_back_response_to_controller(self, command_type: int):
-        if command_type == SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND or command_type == SET_THRESHOLD_RESPONSE_COMMAND:
+        if command_type == RAW_DATA_RESPONSE_COMMAND:
+            return False
+        elif command_type == SET_THRESHOLD_RESPONSE_COMMAND:
+            return False
+        elif command_type == SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND:
             return False
         return True
     

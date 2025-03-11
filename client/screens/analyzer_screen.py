@@ -48,7 +48,7 @@ class AnalyzerScreen(Screen):
 
     def reset_data(self):
         self.start_time = time.time()
-        self.event = Clock.schedule_interval(self.update_graph, 0.1)
+        self.event = Clock.schedule_interval(self.update_graph, 0.005)
         self.loading_screen.hide()
         self.threshold_popup.reset_state()
         self.error_popup.reset_state()
@@ -60,7 +60,6 @@ class AnalyzerScreen(Screen):
         Clock.unschedule(self.update_graph)
         self.event.cancel()
 
-        
     def _create_graph(self):
         self.graph = Graph(
             xlabel="Samples",
@@ -144,7 +143,7 @@ class AnalyzerScreen(Screen):
 
     def update_graph(self, dt):
         current_time = time.time()
-        current_second = int(current_time - self.start_time) 
+        current_second = int(current_time) 
 
         time_range = 10
         self.ch1_p_data = [
@@ -163,10 +162,10 @@ class AnalyzerScreen(Screen):
             (timestamp,value) for timestamp, value in self.ch2_n_data if current_time - timestamp <= time_range
         ]
 
-        self.ch1_n_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch1_n_data]
-        self.ch1_p_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch1_p_data]
-        self.ch2_n_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch2_n_data]
-        self.ch2_p_plot.points = [(timestamp - self.start_time, value) for timestamp, value in self.ch2_p_data]
+        self.ch1_n_plot.points = [(timestamp, value) for timestamp, value in self.ch1_n_data]
+        self.ch1_p_plot.points = [(timestamp, value) for timestamp, value in self.ch1_p_data]
+        self.ch2_n_plot.points = [(timestamp, value) for timestamp, value in self.ch2_n_data]
+        self.ch2_p_plot.points = [(timestamp, value) for timestamp, value in self.ch2_p_data]
 
         self.threshold_plot.points = [
             (current_second - 11, self.threshold),

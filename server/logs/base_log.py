@@ -1,6 +1,7 @@
 import json
 import os
 from threading import Lock
+from log.logger import Logger
 
 class BaseLog:
     def __init__(self, log_directory:str, file_name:str):
@@ -12,8 +13,11 @@ class BaseLog:
     def _read_json(self):
         with self.file_lock:
             if os.path.exists(self.full_name):
-                with open(self.full_name, "r") as f:
-                    return json.load(f)
+                try:
+                    with open(self.full_name, "r") as f:
+                        return json.load(f)
+                except Exception as e:
+                    Logger.error(f"load json file error. file: {self.full_name}, err: {e}")
         return None
 
     def _write_json(self, data: dict):
