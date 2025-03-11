@@ -48,7 +48,7 @@ class AnalyzerScreen(Screen):
 
     def reset_data(self):
         self.start_time = time.time()
-        self.event = Clock.schedule_interval(self.update_graph, 0.005)
+        self.event = Clock.schedule_interval(self.update_graph, 0.1)
         self.loading_screen.hide()
         self.threshold_popup.reset_state()
         self.error_popup.reset_state()
