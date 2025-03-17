@@ -124,6 +124,7 @@ class MetalDetectionApp(App):
         if self.root.current != "main":
             self.root.current = "main"
             if RoleManager.instance().is_admin():
+                self._stop_idle_handling()
                 self.main_screen.get_stack_widget().update_ui_when_admin_login()
             else:
                 self._start_idle_handling()

@@ -196,7 +196,7 @@ class StackWidget(Screen):
         elif reason == 2:
             reason_str = "Signal Failed."
         else:
-            reason_str = "Unknow error."
+            reason_str = "Unknown error."
         self.common_popup.update_message(f"Reason: {reason_str}")
         self.common_popup.handle_open()
     
