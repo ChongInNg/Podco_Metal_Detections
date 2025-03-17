@@ -25,6 +25,14 @@ class StackWidget(Screen):
         super().__init__(**kwargs)
     
     def handle_direction(self, direction):
+        if self.is_calibration_failed_popup_showing():
+            if direction != "center":
+                Logger.debug(f"Caliration failed popup is showing, ignore direction sigal: {direction}")
+                return
+            else:
+                self.dismiss_calibration_failed_popup()
+                return
+            
         if direction == "left":
             if self.is_detection():
                 self.change_to_option_screen()
@@ -237,3 +245,9 @@ class StackWidget(Screen):
             setting_screen.dismiss_popups()
         else:
             Logger.debug("no need to handle dismiss popups in current screen.")
+    
+    def is_calibration_failed_popup_showing(self)->bool:
+        return self.common_popup.is_showing()
+    
+    def dismiss_calibration_failed_popup(self):
+        self.common_popup.handle_dismiss(self)

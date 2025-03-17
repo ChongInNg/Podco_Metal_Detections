@@ -101,6 +101,7 @@ class CommandHandler:
                 message="Set threshold to controller success."
             )
         elif isinstance(command, CalibrationFailedCommand):
+            LogManager.instance().set_calibration_failed_reason(command.reason)
             return NotifyCalibrationFailedMessage.create_message(reason=command.reason)
         else:
             raise ValueError(f"Unknown command: {command.name}")

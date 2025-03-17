@@ -158,17 +158,26 @@ class MainScreen(Screen):
         )
         current_threshold = msg.calibration_data.current_threshold
         current_bypass = msg.calibration_data.current_bypass
+        is_calibration_failed = msg.calibration_data.is_calibration_failed
+        calibration_failed_reason = msg.calibration_data.calibration_failed_reason
         analyzer_screen = self.get_stack_widget().get_analyzer_screen()
-        Clock.schedule_once(lambda dt: self._handle_calibraion_response(current_threshold, current_bypass))
+        Clock.schedule_once(lambda dt: self._handle_calibraion_response(
+            current_threshold, current_bypass,
+            is_calibration_failed, calibration_failed_reason,
+        ))
 
     def _handle_calibration_failed(self, msg: NotifyCalibrationFailedMessage):
         Clock.schedule_once(lambda dt: self.get_stack_widget().show_calibration_failed_popup(msg.reason))
         Logger.debug(f"_handle_calibration_failed success. reason: {msg.reason}")
 
-    def _handle_calibraion_response(self, current_threshold: int, current_bypass: int):
+    def _handle_calibraion_response(self, current_threshold: int, current_bypass: int,
+            is_calibration_failed: bool, calibration_failed_reason: int):
         analyzer_screen = self.get_stack_widget().get_analyzer_screen()
         analyzer_screen.update_threshold(current_threshold)
         analyzer_screen.update_bypass(current_bypass)
         setting_screen = self.get_stack_widget().get_setting_screen()
         setting_screen.update_bypass(current_bypass)
+
+        if is_calibration_failed:
+            self.get_stack_widget().show_calibration_failed_popup(calibration_failed_reason)
 

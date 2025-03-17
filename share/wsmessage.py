@@ -489,7 +489,8 @@ class CalibrationData:
             pos_threshold1: int, neg_threshold1: int, pos_threshold2: int,
             neg_threshold2: int, mid_ch1: int, mid_ch2: int,
             area_threshold: int, t_value: float, d_value: int,
-            current_threshold: int, current_bypass: int
+            current_threshold: int, current_bypass: int,
+            is_calibration_failed: bool, calibration_failed_reason: int
         ):
 
         self.pos_threshold1 = pos_threshold1
@@ -503,6 +504,8 @@ class CalibrationData:
         self.d_value = d_value
         self.current_threshold = current_threshold
         self.current_bypass = current_bypass
+        self.is_calibration_failed = is_calibration_failed
+        self.calibration_failed_reason = calibration_failed_reason
 
     def to_dict(self):
         return {
@@ -517,6 +520,8 @@ class CalibrationData:
             "d_value": self.d_value,
             "current_threshold": self.current_threshold,
             "current_bypass": self.current_bypass,
+            "is_calibration_failed": self.is_calibration_failed,
+            "calibration_failed_reason": self.calibration_failed_reason
         }
     
     @classmethod
@@ -532,7 +537,9 @@ class CalibrationData:
             t_value=data.get("t_value"),
             d_value=data.get("d_value"),
             current_threshold=data.get("current_threshold"),
-            current_bypass=data.get("current_bypass")
+            current_bypass=data.get("current_bypass"),
+            is_calibration_failed=data.get("is_calibration_failed"),
+            calibration_failed_reason=data.get("calibration_failed_reason")
         )
     
 
@@ -558,10 +565,10 @@ class GetCalibrationResponse(BaseWsResponse)   :
         message = data.get("message")
         meta = data.get("meta")
         calibration_dict = data.get("calibration")
-        if calibration_dict is not None:
-            calibration_data = CalibrationData.from_dict(calibration_dict)
-        else:
-            calibration_data = CalibrationData("", 0, 0)
+        if calibration_dict is None:
+            raise ValueError("calibration field is not set, error.")
+        
+        calibration_data = CalibrationData.from_dict(calibration_dict)
         return cls(header, code, message, meta, calibration_data)
     
     @classmethod

@@ -47,7 +47,7 @@ class CommonPopup(FlippedPopup):
 
     def handle_dismiss(self, instance):
         self.dismiss()
-        self.current_state = "dismiss"
+        self.reset_state()
 
     def handle_open(self):
         self.open()

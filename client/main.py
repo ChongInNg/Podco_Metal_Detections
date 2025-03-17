@@ -130,6 +130,12 @@ class MetalDetectionApp(App):
                 self._start_idle_handling()
                 self.main_screen.get_stack_widget().update_ui_when_user_login()
 
+    def is_calibration_failed_popup_showing(self):
+        return self.main_screen.get_stack_widget().is_calibration_failed_popup_showing()
+    
+    def dismiss_calibration_failed_popup(self):
+        self.main_screen.get_stack_widget().dismiss_calibration_failed_popup()
+        
     def handle_signal(self, direction: str):
         Logger.debug(f"Received direction signal: {direction}")
         if ConfigManager.instance().is_enable_idle_checking():

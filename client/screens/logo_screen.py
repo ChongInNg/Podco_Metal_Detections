@@ -28,9 +28,16 @@ class LogoScreen(Screen):
             Logger.debug(f"Not support: {direction} in logo screen")
             return
         if direction == "left_right":
+            if App.get_running_app().is_calibration_failed_popup_showing():
+                Logger.debug("Calibration failed popup is showing, cannot login as admin now")
+                return
             RoleManager.instance().login_as_admin()
             App.get_running_app().switch_to_main_screen()
         else:
+            if App.get_running_app().is_calibration_failed_popup_showing():
+                App.get_running_app().dismiss_calibration_failed_popup()
+                return
+
             if RoleManager.instance().is_admin(): #it can not run here, because no idle when role is admin
                 Logger.debug("Current role is admin, no need to handle enter signal")
                 return

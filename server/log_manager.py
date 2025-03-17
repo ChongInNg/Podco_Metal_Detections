@@ -21,6 +21,8 @@ class LogManager:
         self.calibration_log: CalibrationLog = None
 
         self.current_pass = 0 # save current pass when the client isn't started
+        self._is_calibration_failed = False
+        self._calibration_failed_reason = -1
 
     @classmethod
     def instance(cls) -> 'LogManager':
@@ -83,3 +85,12 @@ class LogManager:
     def get_current_bypass(self)->int:
         return self.current_pass
     
+    def is_calibration_failed(self)->bool:
+        return self._is_calibration_failed
+    
+    def get_calibration_failed_reason(self)->int:
+        return self._calibration_failed_reason
+    
+    def set_calibration_failed_reason(self, reason: int):
+        self._is_calibration_failed = True
+        self._calibration_failed_reason = reason
