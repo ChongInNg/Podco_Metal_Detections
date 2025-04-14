@@ -3,6 +3,7 @@ from kivy.properties import StringProperty, NumericProperty
 from kivy.lang import Builder
 from dataclasses import dataclass
 from log.logger import Logger
+from config.config import ConfigManager
 
 import sys
 import os
@@ -66,10 +67,17 @@ class DetectionScreen(Screen):
         if self.current_index > 0:
             self.current_index -= 1
             self.update_current_values()
+        elif self.current_index == 0:
+            self.current_index = len(self.detections) - 1
+            self.update_current_values()
+
 
     def on_down_pressed(self):
         if self.current_index < len(self.detections) - 1:
             self.current_index += 1
+            self.update_current_values()
+        elif self.current_index == len(self.detections) - 1:
+            self.current_index = 0
             self.update_current_values()
     
     def update_btn_visiable(self):
@@ -91,17 +99,17 @@ class DetectionScreen(Screen):
             down_btn.disabled = False
 
     def add_detection(self, detection_data: DetectionViewData):
-        if len(self.detections) >= 10:
-            del self.detections[0]
-            Logger.debug(f"Popup the first detection")
+        if len(self.detections) >= ConfigManager.instance().support_maximum_detections:
+            del self.detections[-1]
+            Logger.debug(f"Removed the oldest detection")
         
-        self.detections.append(detection_data)
+        self.detections.insert(0, detection_data)
         self.current_index = 0
         self.update_current_values()
 
     def init_detections(self, detections: DetectionLogs):
         self.detections.clear()
-        for detection in detections.logs:
+        for detection in reversed(detections.logs):
             self.detections.append(DetectionViewData(
                 T_Value=str(detection.t_value),
                 D_Value=str(detection.d_value),
@@ -110,3 +118,5 @@ class DetectionScreen(Screen):
                 CH2_P=str(detection.ch2_area_p),
                 CH2_N=str(detection.ch2_area_n),
             ))
+        self.current_index = 0
+        self.update_current_values()

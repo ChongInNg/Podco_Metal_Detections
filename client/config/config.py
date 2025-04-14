@@ -54,6 +54,7 @@ class ConfigManager:
         self.src_folders: list[str] = []
         self.need_copy_files_suffix : list[str] = ""
         self.keep_pressing_seconds: int = 0
+        self.support_maximum_detections: int = 0
 
     def to_dict(self):
         return {
@@ -79,6 +80,7 @@ class ConfigManager:
             "src_folders": self.src_folders,
             "need_copy_files_suffix": self.need_copy_files_suffix,
             "keep_pressing_seconds": self.keep_pressing_seconds,
+            "support_maximum_detections": self.support_maximum_detections
         }
     @classmethod
     def instance(cls) -> "ConfigManager":
@@ -138,6 +140,8 @@ class ConfigManager:
             self.mount_point = data.get("mount_point")
             self.need_copy_files_suffix = data.get("need_copy_files_suffix")
             self.keep_pressing_seconds = data.get("keep_pressing_seconds")
+
+            self.support_maximum_detections = data.get("support_maximum_detections", 100)
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading config: {e}")
             raise e

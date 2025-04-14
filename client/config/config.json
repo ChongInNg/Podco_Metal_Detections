@@ -34,5 +34,6 @@
         "/home/podco/Podco_Metal_Detections/server/system_logs"
     ],
     "need_copy_files_suffix": ["json", "log"],
-    "keep_pressing_seconds": 2
+    "keep_pressing_seconds": 2,
+    "support_maximum_detections": 100
 }

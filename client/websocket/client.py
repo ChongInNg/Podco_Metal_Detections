@@ -5,6 +5,7 @@ import os
 import sys
 from typing import Optional
 from log.logger import Logger
+from config.config import ConfigManager
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
@@ -90,7 +91,8 @@ class WebSocketClient:
 
     async def _handle_registration_response(self, resp: RegistrationWsResponse):
         if resp.is_success():
-            last_n_detecions_req = GetLastNDetectionsRequest.create_message(last_n=10)
+            last_n = ConfigManager.instance().support_maximum_detections
+            last_n_detecions_req = GetLastNDetectionsRequest.create_message(last_n=last_n)
             await self.websocket.send(last_n_detecions_req.to_json())
 
             get_calibration_req = GetCalibrationRequest.create_message()
