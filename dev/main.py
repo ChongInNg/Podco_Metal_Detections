@@ -54,7 +54,7 @@ if __name__ == "__main__":
                     # command_data:CommandData = serial_handler.receive()
                     # handle_response(f"raw_data: {count}", command_data)
                     count += 1
-                    time.sleep(0.005)
+                    time.sleep(0.01)
 
             if choice not in command_mapping:
                 print("Invalid choice. Please select a valid command number.")

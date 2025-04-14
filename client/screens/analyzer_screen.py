@@ -14,6 +14,7 @@ from screens.common_popup import CommonPopup
 from screens.image_button import ImageButton
 from dataclasses import dataclass
 from log.logger import Logger
+from kivy.uix.image import Image
 
 import sys
 import os
@@ -45,11 +46,14 @@ class AnalyzerScreen(Screen):
         
         self.error_popup = CommonPopup()
         self.bypass = 0 # indicate the button show or hide
+        self.is_pause = False
         self._create_graph()
 
     def reset_data(self):
-        self.start_time = time.time()
-        self.event = Clock.schedule_interval(self.update_graph, 0.1)
+        # self.hide_over_threshold_indicator()
+        # self.hide_pause_image()
+
+        self.start_update_graph()
         self.loading_screen.hide()
         self.threshold_popup.reset_state()
         self.error_popup.reset_state()
@@ -57,7 +61,10 @@ class AnalyzerScreen(Screen):
     def get_title(self):
         return self.title
 
-    def stop_update_analyzer_screen(self):
+    def start_update_graph(self):
+        self.event = Clock.schedule_interval(self.update_graph, 0.1)
+
+    def stop_update_graph(self):
         Clock.unschedule(self.update_graph)
         self.event.cancel()
 
@@ -118,13 +125,23 @@ class AnalyzerScreen(Screen):
         self.bp_button = ImageButton(
             source="assets/threshold.png",
             size_hint=(None, None),
-            size=(30, 30),
+            size=(48, 48),
             allow_stretch=True,
             keep_ratio=True,
             pos_hint={"center_y": 0.5}
         )
         self.bp_button.bind(on_release=self.open_threshold_popup)
-        self.hide_button() #default hide this button
+        self.hide_bypass_button() #default hide this button
+
+        self.pause_img = Image(
+            source="assets/pause_icon.png",
+            size_hint=(None, None),
+            size=(48, 30),
+            allow_stretch=True,
+            keep_ratio=True,
+            pos_hint={"center_y": 0.5}
+        )
+        self.hide_pause_image()
 
         legend_layout = BoxLayout(
             orientation="horizontal",
@@ -133,7 +150,7 @@ class AnalyzerScreen(Screen):
             spacing=5
         )
         legend_layout.add_widget(self.bp_button)
-
+        legend_layout.add_widget(self.pause_img)
         for name, color in legend_items:
             label = Label(text=name, color=color)
             legend_layout.add_widget(label)
@@ -163,10 +180,15 @@ class AnalyzerScreen(Screen):
             (timestamp,value) for timestamp, value in self.ch2_n_data if current_time - timestamp <= time_range
         ]
 
-        self.ch1_n_plot.points = [(timestamp, value) for timestamp, value in self.ch1_n_data]
-        self.ch1_p_plot.points = [(timestamp, value) for timestamp, value in self.ch1_p_data]
-        self.ch2_n_plot.points = [(timestamp, value) for timestamp, value in self.ch2_n_data]
-        self.ch2_p_plot.points = [(timestamp, value) for timestamp, value in self.ch2_p_data]
+        if self.is_over_threshold(self.ch1_n_data, self.ch1_p_data, self.ch2_n_data, self.ch2_p_data):
+            self.show_over_threshold_indicator()
+        else:
+            self.hide_over_threshold_indicator()
+        
+        self.ch1_n_plot.points = self.ch1_n_data
+        self.ch1_p_plot.points = self.ch1_p_data
+        self.ch2_n_plot.points = self.ch2_n_data
+        self.ch2_p_plot.points = self.ch2_p_data
 
         self.threshold_plot.points = [
             (current_second - 11, self.threshold),
@@ -202,6 +224,15 @@ class AnalyzerScreen(Screen):
 
     def open_threshold_popup(self, instance):
         self.threshold_popup.handle_open()
+    
+    def handle_pause(self, instance):
+        self.is_pause = not self.is_pause
+        if self.is_pause:
+            self.stop_update_graph()
+            self.show_pause_image()
+        else:
+            self.start_update_graph()
+            self.hide_pause_image()
 
     def set_threshold_by_popup(self, new_threshold):
         if not WebSocketClient.instance().is_connected(): 
@@ -229,10 +260,28 @@ class AnalyzerScreen(Screen):
         self.error_popup.update_message(message)
         self.error_popup.handle_open()
 
+    def handle_on_up_down(self) -> bool:
+        if not self.enable_bypass():
+            Logger.debug("analyzer screen is not handle up_down when not enable bypass mode.")
+            return False 
+
+        if self.is_showing_threshold_popup():
+            Logger.debug("analyzer screen is not handle up_down when is showing threshold popup.")
+            return False 
+        elif self.is_showing_error_popup():
+            Logger.debug("analyzer screen is not handle up_down when is showing error popup.")
+            return False
+        elif self.is_showing_loading_screen():
+            Logger.debug("analyzer screen is not handle up_down when is showing loading_scree.")
+            return False
+        
+        self.open_threshold_popup(self)
+        return True
+    
     def handle_on_enter(self) -> bool:
         if not self.enable_bypass():
             Logger.debug("analyzer screen is not handle enter when not enable bypass mode.")
-            return
+            return False
         
         if self.is_showing_threshold_popup():
             self.threshold_popup.handle_on_enter()
@@ -243,7 +292,8 @@ class AnalyzerScreen(Screen):
         elif self.is_showing_loading_screen():
             Logger.debug(f"analyzer screen ignore to handle handle_on_enter.")
             return True
-        self.open_threshold_popup(self)
+        # self.open_threshold_popup(self)
+        self.handle_pause(self)
         Logger.debug("analyzer screen handle_on_enter")
         return True
 
@@ -299,16 +349,32 @@ class AnalyzerScreen(Screen):
     def update_bypass(self, value: int):
         self.bypass = value
         if self.bypass == 1:
-            self.show_button()
+            self.show_bypass_button()
         else:
-            self.hide_button()
+            self.hide_bypass_button()
+            
+            self.hide_pause_image()
+            self.is_pause = False
+        
         Logger.debug(f"analyzer screen update bypass successfully, val: {self.bypass}")
 
-    def hide_button(self):
-        self.bp_button.opacity = 0
+    def hide_bypass_button(self):
+        # self.bp_button.opacity = 0
+        self.bp_button.size = (0, 0)
+        self.bp_button.size_hint = (None, None)
 
-    def show_button(self):
-        self.bp_button.opacity = 1
+    def show_bypass_button(self):
+        # self.bp_button.opacity = 1
+        self.bp_button.size = (48, 48)
+        self.bp_button.size_hint = (None, None)
+
+    def hide_pause_image(self):
+        self.pause_img.size = (0, 0)
+        self.pause_img.size_hint = (None, None)
+
+    def show_pause_image(self):
+        self.pause_img.size = (48, 30)
+        self.pause_img.size_hint = (None, None)
 
     def enable_bypass(self) -> bool:
         return self.bypass == 1
@@ -331,3 +397,24 @@ class AnalyzerScreen(Screen):
                 self.error_popup.opacity = 1 
             self.error_popup.handle_dismiss()
 
+    def show_over_threshold_indicator(self):
+        self.bp_button.source = "assets/threshold_red.png"
+
+    def hide_over_threshold_indicator(self):
+        self.bp_button.source = "assets/threshold.png"
+
+    def is_over_threshold(self, ch1_n_data: list, ch1_p_data: list, ch2_n_data: list, ch2_p_data: list) -> bool:
+        for _, value in ch1_n_data:
+            if value >= self.threshold:
+                return True
+        for _, value in ch1_p_data:
+            if value >= self.threshold:
+                return True
+        
+        for _, value in ch2_n_data:
+            if value >= self.threshold:
+                return True
+        for _, value in ch2_p_data:
+            if value >= self.threshold:
+                return True
+        return False

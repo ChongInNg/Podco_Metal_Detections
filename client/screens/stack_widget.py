@@ -115,6 +115,12 @@ class StackWidget(Screen):
                 setting_screen.handle_on_enter()
             else:
                 Logger.debug(f"Not support center direction in this screen: {self.current_screen}")
+        elif direction == "up_down":
+            if self.is_analyzer():
+                analyzer_screen = self.get_analyzer_screen()
+                analyzer_screen.handle_on_up_down()
+            else:
+                Logger.warning(f"Not support direction: {direction}, only analyzer view support it") 
         else:
             Logger.warning(f"Not support direction: {direction}")
 
@@ -122,7 +128,7 @@ class StackWidget(Screen):
         if self.is_analyzer():
             # need to stop the analyzer thread first before switching to another screen
             screen = self.get_analyzer_screen()
-            screen.stop_update_analyzer_screen()
+            screen.stop_update_graph()
             Logger.debug(f"Stop the analyzer thread before switching to another screen: {screen_name}")
 
         self.ids.stack_manager.current = screen_name
