@@ -1,141 +1,174 @@
 <OptionScreen>:
     BoxLayout:
         orientation: "vertical"
-        spacing: 1
-        padding: 1
+        spacing: 2
+        padding: 0
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.15, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 1
-            padding: 5
+        GridLayout:
+            cols: 2  # 2 columns for a 3x2 grid
+            rows: 3  # 3 rows to fit 6 options
+            spacing: 25
+            padding: 10
             size_hint_y: 0.9
             canvas.before:
                 Color:
-                    rgba: 0.15, 0.15, 0.2, 1
+                    rgba: 0.15, 0.15, 0.2, 1 
                 Rectangle:
                     pos: self.pos
                     size: self.size
 
-            # "Detections"
+            # Detections
             BoxLayout:
-                id: detection_layout
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: None if root.detection_hidden else 1
-                height: 0 if root.detection_hidden else self.height
-                
+                orientation: "vertical"
+                spacing: 2
+                size_hint_y: None
+                height: 80 
+                opacity: 1  
+                disabled: False
+
                 Image:
                     source: "assets/detection_icon.png"
                     size_hint: None, None
-                    size: 48, 48
+                    size: 64, 64 
                     fit_mode: 'contain'
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
+                    pos_hint: {'center_x': 0.5}
                 Button:
                     id: detection_btn
                     text: "Detections"
+                    font_size: "12sp"  # Small font for readability
+                    size_hint_y: None
+                    height: 20
+                    background_normal: ''
+                    background_color: [0, 0, 0, 0]  # Transparent background
                     on_release: root.on_detection_btn_click()
-                    font_size: "26sp"
 
-            # "Calibrations"
+            # Calibrations
             BoxLayout:
-                id: calibration_layout
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: None if root.calibration_hidden else 1
-                height: 0 if root.calibration_hidden else self.height
+                orientation: "vertical"
+                spacing: 2
+                size_hint_y: None
+                height: 80
+                opacity: 1  
+                disabled: False
 
                 Image:
                     source: "assets/calibration_icon.png"
                     size_hint: None, None
-                    size: 48, 48
+                    size: 64, 64
                     fit_mode: 'contain'
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
+                    pos_hint: {'center_x': 0.5}
                 Button:
                     id: calibration_btn
                     text: "Calibrations"
+                    font_size: "12sp"
+                    size_hint_y: None
+                    height: 20
+                    background_normal: ''
+                    background_color: [0, 0, 0, 0]
                     on_release: root.on_calibration_btn_click()
-                    font_size: "26sp"
 
-            # "Analyzer"
+            # Analyzer
             BoxLayout:
-                id: analyzer_layout
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: None if root.analyzer_hidden else 1
-                height: 0 if root.analyzer_hidden else self.height
+                orientation: "vertical"
+                spacing: 2
+                size_hint_y: None
+                height: 80
+                opacity: 0 if root.analyzer_hidden else 1
+                disabled: root.analyzer_hidden
 
                 Image:
                     source: "assets/analyzer_icon.png"
                     size_hint: None, None
-                    size: 48, 48
+                    size: 64, 64
                     fit_mode: 'contain'
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
+                    pos_hint: {'center_x': 0.5}
                 Button:
                     id: analyzer_btn
                     text: "Analyzer"
+                    font_size: "12sp"
+                    size_hint_y: None
+                    height: 20
+                    background_normal: ''
+                    background_color: [0, 0, 0, 0]
                     on_release: root.on_analyzer_btn_click()
-                    font_size: "26sp"
 
-            # "Settings"
+            # Settings
             BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: 1
+                orientation: "vertical"
+                spacing: 2
+                size_hint_y: None
+                height: 80
+                opacity: 1  
+                disabled: False
 
                 Image:
                     source: "assets/setting_icon.png"
                     size_hint: None, None
-                    size: 48, 48
+                    size: 64, 64
                     fit_mode: 'contain'
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
+                    pos_hint: {'center_x': 0.5}
                 Button:
                     id: setting_btn
                     text: "Settings"
+                    font_size: "12sp"
+                    size_hint_y: None
+                    height: 20
+                    background_normal: ''
+                    background_color: [0, 0, 0, 0]
                     on_release: root.on_setting_btn_click()
-                    font_size: "26sp"
 
-            # "Status"
+            # Status
             BoxLayout:
-                id: status_layout
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: None if root.status_hidden else 1
-                height: 0 if root.status_hidden else self.height
+                orientation: "vertical"
+                spacing: 2
+                size_hint_y: None
+                height: 80
+                opacity: 1  
+                disabled: False
 
                 Image:
                     source: "assets/status_icon.png"
                     size_hint: None, None
-                    size: 48, 48
+                    size: 64, 64
                     fit_mode: 'contain'
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
+                    pos_hint: {'center_x': 0.5}
                 Button:
                     id: status_btn
                     text: "Status"
+                    font_size: "12sp"
+                    size_hint_y: None
+                    height: 20
+                    background_normal: ''
+                    background_color: [0, 0, 0, 0]
                     on_release: root.on_status_btn_click()
-                    font_size: "26sp"
 
-            # "Exit"
+            # Exit
             BoxLayout:
-                id: exit_layout
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: None if root.exit_hidden else 1
-                height: 0 if root.exit_hidden else self.height
-            
+                orientation: "vertical"
+                spacing: 2
+                size_hint_y: None
+                height: 80
+                opacity: 1  
+                disabled: False
+
                 Image:
                     source: "assets/exit_icon.png"
                     size_hint: None, None
-                    size: 48, 48
+                    size: 64, 64
                     fit_mode: 'contain'
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
+                    pos_hint: {'center_x': 0.5}
                 Button:
                     id: exit_btn
                     text: "Exit"
+                    font_size: "12sp"
+                    size_hint_y: None
+                    height: 20
+                    background_normal: ''
+                    background_color: [0, 0, 0, 0]
                     on_release: root.on_exit_btn_click()
-                    font_size: "26sp"

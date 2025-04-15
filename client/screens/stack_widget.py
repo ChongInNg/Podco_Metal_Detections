@@ -46,6 +46,11 @@ class StackWidget(Screen):
                     Logger.debug("Already handle, no need to handle in stackwidget")
                 else:
                     self.change_to_calibration_screen()
+            elif self.is_status():
+                if RoleManager.instance().is_admin():
+                    self.change_to_analyzer_screen()
+                else:
+                    self.change_to_calibration_screen() 
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_left_pressed()
@@ -58,14 +63,16 @@ class StackWidget(Screen):
                 if RoleManager.instance().is_admin():
                     self.change_to_analyzer_screen()
                 else:
-                    self.change_to_option_screen()
+                    self.change_to_status_screen()
             elif self.is_analyzer():
                 analyzer_screen = self.get_analyzer_screen()
                 is_handled = analyzer_screen.on_right_pressed()
                 if is_handled:
                     Logger.debug("Already handle, no need to handle in stackwidget")
                 else:
-                    self.change_to_option_screen()
+                    self.change_to_status_screen()
+            elif self.is_status():
+                self.change_to_option_screen()
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_right_pressed()
@@ -173,6 +180,9 @@ class StackWidget(Screen):
 
     def change_to_analyzer_screen(self):
         self.change_to_screen_name("analyzer")
+
+    def change_to_status_screen(self):
+        self.change_to_screen_name("status")
 
     def is_detection(self) -> bool:
         return self.current_screen == "detection"

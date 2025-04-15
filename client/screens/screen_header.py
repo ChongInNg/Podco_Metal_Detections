@@ -33,13 +33,8 @@ class ScreenHeader(BoxLayout):
         stack_widget.handle_direction("right")
     
     def update_btn_state(self):
-        if self.is_detection():
-            self.show_back = True
-            self.show_next = True
-        elif self.is_calibration():
-            self.show_back = True
-            self.show_next = True
-        elif self.is_analyzer():
+        if self.is_detection() or self.is_calibration() \
+            or self.is_analyzer() or self.is_status():
             self.show_back = True
             self.show_next = True
         else:
@@ -65,6 +60,9 @@ class ScreenHeader(BoxLayout):
     
     def is_option(self):
         return self.title == "Main Menu"
+    
+    def is_status(self):
+        return self.title == "Status"
     
     def update_server_status(self, on: bool):
         if on:
