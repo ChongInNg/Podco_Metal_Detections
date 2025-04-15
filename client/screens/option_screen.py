@@ -11,12 +11,21 @@ from log.logger import Logger
 class OptionScreen(Screen):
     title = StringProperty('Main Menu')
 
+    admin_button_ids = ["detection_btn", "calibration_btn", 
+                "analyzer_btn", "status_btn", "setting_btn", "exit_btn"]
+    
+    user_button_ids = ["detection_btn", "calibration_btn", "status_btn",
+                "setting_btn", "exit_btn"]
+    
     def __init__(self, **kwargs):
         super(OptionScreen, self).__init__(**kwargs)
+        self.button_ids = OptionScreen.user_button_ids
         self.build_ui()
 
     def build_ui(self):
         self.current_button = "detection_btn"
+        self.highlight_color = (0.196, 0.643, 0.808, 1)
+        self.default_backgroud_color = (0,0,0,0)
         main_layout = BoxLayout(
             orientation='vertical',
             spacing=2,
@@ -32,7 +41,7 @@ class OptionScreen(Screen):
             cols=2,
             rows=3,
             spacing=25,
-            padding=10,
+            padding=[10,25,10,10],
             size_hint_y=0.9
         )
         with self.grid_layout.canvas.before:
@@ -64,13 +73,32 @@ class OptionScreen(Screen):
         return self.title
     
     def reset_data(self):
-        pass
+        self.current_button = "detection_btn"
+        self.set_focus_button(self.current_button)
     
     def set_focus(self, is_up: bool):
-        pass
+        if is_up:
+            current_index = self.button_ids.index(self.current_button)
+            new_index = (current_index - 1) % len(self.button_ids)
+            self.current_button = self.button_ids[new_index]
+            self.set_focus_button(self.current_button)
+        else: #down
+            current_index = self.button_ids.index(self.current_button)
+            new_index = (current_index + 1) % len(self.button_ids)
+            self.current_button = self.button_ids[new_index]
+            self.set_focus_button(self.current_button)
     
     def clear_focus(self):
-        pass
+        for button_id in self.button_ids:
+            button = self.ids[button_id]
+            button.background_color = self.default_backgroud_color
+
+    def set_focus_button(self, focused_button_id):
+        # Reset all buttons to "normal" state
+        self.clear_focus()
+
+        focused_button = self.ids[focused_button_id]
+        focused_button.background_color = self.highlight_color
 
     def handle_on_enter(self):
         if self.current_button == "detection_btn":
@@ -180,7 +208,7 @@ class OptionScreen(Screen):
             text=text,
             font_size="12sp",
             size_hint_y=None,
-            height=20,
+            height=30,
             background_normal='',
             background_color=(0, 0, 0, 0)
         )
@@ -218,6 +246,8 @@ class OptionScreen(Screen):
         self.grid_layout.add_widget(self.setting_layout)
         self.grid_layout.add_widget(self.exit_layout)
 
+        self.reset_data()
+
     def update_ui_when_user_login(self):
         self.grid_layout.clear_widgets()
         self.grid_layout.add_widget(self.detection_layout)
@@ -225,3 +255,5 @@ class OptionScreen(Screen):
         self.grid_layout.add_widget(self.status_layout)
         self.grid_layout.add_widget(self.setting_layout)
         self.grid_layout.add_widget(self.exit_layout)
+        
+        self.reset_data()
