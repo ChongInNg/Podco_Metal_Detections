@@ -11,14 +11,16 @@ class OptionScreen(Screen):
     title = StringProperty('Main Menu')
     current_button = StringProperty('')
     analyzer_hidden = BooleanProperty(True)
-    exit_hidden = BooleanProperty(False)
+    exit_hidden = BooleanProperty(True)
+    status_hidden = BooleanProperty(False)
     detection_hidden = BooleanProperty(False)
+    calibration_hidden = BooleanProperty(False)
 
     admin_button_ids = ["detection_btn", "calibration_btn", 
-                "analyzer_btn", "setting_btn", "exit_btn"]
+                "analyzer_btn", "setting_btn", "status_btn", "exit_btn"]
     
     user_button_ids = ["detection_btn", "calibration_btn", 
-                "setting_btn", "exit_btn"]
+                "setting_btn","status_btn", "exit_btn"]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -27,6 +29,7 @@ class OptionScreen(Screen):
     def on_kv_post(self, base_widget):
         self.reset_data()
         self._hide_analyzer_option()
+        self._hide_exit_option()
  
     def reset_data(self):
         self.current_button = "detection_btn"
@@ -50,13 +53,27 @@ class OptionScreen(Screen):
         if RoleManager.instance().is_admin():
             if self.current_button == "detection_btn":
                 self._hide_exit_option()
+                self._hide_status_option()
+                self._show_detection_option()
+                self._show_calibration_option()
+                self._show_analyzer_option()
+            elif self.current_button == "status_btn":
+                self._hide_exit_option()
+                self._hide_detection_option()
+                self._show_status_option()
+                self._show_calibration_option()
+            elif self.current_button == "exit_btn":
+                self._show_exit_option()
+                self._show_status_option()
+                self._hide_detection_option()
+                self._hide_calibration_option()
+        else:
+            if self.current_button == "detection_btn":
+                self._hide_exit_option()
                 self._show_detection_option()
             elif self.current_button == "exit_btn":
                 self._show_exit_option()
                 self._hide_detection_option()
-        else:
-            self._show_exit_option()
-            self._show_detection_option()
                 
 
     def clear_focus(self):
@@ -80,6 +97,8 @@ class OptionScreen(Screen):
             self.on_analyzer_btn_click()
         elif self.current_button == "setting_btn":
             self.on_setting_btn_click()
+        elif self.current_button == "status_btn":
+            self.on_status_btn_click()
         elif self.current_button == "exit_btn":
             self.on_exit_btn_click()
         else:
@@ -103,7 +122,10 @@ class OptionScreen(Screen):
 
     def on_setting_btn_click(self):
         self.navigate_to_screen("setting")
-        
+
+    def on_status_btn_click(self):
+         self.navigate_to_screen("status")
+
     def on_exit_btn_click(self):
         App.get_running_app().switch_to_logo_screen()
         self._hide_analyzer_option()
@@ -133,15 +155,35 @@ class OptionScreen(Screen):
         self.exit_hidden = False
         self.ids.exit_layout.opacity = 1
 
+    def _hide_status_option(self):
+        self.status_hidden = True
+        self.ids.status_layout.opacity = 0
+
+    def _show_status_option(self):
+        self.status_hidden = False
+        self.ids.status_layout.opacity = 1
+
+    def _hide_calibration_option(self):
+        self.calibration_hidden = True
+        self.ids.calibration_layout.opacity = 0
+
+    def _show_calibration_option(self):
+        self.calibration_hidden = False
+        self.ids.calibration_layout.opacity = 1
+
     def update_ui_when_admin_login(self):
         self._show_analyzer_option()
         self._hide_exit_option()
+        self._hide_status_option()
         self._show_detection_option()
+        self._show_calibration_option()
         self.button_ids = OptionScreen.admin_button_ids
 
     def update_ui_when_user_login(self):
         self._hide_analyzer_option()
-        self._show_exit_option()
+        self._hide_exit_option()
         self._show_detection_option()
+        self._show_calibration_option()
+        self._show_status_option()
         self.button_ids = OptionScreen.user_button_ids
 

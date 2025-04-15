@@ -13,7 +13,7 @@
         BoxLayout:
             orientation: "vertical"
             spacing: 2
-            padding: [2, 2]
+            padding: [2, 25]
             canvas.before:
                 Color:
                     rgba: 0.15, 0.15, 0.2, 1
@@ -21,20 +21,7 @@
                     pos: self.pos
                     size: self.size
 
-            BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
-                Label:
-                    text: "Bypass Status:"
-                    font_size: "18sp"
-                    size_hint_x: 0.5
-                Label:
-                    id: bypass_status_label
-                    text: root.bypass_status_value
-                    font_size: "18sp"
-                    size_hint_x: 0.5
-
-            # Brightness Adjustment
+            # Brightness
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 5
@@ -106,7 +93,7 @@
             orientation: "horizontal"
             spacing: 5
             padding: [10, 5]
-            size_hint_y: 0.15
+            size_hint_y: 0.2
             Label:
                 text: "  "
                 size_hint_x: 1

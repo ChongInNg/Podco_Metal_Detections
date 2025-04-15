@@ -1,0 +1,77 @@
+<StatusScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 2
+        padding: 1
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.15, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 2
+            padding: [2, 25]
+            canvas.before:
+                Color:
+                    rgba: 0.15, 0.15, 0.2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 5
+                Label:
+                    text: "Bypass Status:"
+                    font_size: "18sp"
+                    size_hint_x: 0.5
+                Label:
+                    id: bypass_status_label
+                    text: root.bypass_status_value
+                    font_size: "18sp"
+                    size_hint_x: 0.5
+
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 5
+                Label:
+                    text: "Engine Hour:"
+                    font_size: "18sp"
+                    size_hint_x: 0.5
+                Label:
+                    id: engine_hour_label
+                    text: root.engine_hour_value
+                    font_size: "18sp"
+                    size_hint_x: 0.5
+
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 5
+                Label:
+                    text: "Voltage:"
+                    font_size: "18sp"
+                    size_hint_x: 0.5
+                Label:
+                    id: voltage_label
+                    text: root.voltage_value
+                    font_size: "18sp"
+                    size_hint_x: 0.5
+
+        # back_btn
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 5
+            padding: [10, 5]
+            size_hint_y: 0.2
+            Label:
+                text: "  "
+                size_hint_x: 1
+            Button:
+                id: back_btn
+                text: "Back"
+                font_size: "18sp"
+                size_hint_x: 0.5
+                on_release: root.on_back_btn_click()

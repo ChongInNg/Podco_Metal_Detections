@@ -4,7 +4,6 @@
         spacing: 1
         padding: [0, 0, 0, 0]  # Left, Top, Right, Bottom
 
-        # Header Section
         BoxLayout:
             orientation: 'horizontal'
             spacing: 1
@@ -49,7 +48,6 @@
                 text: '     '
                 font_size: '30sp'
 
-        # Data Section
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: 0.5
@@ -99,7 +97,6 @@
                     color: 0, 0, 0, 1  # Black text
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
-        # Grid Section
         GridLayout:
             cols: 3
             spacing: [5, 5]
@@ -112,7 +109,6 @@
                     pos: self.pos
                     size: self.size
 
-            # First row: Empty, CH1, CH2
             Label:
                 text: ""
                 size_hint_x: 0.2
@@ -133,7 +129,6 @@
                 color: 0.2, 0.6, 0.2, 1  # Green text
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
-            # Second row: P, value for CH1, value for CH2
             Label:
                 text: "P"
                 font_size: '30sp'
@@ -155,7 +150,6 @@
                 color: 0, 0, 0, 1  # Black text
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
-            # Third row: N, value for CH1, value for CH2
             Label:
                 text: "N"
                 font_size: '30sp'

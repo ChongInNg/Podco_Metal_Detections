@@ -39,9 +39,11 @@
 
             # "Calibrations"
             BoxLayout:
+                id: calibration_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: 1
+                size_hint_y: None if root.calibration_hidden else 1
+                height: 0 if root.calibration_hidden else self.height
 
                 Image:
                     source: "assets/calibration_icon.png"
@@ -94,6 +96,27 @@
                     id: setting_btn
                     text: "Settings"
                     on_release: root.on_setting_btn_click()
+                    font_size: "26sp"
+
+            # "Status"
+            BoxLayout:
+                id: status_layout
+                orientation: "horizontal"
+                spacing: 5
+                size_hint_y: None if root.status_hidden else 1
+                height: 0 if root.status_hidden else self.height
+
+                Image:
+                    source: "assets/status_icon.png"
+                    size_hint: None, None
+                    size: 48, 48
+                    fit_mode: 'contain'
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    id: status_btn
+                    text: "Status"
+                    on_release: root.on_status_btn_click()
                     font_size: "26sp"
 
             # "Exit"
