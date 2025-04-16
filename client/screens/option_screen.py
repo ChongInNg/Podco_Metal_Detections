@@ -12,7 +12,7 @@ class OptionScreen(Screen):
     current_button = StringProperty('')
     analyzer_hidden = BooleanProperty(True)
     exit_hidden = BooleanProperty(True)
-    status_hidden = BooleanProperty(False)
+    setting_hidden = BooleanProperty(False)
     detection_hidden = BooleanProperty(False)
     calibration_hidden = BooleanProperty(False)
 
@@ -53,18 +53,18 @@ class OptionScreen(Screen):
         if RoleManager.instance().is_admin():
             if self.current_button == "detection_btn":
                 self._hide_exit_option()
-                self._hide_status_option()
+                self._hide_setting_option()
                 self._show_detection_option()
                 self._show_calibration_option()
                 self._show_analyzer_option()
             elif self.current_button == "status_btn":
                 self._hide_exit_option()
                 self._hide_detection_option()
-                self._show_status_option()
+                self._show_setting_option()
                 self._show_calibration_option()
             elif self.current_button == "exit_btn":
                 self._show_exit_option()
-                self._show_status_option()
+                self._show_setting_option()
                 self._hide_detection_option()
                 self._hide_calibration_option()
         else:
@@ -155,13 +155,13 @@ class OptionScreen(Screen):
         self.exit_hidden = False
         self.ids.exit_layout.opacity = 1
 
-    def _hide_status_option(self):
-        self.status_hidden = True
-        self.ids.status_layout.opacity = 0
+    def _hide_setting_option(self):
+        self.setting_hidden = True
+        self.ids.setting_layout.opacity = 0
 
-    def _show_status_option(self):
-        self.status_hidden = False
-        self.ids.status_layout.opacity = 1
+    def _show_setting_option(self):
+        self.setting_hidden = False
+        self.ids.setting_layout.opacity = 1
 
     def _hide_calibration_option(self):
         self.calibration_hidden = True
@@ -174,7 +174,7 @@ class OptionScreen(Screen):
     def update_ui_when_admin_login(self):
         self._show_analyzer_option()
         self._hide_exit_option()
-        self._hide_status_option()
+        self._hide_setting_option()
         self._show_detection_option()
         self._show_calibration_option()
         self.button_ids = OptionScreen.admin_button_ids
@@ -182,8 +182,9 @@ class OptionScreen(Screen):
     def update_ui_when_user_login(self):
         self._hide_analyzer_option()
         self._hide_exit_option()
+
         self._show_detection_option()
         self._show_calibration_option()
-        self._show_status_option()
+        self._show_setting_option()
         self.button_ids = OptionScreen.user_button_ids
 

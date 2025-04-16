@@ -81,11 +81,9 @@
 
             # "Status"
             BoxLayout:
-                id: status_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: None if root.status_hidden else 1
-                height: 0 if root.status_hidden else self.height
+                size_hint_y: 1
 
                 Image:
                     source: "assets/status_icon.png"
@@ -102,9 +100,11 @@
                     
             # "Settings"
             BoxLayout:
+                id: setting_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: 1
+                size_hint_y: None if root.setting_hidden else 1
+                height: 0 if root.setting_hidden else self.height
 
                 Image:
                     source: "assets/setting_icon.png"
