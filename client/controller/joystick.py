@@ -75,7 +75,7 @@ class JoyStick:
             
             if self.check_press_up_down():
                 Logger.debug(f"Press up down in the same time over {self.keep_pressing_seconds} seconds.")
-                self.callback("left_right")
+                self.callback("up_down")
                 time.sleep(0.3)
                 continue
 
