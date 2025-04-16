@@ -22,6 +22,7 @@ MessageName_NotifyRawData = "notify_raw_data"
 MessageName_NotifyThresholdAdjusted = "notify_threshold_adjusted"
 MessageName_NotifyCalibration_Failed = "notify_calibration_failed"
 MessageName_NotifyEngineHour = "notify_engine_hour"
+MessageName_NotifyVoltage = "notify_voltage"
 
 class Header:
     def __init__(self, name: str, message_type: str, id: str=None, ts: str = None):
@@ -86,6 +87,9 @@ class Header:
     def is_notify_engine_hour_message(self):
         return self.name == MessageName_NotifyEngineHour
     
+    def is_notify_voltage_message(self):
+        return self.name == MessageName_NotifyVoltage
+    
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
         name = data.get("name")
@@ -106,6 +110,7 @@ class Header:
             MessageName_NotifyCalibration, MessageName_NotifyDetection,
             MessageName_NotifyRawData, MessageName_NotifyThresholdAdjusted,
             MessageName_NotifyEngineHour,
+            MessageName_NotifyVoltage,
             MessageName_GetLastNDetections,
             MessageName_SetDefaultCalibration,
             MessageName_SetThreshold,
@@ -186,6 +191,8 @@ class BaseWsMessage:
             return NotifyCalibrationFailedMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_engine_hour_message():
             return NotifyEngineHourMessage.from_dict(header=header, data=msg_data)
+        elif header.is_notify_voltage_message():
+            return NotifyVoltageMessage.from_dict(header=header, data=msg_data)
         else:
             raise ValueError(f"Message name is wrong. {header.to_dict()}")
         
@@ -496,7 +503,8 @@ class CalibrationData:
             pos_threshold1: int, neg_threshold1: int, pos_threshold2: int,
             neg_threshold2: int, mid_ch1: int, mid_ch2: int,
             area_threshold: int, t_value: float, d_value: int,
-            current_threshold: int, current_bypass: int, engine_hour: str,
+            current_threshold: int, current_bypass: int, 
+            engine_hour: str, voltage: str,
             is_calibration_failed: bool, calibration_failed_reason: int
         ):
 
@@ -512,6 +520,7 @@ class CalibrationData:
         self.current_threshold = current_threshold
         self.current_bypass = current_bypass
         self.engine_hour = engine_hour
+        self.voltage = voltage
         self.is_calibration_failed = is_calibration_failed
         self.calibration_failed_reason = calibration_failed_reason
 
@@ -529,6 +538,7 @@ class CalibrationData:
             "current_threshold": self.current_threshold,
             "current_bypass": self.current_bypass,
             "engine_hour": self.engine_hour,
+            "voltage": self.voltage,
             "is_calibration_failed": self.is_calibration_failed,
             "calibration_failed_reason": self.calibration_failed_reason
         }
@@ -548,6 +558,7 @@ class CalibrationData:
             current_threshold=data.get("current_threshold"),
             current_bypass=data.get("current_bypass"),
             engine_hour=data.get("engine_hour"),
+            voltage=data.get("voltage"),
             is_calibration_failed=data.get("is_calibration_failed"),
             calibration_failed_reason=data.get("calibration_failed_reason")
         )
@@ -932,6 +943,37 @@ class NotifyEngineHourMessage(BaseWsNotify):
         return cls(
             header, 
             engine_hour=engine_hour,
+        )
+
+class NotifyVoltageMessage(BaseWsNotify):
+    def __init__(self ,header: Header, voltage: str):
+        super().__init__(header=header)
+        self.voltage = voltage
+    
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "voltage": self.voltage
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'NotifyVoltageMessage':
+        voltage = data.get("voltage")
+        return cls(
+            header=header,
+            voltage=voltage
+        )
+    
+    @classmethod
+    def create_message(cls, voltage: str) -> 'NotifyVoltageMessage':
+        if voltage is None or not isinstance(voltage, str):
+            raise ValueError(f"voltage is not valid: {voltage}")
+        
+        header = Header(name=MessageName_NotifyVoltage, message_type=MessageType_Notify)
+        return cls(
+            header, 
+            voltage=voltage,
         )
 
 class NotifyCalibrationFailedMessage(BaseWsNotify):

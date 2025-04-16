@@ -30,7 +30,8 @@ if __name__ == "__main__":
         exit(100)
     while True:
         command_mapping = {i + 1: command["name"] for i, command in enumerate(processor.commands)}
-        command_mapping[9] = "raw data stress test"
+        cmd_len = len(command_mapping.items())
+        command_mapping[cmd_len + 1] = "raw data stress test"
         print("\nAvailable commands:")
         for number, name in command_mapping.items():
             print(f" {number}. {name}")
@@ -46,7 +47,7 @@ if __name__ == "__main__":
             if choice == 0:
                 Logger.info("Exiting the program.")
                 break
-            elif choice == 9:
+            elif choice == len(command_mapping.items()):
                 count = 0
                 while True:
                     raw_data_command = processor.encode_raw_data_command()

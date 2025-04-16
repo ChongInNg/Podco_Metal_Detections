@@ -7,6 +7,7 @@ from commands.base_command import BaseCommand
 from commands.set_threshold_command_resp import SetThresholdCommandResp
 from commands.set_default_calibration_command_resp import SetDefaultCalibrationCommandResp
 from commands.calibration_failed_command import CalibrationFailedCommand
+from commands.voltage_command import VoltageCommand
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
@@ -29,6 +30,7 @@ class CommandHandler:
         0x0B: SetThresholdCommandResp,
         0xB0: SetDefaultCalibrationCommandResp,
         0xC0: CalibrationFailedCommand,
+        0x0D: VoltageCommand,
     }
 
     def __init__(self):
@@ -103,6 +105,9 @@ class CommandHandler:
         elif isinstance(command, CalibrationFailedCommand):
             LogManager.instance().set_calibration_failed_reason(command.reason)
             return NotifyCalibrationFailedMessage.create_message(reason=command.reason)
+        elif isinstance(command, VoltageCommand):
+            LogManager.instance().set_current_voltage(command.voltage)
+            return NotifyVoltageMessage.create_message(voltage=str(LogManager.instance().get_current_voltage()))
         else:
             raise ValueError(f"Unknown command: {command.name}")
         

@@ -62,6 +62,9 @@ class LogManager:
 
     def get_current_engine_time(self)->float:
         return round(self.global_log.global_data.total_run_minutes / 60, 1)
+    
+    def get_current_voltage(self)->float:
+        return self.global_log.global_data.current_voltage
 
     def get_current_calibration_data(self)->CalibrationLogData:
         return self.calibration_log.get_current_calibration()
@@ -78,6 +81,9 @@ class LogManager:
     
     def set_current_threshold(self, threshold: int):
         self.global_log.global_data.current_threshold = threshold
+
+    def set_current_voltage(self, voltage: int):
+        self.global_log.global_data.update_voltage(voltage)
 
     def set_current_bypass(self, bypass: int):
         self.current_pass = bypass

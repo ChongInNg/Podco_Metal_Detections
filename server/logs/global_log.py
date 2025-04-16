@@ -61,12 +61,18 @@ class SessionLogHistory:
             self.sessions.append(session_log)
 
 class GlobalLogData:
+    R1 = 91000
+    R2 = 22000
+    MAX_VOLTAGE = 4.096
+    MAX_VALUE = 1024
+
     def __init__(self):
         self.total_run_minutes = 0
         self.orig_total_run_minutes = 0
         self.log_file_count = 0
         self.max_file_size = 1024 * 1024 * 100
         self.current_threshold = 1000
+        self.current_voltage:float = 0.0
         self.session_histories = SessionLogHistory()
         self.current_session = SessionLog()
 
@@ -74,6 +80,7 @@ class GlobalLogData:
         return {
             "total_run_minutes": self.total_run_minutes,
             "current_threshold": self.current_threshold,
+            "current_voltage": self.current_voltage,
             "current_session": self.current_session.to_dict(),
             "session_histories": self.session_histories.to_dict(),
         }
@@ -81,6 +88,12 @@ class GlobalLogData:
     def update_run_time(self):
         self.current_session.update_run_time()
         self.total_run_minutes = self.orig_total_run_minutes + self.current_session.get_total_run_minutes()
+
+    def update_voltage(self, voltage_value: int):
+        map_vol = (GlobalLogData.MAX_VOLTAGE * voltage_value) / GlobalLogData.MAX_VALUE
+        resister_ratio = (GlobalLogData.R1 + GlobalLogData.R2) / GlobalLogData.R2
+        self.current_voltage = round(map_vol * resister_ratio, 2)
+        Logger.debug(f"Update current voltage successful, value: {voltage_value}, current: {self.current_voltage}")
 
     def init_data(self):
         self.current_session.init_data()
@@ -91,6 +104,8 @@ class GlobalLogData:
         self.log_file_count = ConfigManager.instance().back_log_count
         self.max_file_size = ConfigManager.instance().back_log_size
         self.current_threshold = data.get("current_threshold")
+        self.current_voltage = data.get("current_voltage", 0)
+
         self.current_session.parse_data(data.get("current_session"))
         self.session_histories.parse_data(data.get("session_histories"))
 
