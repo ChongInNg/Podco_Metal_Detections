@@ -152,6 +152,7 @@ class Connection:
         cl_dict.update({
             "current_threshold": LogManager.instance().get_current_threshold(),
             "current_bypass": LogManager.instance().get_current_bypass(),
+            "engine_hour": str(LogManager.instance().get_current_engine_time()),
             "is_calibration_failed": LogManager.instance().is_calibration_failed(),
             "calibration_failed_reason": LogManager.instance().get_calibration_failed_reason()
         })

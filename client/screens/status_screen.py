@@ -28,12 +28,6 @@ class StatusScreen(Screen):
 
     def get_title(self):
         return self.title
-    
-    def on_back_btn_click(self):
-        self.reset_data()
-        app = App.get_running_app()
-        stack_widget = app.root.get_screen("main").ids.stack_widget
-        stack_widget.change_to_screen_name("option")
         
     def update_bypass(self, value: int):
         if value == 1:
@@ -42,11 +36,11 @@ class StatusScreen(Screen):
             self.bypass_status_value = "OFF"
         Logger.debug(f"Update bypass successfully, val: {value}, {self.bypass_status_value}")
 
-    def handle_on_enter(self):
-        pass
+    def update_engine_hour(self, engine_hour: str):
+        self.engine_hour_value = engine_hour
+        Logger.debug(f"Update engine hour successfully, val: {engine_hour}")
 
-    def clear_focus(self):
-        pass
+    def update_voltage(self, voltage: str):
+        self.voltage_value = voltage
+        Logger.debug(f"Update engine hour successfully, val: {voltage}")
 
-    def handle_on_enter(self):
-        pass

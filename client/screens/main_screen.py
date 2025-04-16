@@ -56,6 +56,8 @@ class MainScreen(Screen):
                 self._get_calibration_response(msg)
             elif isinstance(msg, NotifyCalibrationFailedMessage):
                 self._handle_calibration_failed(msg)
+            elif isinstance(msg, NotifyEngineHourMessage):
+                self._handle_engine_hour(msg)
             else:
                 Logger.error(f"Cannot handle this message: {msg}")
         except Exception as ex:
@@ -158,11 +160,12 @@ class MainScreen(Screen):
         )
         current_threshold = msg.calibration_data.current_threshold
         current_bypass = msg.calibration_data.current_bypass
+        engine_hour = msg.calibration_data.engine_hour
         is_calibration_failed = msg.calibration_data.is_calibration_failed
         calibration_failed_reason = msg.calibration_data.calibration_failed_reason
         analyzer_screen = self.get_stack_widget().get_analyzer_screen()
         Clock.schedule_once(lambda dt: self._handle_calibraion_response(
-            current_threshold, current_bypass,
+            current_threshold, current_bypass, engine_hour,
             is_calibration_failed, calibration_failed_reason,
         ))
 
@@ -170,14 +173,18 @@ class MainScreen(Screen):
         Clock.schedule_once(lambda dt: self.get_stack_widget().show_calibration_failed_popup(msg.reason))
         Logger.debug(f"_handle_calibration_failed success. reason: {msg.reason}")
 
-    def _handle_calibraion_response(self, current_threshold: int, current_bypass: int,
+    def _handle_calibraion_response(self, current_threshold: int, current_bypass: int, engine_hour: str,
             is_calibration_failed: bool, calibration_failed_reason: int):
         analyzer_screen = self.get_stack_widget().get_analyzer_screen()
         analyzer_screen.update_threshold(current_threshold)
         analyzer_screen.update_bypass(current_bypass)
         status_screen = self.get_stack_widget().get_status_screen()
         status_screen.update_bypass(current_bypass)
+        status_screen.update_engine_hour(engine_hour)
 
         if is_calibration_failed:
             self.get_stack_widget().show_calibration_failed_popup(calibration_failed_reason)
 
+    def _handle_engine_hour(self, msg: NotifyEngineHourMessage):
+        status_screen = self.get_stack_widget().get_status_screen()
+        Clock.schedule_once(lambda dt: status_screen.update_engine_hour(engine_hour=msg.engine_hour))

@@ -3,6 +3,11 @@ from .base_log import BaseLog
 from log.logger import Logger
 from config.config import ConfigManager
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from share.wsmessage import *
+
 class SessionLog:
     def __init__(self):
         self.started_at:datetime = None
@@ -101,6 +106,11 @@ class GlobalLog(BaseLog):
     def update_global_log(self):
         self.global_data.update_run_time()
         self._write_json(self.global_data.to_dict())
+
+        from websocket.connection_manager import ConnectionManager
+        engine_hour = str(round(self.global_data.total_run_minutes / 60, 1))
+        message = NotifyEngineHourMessage.create_message(engine_hour=engine_hour)
+        ConnectionManager.instance().put_message_to_queue(message=message)
         Logger.info("Global log updated.")
 
     def _init_data(self):

@@ -21,6 +21,7 @@ MessageName_NotifyDetection = "notify_detection"
 MessageName_NotifyRawData = "notify_raw_data"
 MessageName_NotifyThresholdAdjusted = "notify_threshold_adjusted"
 MessageName_NotifyCalibration_Failed = "notify_calibration_failed"
+MessageName_NotifyEngineHour = "notify_engine_hour"
 
 class Header:
     def __init__(self, name: str, message_type: str, id: str=None, ts: str = None):
@@ -82,6 +83,9 @@ class Header:
     def is_notify_calibration_failed_message(self):
         return self.name == MessageName_NotifyCalibration_Failed
 
+    def is_notify_engine_hour_message(self):
+        return self.name == MessageName_NotifyEngineHour
+    
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
         name = data.get("name")
@@ -101,6 +105,7 @@ class Header:
             MessageName_Registration, MessageName_NotifyByPass,
             MessageName_NotifyCalibration, MessageName_NotifyDetection,
             MessageName_NotifyRawData, MessageName_NotifyThresholdAdjusted,
+            MessageName_NotifyEngineHour,
             MessageName_GetLastNDetections,
             MessageName_SetDefaultCalibration,
             MessageName_SetThreshold,
@@ -179,6 +184,8 @@ class BaseWsMessage:
             return NotifyThresholdAdjustedMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_calibration_failed_message():
             return NotifyCalibrationFailedMessage.from_dict(header=header, data=msg_data)
+        elif header.is_notify_engine_hour_message():
+            return NotifyEngineHourMessage.from_dict(header=header, data=msg_data)
         else:
             raise ValueError(f"Message name is wrong. {header.to_dict()}")
         
@@ -489,7 +496,7 @@ class CalibrationData:
             pos_threshold1: int, neg_threshold1: int, pos_threshold2: int,
             neg_threshold2: int, mid_ch1: int, mid_ch2: int,
             area_threshold: int, t_value: float, d_value: int,
-            current_threshold: int, current_bypass: int,
+            current_threshold: int, current_bypass: int, engine_hour: str,
             is_calibration_failed: bool, calibration_failed_reason: int
         ):
 
@@ -504,6 +511,7 @@ class CalibrationData:
         self.d_value = d_value
         self.current_threshold = current_threshold
         self.current_bypass = current_bypass
+        self.engine_hour = engine_hour
         self.is_calibration_failed = is_calibration_failed
         self.calibration_failed_reason = calibration_failed_reason
 
@@ -520,6 +528,7 @@ class CalibrationData:
             "d_value": self.d_value,
             "current_threshold": self.current_threshold,
             "current_bypass": self.current_bypass,
+            "engine_hour": self.engine_hour,
             "is_calibration_failed": self.is_calibration_failed,
             "calibration_failed_reason": self.calibration_failed_reason
         }
@@ -538,6 +547,7 @@ class CalibrationData:
             d_value=data.get("d_value"),
             current_threshold=data.get("current_threshold"),
             current_bypass=data.get("current_bypass"),
+            engine_hour=data.get("engine_hour"),
             is_calibration_failed=data.get("is_calibration_failed"),
             calibration_failed_reason=data.get("calibration_failed_reason")
         )
@@ -891,6 +901,37 @@ class NotifyThresholdAdjustedMessage(BaseWsNotify):
         return cls(
             header, 
             area_threshold=area_threshold,
+        )
+
+class NotifyEngineHourMessage(BaseWsNotify):
+    def __init__(self ,header: Header, engine_hour: str):
+        super().__init__(header=header)
+        self.engine_hour = engine_hour
+    
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "engine_hour": self.engine_hour
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'NotifyEngineHourMessage':
+        engine_hour = data.get("engine_hour")
+        return cls(
+            header=header,
+            engine_hour=engine_hour
+        )
+    
+    @classmethod
+    def create_message(cls, engine_hour: str) -> 'NotifyEngineHourMessage':
+        if engine_hour is None or not isinstance(engine_hour, str):
+            raise ValueError("engine_hour is not valid")
+        
+        header = Header(name=MessageName_NotifyEngineHour, message_type=MessageType_Notify)
+        return cls(
+            header, 
+            engine_hour=engine_hour,
         )
 
 class NotifyCalibrationFailedMessage(BaseWsNotify):
