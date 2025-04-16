@@ -59,19 +59,3 @@
                     text: root.voltage_value
                     font_size: "18sp"
                     size_hint_x: 0.5
-
-        # back_btn
-        BoxLayout:
-            orientation: "horizontal"
-            spacing: 5
-            padding: [10, 5]
-            size_hint_y: 0.2
-            Label:
-                text: "  "
-                size_hint_x: 1
-            Button:
-                id: back_btn
-                text: "Back"
-                font_size: "18sp"
-                size_hint_x: 0.5
-                on_release: root.on_back_btn_click()

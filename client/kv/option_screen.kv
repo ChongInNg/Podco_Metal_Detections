@@ -79,25 +79,6 @@
                     on_release: root.on_analyzer_btn_click()
                     font_size: "26sp"
 
-            # "Settings"
-            BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: 1
-
-                Image:
-                    source: "assets/setting_icon.png"
-                    size_hint: None, None
-                    size: 48, 48
-                    fit_mode: 'contain'
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
-                Button:
-                    id: setting_btn
-                    text: "Settings"
-                    on_release: root.on_setting_btn_click()
-                    font_size: "26sp"
-
             # "Status"
             BoxLayout:
                 id: status_layout
@@ -117,6 +98,25 @@
                     id: status_btn
                     text: "Status"
                     on_release: root.on_status_btn_click()
+                    font_size: "26sp"
+                    
+            # "Settings"
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 5
+                size_hint_y: 1
+
+                Image:
+                    source: "assets/setting_icon.png"
+                    size_hint: None, None
+                    size: 48, 48
+                    fit_mode: 'contain'
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    id: setting_btn
+                    text: "Settings"
+                    on_release: root.on_setting_btn_click()
                     font_size: "26sp"
 
             # "Exit"

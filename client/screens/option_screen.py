@@ -17,10 +17,10 @@ class OptionScreen(Screen):
     calibration_hidden = BooleanProperty(False)
 
     admin_button_ids = ["detection_btn", "calibration_btn", 
-                "analyzer_btn", "setting_btn", "status_btn", "exit_btn"]
+                "analyzer_btn", "status_btn", "setting_btn", "exit_btn"]
     
-    user_button_ids = ["detection_btn", "calibration_btn", 
-                "setting_btn","status_btn", "exit_btn"]
+    user_button_ids = ["detection_btn", "calibration_btn",  "status_btn",
+                "setting_btn", "exit_btn"]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
