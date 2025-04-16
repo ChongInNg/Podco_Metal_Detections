@@ -24,8 +24,6 @@ Builder.load_file("kv/setting_screen.kv")
 class SettingScreen(Screen):
     title = StringProperty('Settings')
     brightness = NumericProperty(0)
-    bypass_status = NumericProperty(0)
-    bypass_status_value = StringProperty("OFF")
     log_hidden = BooleanProperty(True)
     admin_component_ids = [
         ("brightness_slider", "slider"),
@@ -91,14 +89,6 @@ class SettingScreen(Screen):
         stack_widget = app.root.get_screen("main").ids.stack_widget
         stack_widget.change_to_screen_name("option")
         
-    def update_bypass(self, value: int):
-        self.bypass = value
-        if self.bypass == 1:
-            self.bypass_status_value = "ON"
-        else:
-            self.bypass_status_value = "OFF"
-        Logger.debug(f"Update bypass successfully, val: {self.bypass}, {self.bypass_status_value}")
-
     def update_reset_factory_status(self, success: bool):
         self.response_received = True
         self.loading_screen_for = ""

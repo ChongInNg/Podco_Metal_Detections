@@ -109,7 +109,7 @@ class MainScreen(Screen):
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_analyzer_screen().update_threshold(msg.area_threshold))
     
     def _handle_bypass_data(self, msg: NotifyByPassMessage) -> None:
-        Clock.schedule_once(lambda dt: self.get_stack_widget().get_setting_screen().update_bypass(msg.bypass))
+        Clock.schedule_once(lambda dt: self.get_stack_widget().get_status_screen().update_bypass(msg.bypass))
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_analyzer_screen().update_bypass(msg.bypass))
 
     def _handle_registration_response(self, msg: RegistrationWsResponse) -> None:
@@ -175,8 +175,8 @@ class MainScreen(Screen):
         analyzer_screen = self.get_stack_widget().get_analyzer_screen()
         analyzer_screen.update_threshold(current_threshold)
         analyzer_screen.update_bypass(current_bypass)
-        setting_screen = self.get_stack_widget().get_setting_screen()
-        setting_screen.update_bypass(current_bypass)
+        status_screen = self.get_stack_widget().get_status_screen()
+        status_screen.update_bypass(current_bypass)
 
         if is_calibration_failed:
             self.get_stack_widget().show_calibration_failed_popup(calibration_failed_reason)
