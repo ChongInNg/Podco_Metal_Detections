@@ -61,10 +61,11 @@ class SessionLogHistory:
             self.sessions.append(session_log)
 
 class GlobalLogData:
-    R1 = 91000
-    R2 = 22000
+    R1 = 100000
+    R2 = 24000
     MAX_VOLTAGE = 4.096
     MAX_VALUE = 1024
+    VOLTAGE_DROP = 0.542
 
     def __init__(self):
         self.total_run_minutes = 0
@@ -92,7 +93,7 @@ class GlobalLogData:
     def update_voltage(self, voltage_value: int):
         map_vol = (GlobalLogData.MAX_VOLTAGE * voltage_value) / GlobalLogData.MAX_VALUE
         resister_ratio = (GlobalLogData.R1 + GlobalLogData.R2) / GlobalLogData.R2
-        self.current_voltage = round(map_vol * resister_ratio, 2)
+        self.current_voltage = round(map_vol * resister_ratio + GlobalLogData.VOLTAGE_DROP, 2)
         Logger.debug(f"Update current voltage successful, value: {voltage_value}, current: {self.current_voltage}")
 
     def init_data(self):

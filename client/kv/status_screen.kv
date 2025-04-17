@@ -10,10 +10,11 @@
                 pos: self.pos
                 size: self.size
 
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 2
-            padding: [2, 25]
+        GridLayout:
+            cols: 2
+            rows: 3
+            spacing: 5
+            padding: [10, 10]
             canvas.before:
                 Color:
                     rgba: 0.15, 0.15, 0.2, 1
@@ -21,41 +22,40 @@
                     pos: self.pos
                     size: self.size
 
-            BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
-                Label:
-                    text: "Bypass Status:"
-                    font_size: "18sp"
-                    size_hint_x: 0.5
-                Label:
-                    id: bypass_status_label
-                    text: root.bypass_status_value
-                    font_size: "18sp"
-                    size_hint_x: 0.5
+            Label:
+                text: "Bypass Status:"
+                font_size: "18sp"
+                size_hint_x: 0.6
+            Label:
+                id: bypass_status_label
+                text: root.bypass_status_value
+                font_size: "18sp"
+                size_hint_x: 0.4
+
+            Label:
+                text: "Engine Hour:  "
+                font_size: "18sp"
+                size_hint_x: 0.5
+            Label:
+                id: engine_hour_label
+                text: root.engine_hour_value
+                font_size: "18sp"
+                size_hint_x: 0.4
 
             BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
-                Label:
-                    text: "Engine Hour:"
-                    font_size: "18sp"
-                    size_hint_x: 0.5
-                Label:
-                    id: engine_hour_label
-                    text: root.engine_hour_value
-                    font_size: "18sp"
-                    size_hint_x: 0.5
-
-            BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
+                orientation: "vertical"
+                spacing: 0
+                size_hint_x: 0.6
                 Label:
                     text: "Voltage:"
                     font_size: "18sp"
-                    size_hint_x: 0.5
+                    size_hint_x: 0.7
                 Label:
-                    id: voltage_label
-                    text: root.voltage_value
-                    font_size: "18sp"
-                    size_hint_x: 0.5
+                    text: "toggle bypass to refresh"
+                    font_size: "10sp"
+                    size_hint_x: 1
+            Label:
+                id: voltage_label
+                text: root.voltage_value
+                font_size: "18sp"
+                size_hint_x: 0.4

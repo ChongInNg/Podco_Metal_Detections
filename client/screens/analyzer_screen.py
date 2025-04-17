@@ -136,7 +136,7 @@ class AnalyzerScreen(Screen):
         self.pause_img = Image(
             source="assets/pause_icon.png",
             size_hint=(None, None),
-            size=(48, 30),
+            size=(40, 28),
             allow_stretch=True,
             keep_ratio=True,
             pos_hint={"center_y": 0.5}
@@ -146,7 +146,7 @@ class AnalyzerScreen(Screen):
         legend_layout = BoxLayout(
             orientation="horizontal",
             size_hint_y=0.1,
-            padding=[10, 5],
+            padding=[5,1,5,5],
             spacing=5
         )
         legend_layout.add_widget(self.bp_button)
@@ -373,7 +373,7 @@ class AnalyzerScreen(Screen):
         self.pause_img.size_hint = (None, None)
 
     def show_pause_image(self):
-        self.pause_img.size = (48, 30)
+        self.pause_img.size = (40, 28)
         self.pause_img.size_hint = (None, None)
 
     def enable_bypass(self) -> bool:
