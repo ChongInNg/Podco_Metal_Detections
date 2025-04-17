@@ -34,6 +34,7 @@ class OptionScreen(Screen):
     def reset_data(self):
         self.current_button = "detection_btn"
         self.set_focus_button(self.current_button)
+        self.reset_ui_visiblities()
 
     def get_title(self):
         return self.title
@@ -50,6 +51,10 @@ class OptionScreen(Screen):
             self.current_button = self.button_ids[new_index]
             self.set_focus_button(self.current_button)
 
+        self.reset_ui_visiblities()
+                
+    
+    def reset_ui_visiblities(self):
         if RoleManager.instance().is_admin():
             if self.current_button == "detection_btn":
                 self._hide_exit_option()
@@ -74,7 +79,6 @@ class OptionScreen(Screen):
             elif self.current_button == "exit_btn":
                 self._show_exit_option()
                 self._hide_detection_option()
-                
 
     def clear_focus(self):
         for button_id in self.button_ids:

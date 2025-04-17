@@ -121,9 +121,6 @@ class StackWidget(Screen):
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.handle_on_enter()
-            elif self.is_status():
-                status_screen = self.get_status_screen()
-                status_screen.handle_on_enter()
             else:
                 Logger.debug(f"Not support center direction in this screen: {self.current_screen}")
         elif direction == "up_down":
