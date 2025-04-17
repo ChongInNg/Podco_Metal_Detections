@@ -58,7 +58,7 @@ class JoyStick:
             start_time = time.time()
             while (GPIO.input(self.JOYSTICK_PINS["UP"]) == GPIO.LOW and 
                    GPIO.input(self.JOYSTICK_PINS["DOWN"]) == GPIO.LOW):
-                if time.time() - start_time >= self.keep_pressing_seconds:
+                if time.time() - start_time >= 1:
                     return True
                 time.sleep(0.01)
             return False
@@ -70,13 +70,13 @@ class JoyStick:
             if self.check_press_left_right():
                 Logger.debug(f"Press left right in the same time over {self.keep_pressing_seconds} seconds.")
                 self.callback("left_right")
-                time.sleep(0.3)
+                time.sleep(0.1)
                 continue
             
             if self.check_press_up_down():
                 Logger.debug(f"Press up down in the same time over {self.keep_pressing_seconds} seconds.")
                 self.callback("up_down")
-                time.sleep(0.3)
+                time.sleep(0.1)
                 continue
 
             direction = ""
@@ -93,7 +93,7 @@ class JoyStick:
 
             if len(direction) > 0:
                 self.callback(direction)
-                time.sleep(0.3)
+                time.sleep(0.1)
 
             time.sleep(0.01)
 
