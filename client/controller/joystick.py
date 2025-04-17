@@ -70,13 +70,13 @@ class JoyStick:
             if self.check_press_left_right():
                 Logger.debug(f"Press left right in the same time over {self.keep_pressing_seconds} seconds.")
                 self.callback("left_right")
-                time.sleep(0.1)
+                time.sleep(0.3)
                 continue
             
             if self.check_press_up_down():
                 Logger.debug(f"Press up down in the same time over {self.keep_pressing_seconds} seconds.")
                 self.callback("up_down")
-                time.sleep(0.1)
+                time.sleep(0.3)
                 continue
 
             direction = ""
@@ -93,7 +93,7 @@ class JoyStick:
 
             if len(direction) > 0:
                 self.callback(direction)
-                time.sleep(0.1)
+                time.sleep(0.3)
 
             time.sleep(0.01)
 
