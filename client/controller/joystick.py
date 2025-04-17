@@ -58,7 +58,7 @@ class JoyStick:
             start_time = time.time()
             while (GPIO.input(self.JOYSTICK_PINS["UP"]) == GPIO.LOW and 
                    GPIO.input(self.JOYSTICK_PINS["DOWN"]) == GPIO.LOW):
-                if time.time() - start_time >= 1:
+                if time.time() - start_time >= self.keep_pressing_seconds:
                     return True
                 time.sleep(0.01)
             return False
