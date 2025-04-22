@@ -25,37 +25,44 @@
             Label:
                 text: "Bypass Status:"
                 font_size: "20sp"
-                size_hint_x: 0.6
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 id: bypass_status_label
                 text: root.bypass_status_value
                 font_size: "20sp"
-                size_hint_x: 0.4
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
             Label:
                 text: "Engine Hour:  "
                 font_size: "20sp"
                 size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 id: engine_hour_label
                 text: root.engine_hour_value
                 font_size: "20sp"
-                size_hint_x: 0.4
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
             BoxLayout:
                 orientation: "vertical"
                 spacing: 0
-                size_hint_x: 0.6
+                size_hint_x: 0.5
                 Label:
                     text: "Voltage:"
                     font_size: "20sp"
-                    size_hint_x: 0.7
+                    size_hint_x: 0.5
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 Label:
                     text: "toggle bypass to refresh"
                     font_size: "14sp"
-                    size_hint_x: 1
+                    size_hint_x: 0.5
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             Label:
                 id: voltage_label
                 text: root.voltage_value
                 font_size: "20sp"
-                size_hint_x: 0.4
+                size_hint_x: 0.5
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
