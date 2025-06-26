@@ -79,11 +79,15 @@ class AnalyzerScreen(Screen):
             y_grid_label=True,
             x_grid_label=False,
             xmin=0,
-            xmax=10,  
+            xmax=10,
             ymin=0,
-            ymax=3000, 
-            padding=1,
-            label_options={"color": [1, 1, 1, 1], "bold": True}
+            ymax=3000,
+            padding=1, 
+            label_options={
+                "color": [1, 1, 1, 1],
+                "bold": True,
+            },
+            tick_color=[1, 1, 1, 1],
         )
 
         self.ch1_p_plot = LinePlot(color=[0, 1, 0, 1])
