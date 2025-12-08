@@ -6,6 +6,7 @@ from kivy.clock import Clock
 from screens.loading_screen import LoadingScreen
 from screens.common_popup import CommonPopup
 from screens.confirmation_popup import ConfirmationPopup
+from screens.button_test_page import ButtonTestPage
 from config.config import ConfigManager
 from controller.device_detector import DeviceDetector
 from controller.file_operation import FileOperation
@@ -23,6 +24,7 @@ Builder.load_file("kv/setting_screen.kv")
 
 class SettingScreen(Screen):
     title = StringProperty('Settings')
+    current_page = StringProperty('settings_main')
     brightness = NumericProperty(0)
     log_hidden = BooleanProperty(True)
     test_button_hidden = BooleanProperty(True)
@@ -123,7 +125,8 @@ class SettingScreen(Screen):
         Logger.debug("Copy log successfully.")
 
     def on_button_test_click(self):
-        print("on_button_test_click")
+        Logger.info("Button test clicked - switching to button test page")
+        self.switch_to_button_test()
 
     def on_reset_factory_click(self):
         self.reset_popup.handle_open()
@@ -188,6 +191,11 @@ class SettingScreen(Screen):
         self.current_component_id = component_id
 
     def handle_on_enter(self):
+        if self.is_button_test_page():
+            button_test_page = self.get_button_test_page()
+            button_test_page.highlight_button("center")
+            return
+
         if self.current_component_id == "reset_factory_btn":
             if self.is_showing_reset_popup():
                 self.reset_popup.handle_on_enter()
@@ -206,12 +214,17 @@ class SettingScreen(Screen):
             else:
                 self.on_copy_log_click()
         elif self.current_component_id == "button_test_btn":
-            Logger.debug("Touch test button")
+            self.on_button_test_click()
         elif self.current_component_id == "back_btn":
             self.on_back_btn_click()
         Logger.debug("setting screen handle_on_enter")
 
     def on_down_pressed(self):
+        if self.is_button_test_page():
+            button_test_page = self.get_button_test_page()
+            button_test_page.highlight_button("down")
+            return
+
         if self.is_showing_popup_or_loading_screen():
             Logger.debug("ingore on_down_pressed when setting screen is showing")
             return
@@ -226,6 +239,11 @@ class SettingScreen(Screen):
         Logger.debug(f"setting screen on_down_pressed, new index: {new_index}, {self.component_ids[new_index]}")
 
     def on_up_pressed(self):
+        if self.is_button_test_page():
+            button_test_page = self.get_button_test_page()
+            button_test_page.highlight_button("up")
+            return
+
         if self.is_showing_popup_or_loading_screen():
             Logger.debug("ingore on_up_pressed when setting screen is showing")
             return
@@ -246,6 +264,11 @@ class SettingScreen(Screen):
         return -1
 
     def on_left_pressed(self):
+        if self.is_button_test_page():
+            button_test_page = self.get_button_test_page()
+            button_test_page.highlight_button("left")
+            return
+
         if self.is_showing_reset_popup():
             self.reset_popup.on_left_pressed()
         elif self.current_component_id == "brightness_slider":
@@ -255,6 +278,11 @@ class SettingScreen(Screen):
         Logger.debug("setting screen on_left_pressed")
 
     def on_right_pressed(self):
+        if self.is_button_test_page():
+            button_test_page = self.get_button_test_page()
+            button_test_page.highlight_button("right")
+            return
+
         if self.is_showing_reset_popup():
             self.reset_popup.on_right_pressed()
         elif self.current_component_id == "brightness_slider":
@@ -386,3 +414,24 @@ class SettingScreen(Screen):
         self._hide_log_backup()
         self._hide_test_button()
         self.component_ids = SettingScreen.user_component_ids
+
+    def switch_to_button_test(self):
+        self.ids.settings_manager.current = 'button_test'
+        self.current_page = 'button_test'
+        button_test_page = self.get_button_test_page()
+        button_test_page.reset_data()
+        Logger.debug("Switched to button test page")
+            
+
+    def switch_to_settings_main(self):
+        self.ids.settings_manager.current = 'settings_main'
+        self.current_page = 'settings_main'
+        self.reset_data()
+        Logger.debug("Switched to settings main page")
+            
+
+    def is_button_test_page(self):
+        return self.current_page == 'button_test'
+
+    def get_button_test_page(self):
+        return self.ids.settings_manager.get_screen('button_test')

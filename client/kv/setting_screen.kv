@@ -1,125 +1,133 @@
 <SettingScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        spacing: 2
-        padding: 1
-        canvas.before:
-            Color:
-                rgba: 0.1, 0.1, 0.15, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
+    ScreenManager:
+        id: settings_manager
 
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 2
-            padding: [2, 25]
-            canvas.before:
-                Color:
-                    rgba: 0.15, 0.15, 0.2, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-            # Brightness
+        # Settings Main Page
+        Screen:
+            name: "settings_main"
             BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
-                Label:
-                    text: "Brightness:"
-                    font_size: "20sp"
-                    size_hint_x: 0.4
-                Label:
-                    id: brightness_value_label
-                    text: str(int(root.brightness))
-                    font_size: "20sp"
-                    size_hint_x: 0.1
-                Slider:
-                    id: brightness_slider
-                    min: 0
-                    max: 100
-                    value: root.brightness
-                    size_hint_x: 0.5
-                    on_value: root.on_brightness_change(self.value)
+                orientation: "vertical"
+                spacing: 2
+                padding: 1
+                canvas.before:
+                    Color:
+                        rgba: 0.1, 0.1, 0.15, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: 2
+                    padding: [2, 25]
                     canvas.before:
                         Color:
-                            rgba: root.slider_color
+                            rgba: 0.15, 0.15, 0.2, 1
                         Rectangle:
-                            pos: self.x + 3, self.y + (self.height * 0.2)
-                            size: self.width - 6, self.height * 0.6
-                
+                            pos: self.pos
+                            size: self.size
 
-            # reset factory
-            BoxLayout:
-                orientation: "horizontal"
-                spacing: 5
-                Label:
-                    text: "Reset to Factory:"
-                    font_size: "20sp"
-                    size_hint_x: 0.5
-                    size_hint_y: 0.6
-                Button:
-                    id: reset_factory_btn
-                    text: "Reset"
-                    size_hint_x: 0.5
-                    size_hint_y: 0.6
-                    font_size: "20sp"
-                    on_release: root.on_reset_factory_click()
-                    # background_color: root.reset_button_color
+                    # Brightness
+                    BoxLayout:
+                        orientation: "horizontal"
+                        spacing: 5
+                        Label:
+                            text: "Brightness:"
+                            font_size: "20sp"
+                            size_hint_x: 0.4
+                        Label:
+                            id: brightness_value_label
+                            text: str(int(root.brightness))
+                            font_size: "20sp"
+                            size_hint_x: 0.1
+                        Slider:
+                            id: brightness_slider
+                            min: 0
+                            max: 100
+                            value: root.brightness
+                            size_hint_x: 0.5
+                            on_value: root.on_brightness_change(self.value)
+                            canvas.before:
+                                Color:
+                                    rgba: root.slider_color
+                                Rectangle:
+                                    pos: self.x + 3, self.y + (self.height * 0.2)
+                                    size: self.width - 6, self.height * 0.6
 
-            # Log Backup
-            BoxLayout:
-                id: log_backup_layout
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: None if root.log_hidden else 1
-                height: 0 if root.log_hidden else self.height
+                    # reset factory
+                    BoxLayout:
+                        orientation: "horizontal"
+                        spacing: 5
+                        Label:
+                            text: "Reset to Factory:"
+                            font_size: "20sp"
+                            size_hint_x: 0.5
+                            size_hint_y: 0.6
+                        Button:
+                            id: reset_factory_btn
+                            text: "Reset"
+                            size_hint_x: 0.5
+                            size_hint_y: 0.6
+                            font_size: "20sp"
+                            on_release: root.on_reset_factory_click()
 
-                Label:
-                    text: "Log Backup:"
-                    font_size: "20sp"
-                    size_hint_x: 0.5
-                    size_hint_y: 0.6
-                Button:
-                    id: copy_log_btn
-                    text: "Copy Log"
-                    size_hint_x: 0.5
-                    size_hint_y: 0.6
-                    font_size: "20sp"
-                    on_release: root.on_copy_log_click()
-            
-            # Button Test
-            BoxLayout:
-                id: button_test_layout
-                orientation: "horizontal"
-                spacing: 5
-                size_hint_y: None if root.test_button_hidden else 1
-                height: 0 if root.test_button_hidden else self.height
+                    # Log Backup
+                    BoxLayout:
+                        id: log_backup_layout
+                        orientation: "horizontal"
+                        spacing: 5
+                        size_hint_y: None if root.log_hidden else 1
+                        height: 0 if root.log_hidden else self.height
 
-                Label:
-                    text: "Button Test:"
-                    font_size: "20sp"
-                    size_hint_x: 0.5
-                    size_hint_y: 0.6
-                Button:
-                    id: button_test_btn
-                    text: "Test"
-                    size_hint_x: 0.5
-                    size_hint_y: 0.6
-                    font_size: "20sp"
-                    on_release: root.on_button_test_click()
-        # back_btn
-        BoxLayout:
-            orientation: "horizontal"
-            spacing: 5
-            padding: [10, 5]
-            size_hint_y: 0.2
-            Label:
-                text: "  "
-                size_hint_x: 1
-            Button:
-                id: back_btn
-                text: "Back"
-                font_size: "20sp"
-                size_hint_x: 0.5
-                on_release: root.on_back_btn_click()
+                        Label:
+                            text: "Log Backup:"
+                            font_size: "20sp"
+                            size_hint_x: 0.5
+                            size_hint_y: 0.6
+                        Button:
+                            id: copy_log_btn
+                            text: "Copy Log"
+                            size_hint_x: 0.5
+                            size_hint_y: 0.6
+                            font_size: "20sp"
+                            on_release: root.on_copy_log_click()
+
+                    # Button Test
+                    BoxLayout:
+                        id: button_test_layout
+                        orientation: "horizontal"
+                        spacing: 5
+                        size_hint_y: None if root.test_button_hidden else 1
+                        height: 0 if root.test_button_hidden else self.height
+
+                        Label:
+                            text: "Button Test:"
+                            font_size: "20sp"
+                            size_hint_x: 0.5
+                            size_hint_y: 0.6
+                        Button:
+                            id: button_test_btn
+                            text: "Test"
+                            size_hint_x: 0.5
+                            size_hint_y: 0.6
+                            font_size: "20sp"
+                            on_release: root.on_button_test_click()
+                # back_btn
+                BoxLayout:
+                    orientation: "horizontal"
+                    spacing: 5
+                    padding: [10, 5]
+                    size_hint_y: 0.2
+                    Label:
+                        text: "  "
+                        size_hint_x: 1
+                    Button:
+                        id: back_btn
+                        text: "Back"
+                        font_size: "20sp"
+                        size_hint_x: 0.5
+                        on_release: root.on_back_btn_click()
+
+        # Button Test Page
+        ButtonTestPage:
+            name: "button_test"
