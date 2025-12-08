@@ -87,7 +87,27 @@
                     size_hint_y: 0.6
                     font_size: "20sp"
                     on_release: root.on_copy_log_click()
+            
+            # Button Test
+            BoxLayout:
+                id: button_test_layout
+                orientation: "horizontal"
+                spacing: 5
+                size_hint_y: None if root.test_button_hidden else 1
+                height: 0 if root.test_button_hidden else self.height
 
+                Label:
+                    text: "Button Test:"
+                    font_size: "20sp"
+                    size_hint_x: 0.5
+                    size_hint_y: 0.6
+                Button:
+                    id: button_test_btn
+                    text: "Test"
+                    size_hint_x: 0.5
+                    size_hint_y: 0.6
+                    font_size: "20sp"
+                    on_release: root.on_button_test_click()
         # back_btn
         BoxLayout:
             orientation: "horizontal"

@@ -25,10 +25,12 @@ class SettingScreen(Screen):
     title = StringProperty('Settings')
     brightness = NumericProperty(0)
     log_hidden = BooleanProperty(True)
+    test_button_hidden = BooleanProperty(True)
     admin_component_ids = [
         ("brightness_slider", "slider"),
         ("reset_factory_btn", "button"),
         ("copy_log_btn", "button"),
+        ("button_test_btn", "button"),
         ("back_btn", "button"),
     ]
 
@@ -120,6 +122,9 @@ class SettingScreen(Screen):
         copy_thread.start()
         Logger.debug("Copy log successfully.")
 
+    def on_button_test_click(self):
+        print("on_button_test_click")
+
     def on_reset_factory_click(self):
         self.reset_popup.handle_open()
 
@@ -200,6 +205,8 @@ class SettingScreen(Screen):
                 self.common_popup.handle_on_enter()
             else:
                 self.on_copy_log_click()
+        elif self.current_component_id == "button_test_btn":
+            Logger.debug("Touch test button")
         elif self.current_component_id == "back_btn":
             self.on_back_btn_click()
         Logger.debug("setting screen handle_on_enter")
@@ -216,7 +223,7 @@ class SettingScreen(Screen):
             new_index = (current_index + 1) % len(self.component_ids)
         
         self.set_focus_component(new_index) 
-        Logger.debug("setting screen on_down_pressed")
+        Logger.debug(f"setting screen on_down_pressed, new index: {new_index}, {self.component_ids[new_index]}")
 
     def on_up_pressed(self):
         if self.is_showing_popup_or_loading_screen():
@@ -362,10 +369,20 @@ class SettingScreen(Screen):
         self.log_hidden = False
         self.ids.log_backup_layout.opacity = 1
 
+    def _hide_test_button(self):
+        self.test_button_hidden = True
+        self.ids.button_test_layout.opacity = 0
+
+    def _show_test_button(self):
+        self.test_button_hidden = False
+        self.ids.button_test_layout.opacity = 1
+
     def update_ui_when_admin_login(self):
         self._show_log_backup()
+        self._show_test_button()
         self.component_ids = SettingScreen.admin_component_ids
 
     def update_ui_when_user_login(self):
         self._hide_log_backup()
+        self._hide_test_button()
         self.component_ids = SettingScreen.user_component_ids

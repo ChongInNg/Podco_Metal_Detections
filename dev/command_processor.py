@@ -23,6 +23,9 @@ class CommandProcessor:
         raise ValueError(f"Command '{name}' not found.")
 
     def encode_command(self, name):
+        if name == "raw_data":
+            return self.encode_raw_data_command()
+
         command = self.get_command(name)
 
         command_type = int(command["command_type"], 16)  
@@ -60,7 +63,7 @@ class CommandProcessor:
         ch1_p = randint(0, 2300)
         ch1_n = randint(0, 1000)
         ch2_p = randint(0, 2800)
-        ch2_n = randint(0, 1)
+        ch2_n = randint(0, 1500)
 
         encoded += ch1_p.to_bytes(item_size, self.bytes_endian)
         encoded += ch1_n.to_bytes(item_size, self.bytes_endian)
