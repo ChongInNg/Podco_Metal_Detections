@@ -448,6 +448,17 @@ class SettingScreen(Screen):
         else:
             Logger.debug(f"Not in button test page, no need to handle bypass message")
 
+    def update_calbutt(self, value: int):
+        if self.is_button_test_page():
+            if value == 1:
+                self.get_button_test_page().highlight_cal_button()
+            else:
+                self.get_button_test_page().normal_cal_button()
+        
+            Logger.debug(f"Button test page update calbutt successfully, val: {value}")
+        else:
+            Logger.debug(f"Not in button test page, no need to handle calbutt message")
+    
     def is_button_test_page(self):
         return self.current_page == 'button_test'
 

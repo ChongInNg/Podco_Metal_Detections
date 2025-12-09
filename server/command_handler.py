@@ -8,10 +8,12 @@ from commands.set_threshold_command_resp import SetThresholdCommandResp
 from commands.set_default_calibration_command_resp import SetDefaultCalibrationCommandResp
 from commands.calibration_failed_command import CalibrationFailedCommand
 from commands.voltage_command import VoltageCommand
+from commands.calbutt_command import CalButtCommand
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
 from logs.calibration_log import CalibrationLogData
+from log.logger import Logger
 import time
 import sys
 import os
@@ -31,6 +33,7 @@ class CommandHandler:
         0xB0: SetDefaultCalibrationCommandResp,
         0xC0: CalibrationFailedCommand,
         0x0D: VoltageCommand,
+        0xD0: CalButtCommand,
     }
 
     def __init__(self):
@@ -108,6 +111,9 @@ class CommandHandler:
         elif isinstance(command, VoltageCommand):
             LogManager.instance().set_current_voltage(command.voltage)
             return NotifyVoltageMessage.create_message(voltage=str(LogManager.instance().get_current_voltage()))
+        elif isinstance(command, CalButtCommand):
+            Logger.info(f"Received calbutt command: {command.calbutt}")
+            return NotifyCalButtMessage.create_message(calbutt=command.calbutt)
         else:
             raise ValueError(f"Unknown command: {command.name}")
         

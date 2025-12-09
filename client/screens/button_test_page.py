@@ -51,3 +51,9 @@ class ButtonTestPage(Screen):
 
     def normal_bypass_button(self):
         self.bypass_btn.state = "normal"
+
+    def highlight_cal_button(self):
+        self.cal_btn.state = "down"
+
+    def normal_cal_button(self):
+        self.cal_btn.state = "normal"

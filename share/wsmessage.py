@@ -23,6 +23,7 @@ MessageName_NotifyThresholdAdjusted = "notify_threshold_adjusted"
 MessageName_NotifyCalibration_Failed = "notify_calibration_failed"
 MessageName_NotifyEngineHour = "notify_engine_hour"
 MessageName_NotifyVoltage = "notify_voltage"
+MessageName_NotifyCalButt = "notify_calbutt"
 
 class Header:
     def __init__(self, name: str, message_type: str, id: str=None, ts: str = None):
@@ -90,6 +91,9 @@ class Header:
     def is_notify_voltage_message(self):
         return self.name == MessageName_NotifyVoltage
     
+    def is_notify_calbutt_message(self):
+        return self.name == MessageName_NotifyCalButt
+    
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
         name = data.get("name")
@@ -117,6 +121,7 @@ class Header:
             MessageName_GetCalibration,
             MessageName_SystemError,
             MessageName_NotifyCalibration_Failed,
+            MessageName_NotifyCalButt,
         ]:
             if name == message_name:
                 return
@@ -193,6 +198,8 @@ class BaseWsMessage:
             return NotifyEngineHourMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_voltage_message():
             return NotifyVoltageMessage.from_dict(header=header, data=msg_data)
+        elif header.is_notify_calbutt_message():
+            return NotifyCalButtMessage.from_dict(header=header, data=msg_data)
         else:
             raise ValueError(f"Message name is wrong. {header.to_dict()}")
         
@@ -1006,6 +1013,36 @@ class NotifyCalibrationFailedMessage(BaseWsNotify):
             header, 
             reason=reason,
         )
+
+class NotifyCalButtMessage(BaseWsNotify):
+    def __init__(self, header: Header, calbutt: int):
+        super().__init__(header=header)
+        self.calbutt = calbutt
+    
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "calbutt": self.calbutt
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'NotifyByPassMessage':
+        calbutt = data.get("calbutt")
+        if calbutt is None or not isinstance(calbutt, int):
+            raise ValueError("calbutt is not valid")
+        return cls(
+            header=header,
+            calbutt=calbutt
+        )
+
+    @classmethod
+    def create_message(cls, calbutt: int) -> 'NotifyByPassMessage':
+        if calbutt is None or not isinstance(calbutt, int):
+            raise ValueError("calbutt is not valid")
+        
+        header = Header(name=MessageName_NotifyCalButt, message_type=MessageType_Notify)
+        return cls(header, calbutt)
     
 class SystemErrorResponse(BaseWsResponse):
     def __init__(self, header: Header, code: str, message: str, meta:dict=None):

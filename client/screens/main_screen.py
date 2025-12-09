@@ -60,6 +60,8 @@ class MainScreen(Screen):
                 self._handle_engine_hour(msg)
             elif isinstance(msg, NotifyVoltageMessage):
                 self._handle_voltage(msg)
+            elif isinstance(msg, NotifyCalButtMessage):
+                self._handle_calbutt_clicked(msg)
             else:
                 Logger.error(f"Cannot handle this message: {msg}")
         except Exception as ex:
@@ -197,3 +199,6 @@ class MainScreen(Screen):
     def _handle_voltage(self, msg: NotifyVoltageMessage):
         status_screen = self.get_stack_widget().get_status_screen()
         Clock.schedule_once(lambda dt: status_screen.update_voltage(voltage=msg.voltage))
+
+    def _handle_calbutt_clicked(self, msg: NotifyCalButtMessage):
+        Clock.schedule_once(lambda dt: self.get_stack_widget().get_setting_screen().update_calbutt(msg.calbutt))
