@@ -14,6 +14,9 @@ MessageName_SetThreshold = "set_threshold"
 MessageName_SetDefaultCalibration = "set_default_calibration"
 MessageName_GetCalibration = "get_calibration"
 MessageName_SystemError = "system_error"
+MessageName_GetFirmwareVersion = "get_firmware_version"
+MessageName_GetHardwareVersion = "get_hardware_version"
+MessageName_ResetToBootloader = "reset_to_bootloader"
 
 MessageName_NotifyByPass = "notify_bypass"
 MessageName_NotifyCalibration = "notify_calibration"
@@ -63,6 +66,15 @@ class Header:
     
     def is_set_default_calibration_message(self):
         return self.name == MessageName_SetDefaultCalibration
+    
+    def is_get_firmware_version_message(self):
+        return self.name == MessageName_GetFirmwareVersion
+    
+    def is_get_hardware_version_message(self):
+        return self.name == MessageName_GetHardwareVersion
+    
+    def is_reset_to_bootloader_message(self):
+        return self.name == MessageName_ResetToBootloader
     
     def is_notify_bypass_message(self):
         return self.name == MessageName_NotifyByPass
@@ -122,6 +134,9 @@ class Header:
             MessageName_SystemError,
             MessageName_NotifyCalibration_Failed,
             MessageName_NotifyCalButt,
+            MessageName_GetFirmwareVersion,
+            MessageName_GetHardwareVersion,
+            MessageName_ResetToBootloader,
         ]:
             if name == message_name:
                 return
@@ -1067,3 +1082,154 @@ class SystemErrorResponse(BaseWsResponse):
             message=message,
             meta=meta
         )
+    
+class GetFirmwareRequest(BaseWsRequest):
+    def __init__(self,  header: Header):
+        super().__init__(header=header)
+    
+    def to_dict(self) -> dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {}
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetFirmwareRequest':
+        if not header.is_get_firmware_version_message():
+            raise ValueError("Message is not GetFirmwareRequest.")
+        
+        return cls(header)
+    
+    @classmethod
+    def create_message(cls) -> 'GetFirmwareRequest':
+        header = Header(name=MessageName_GetFirmwareVersion, message_type=MessageType_Request)
+        return cls(header)
+    
+class GetFirmwareResponse(BaseWsResponse)   :
+    def __init__(self, header: Header, code: str, message: str, major, minor, bugfix:int):
+        super().__init__(header=header, code=code, message=message)
+        self.major = major
+        self.minor = minor
+        self.bugfix = bugfix
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetFirmwareResponse':
+        if not header.is_get_firmware_version_message():
+            raise ValueError("Message is not GetFirmwareResponse.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        major = data.get("major")
+        minor = data.get("minor")
+        bugfix = data.get("bugfix")
+        return cls(header, code, message, major, minor, bugfix)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, major, minor, bugfix:int) -> 'GetFirmwareResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+        if major is None or not isinstance(major, int):
+            raise ValueError("major is not valid.")
+        if minor is None or not isinstance(minor, int):
+            raise ValueError("minor is not valid.")
+        if bugfix is None or not isinstance(bugfix, int):
+            raise ValueError("bugfix is not valid.")
+        
+        header = Header(id=id, name=MessageName_GetFirmwareVersion, message_type=MessageType_Response)
+        return cls(header, code, message, major, minor, bugfix)
+    
+class GetHardwareRequest(BaseWsRequest):
+    def __init__(self,  header: Header):
+        super().__init__(header=header)
+    
+    def to_dict(self) -> dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {}
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetHardwareRequest':
+        if not header.is_get_hardware_version_message():
+            raise ValueError("Message is not GetHardwareRequest.")
+        
+        return cls(header)
+    
+    @classmethod
+    def create_message(cls) -> 'GetHardwareRequest':
+        header = Header(name=MessageName_GetHardwareVersion, message_type=MessageType_Request)
+        return cls(header)
+    
+class GetHardwareResponse(BaseWsResponse)   :
+    def __init__(self, header: Header, code: str, message: str, major, minor, bugfix:int):
+        super().__init__(header=header, code=code, message=message)
+        self.major = major
+        self.minor = minor
+        self.bugfix = bugfix
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetHardwareResponse':
+        if not header.is_get_hardware_version_message():
+            raise ValueError("Message is not GetHardwareResponse.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        major = data.get("major")
+        minor = data.get("minor")
+        bugfix = data.get("bugfix")
+        return cls(header, code, message, major, minor, bugfix)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, major, minor, bugfix:int) -> 'GetHardwareResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+        if major is None or not isinstance(major, int):
+            raise ValueError("major is not valid.")
+        if minor is None or not isinstance(minor, int):
+            raise ValueError("minor is not valid.")
+        if bugfix is None or not isinstance(bugfix, int):
+            raise ValueError("bugfix is not valid.")
+        
+        header = Header(id=id, name=MessageName_GetHardwareVersion, message_type=MessageType_Response)
+        return cls(header, code, message, major, minor, bugfix)
+
+class ResetToBootloaderRequest(BaseWsRequest):
+    def __init__(self,  header: Header):
+        super().__init__(header=header)
+    
+    def to_dict(self) -> dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {}
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'ResetToBootloaderRequest':
+        if not header.is_reset_to_bootloader_message():
+            raise ValueError("Message is not ResetToBootloaderRequest.")
+        
+        return cls(header)
+    
+    @classmethod
+    def create_message(cls) -> 'ResetToBootloaderRequest':
+        header = Header(name=MessageName_ResetToBootloader, message_type=MessageType_Request)
+        return cls(header)
+    
+class ResetToBootloaderResponse(BaseWsResponse)   :
+    def __init__(self, header: Header, code: str, message: str, meta: dict=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'ResetToBootloaderResponse':
+        if not header.is_reset_to_bootloader_message():
+            raise ValueError("Message is not ResetToBootloaderResponse.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        return cls(header, code, message, meta)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, meta: str=None) -> 'ResetToBootloaderResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+                
+        header = Header(id=id, name=MessageName_ResetToBootloader, message_type=MessageType_Response)
+        return cls(header, code, message, meta)
