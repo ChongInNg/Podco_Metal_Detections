@@ -9,6 +9,10 @@ from commands.set_default_calibration_command_resp import SetDefaultCalibrationC
 from commands.calibration_failed_command import CalibrationFailedCommand
 from commands.voltage_command import VoltageCommand
 from commands.calbutt_command import CalButtCommand
+from commands.get_firmware_version_command_resp import GetFirmwareVersionCommandResp
+from commands.get_hardware_version_command_resp import GetHardwareVersionCommandResp
+from commands.reset_to_bootloader_command_resp import ResetToBootloaderCommandResp
+
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
 from logs.detection_log import DetectionLogData
@@ -34,6 +38,9 @@ class CommandHandler:
         0xC0: CalibrationFailedCommand,
         0x0D: VoltageCommand,
         0xD0: CalButtCommand,
+        0xFA: ResetToBootloaderCommandResp,
+        0xFB: GetFirmwareVersionCommandResp,
+        0xFC: GetHardwareVersionCommandResp
     }
 
     def __init__(self):
@@ -114,6 +121,33 @@ class CommandHandler:
         elif isinstance(command, CalButtCommand):
             Logger.info(f"Received calbutt command: {command.calbutt}")
             return NotifyCalButtMessage.create_message(calbutt=command.calbutt)
+        elif isinstance(command, GetFirmwareVersionCommandResp):
+            Logger.info("Received get firmware version response")
+            return GetFirmwareVersionResponse.create_message(
+                id="get_firmware_version",
+                code="OK",
+                message="Get firmware version from controller success.",
+                major=command.major,
+                minor=command.minor,
+                bugfix=command.bugfix
+            )
+        elif isinstance(command, GetHardwareVersionCommandResp):
+            Logger.info("Received get hardware version response")
+            return GetHardwareVersionResponse.create_message(
+                id="get_hardware_version",
+                code="OK",
+                message="Get hardware version from controller success.",
+                major=command.major,
+                minor=command.minor,
+                bugfix=command.bugfix
+            )
+        elif isinstance(command, ResetToBootloaderCommandResp):
+            Logger.info("Received reset to bootloader response")
+            return ResetToBootloaderResponse.create_message(
+                id="reset_to_bootloader",
+                code="OK",
+                message="Reset to bootloader controller success."
+            )
         else:
             raise ValueError(f"Unknown command: {command.name}")
         

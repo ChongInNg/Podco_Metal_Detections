@@ -87,6 +87,15 @@ class SerialServer:
         print(f"Send set threshold request to serial port. threshold: {threshold}, bytes: {num}")
         return num
     
+    def send_get_firmware_version_request(self) -> int:
+        pass
+
+    def send_get_hardware_version_request(self) -> int:
+        pass
+    
+    def send_reset_to_bootloader_request(self) -> int:
+        pass
+
     def _read_data(self):
         while self.running:
             if self.serial.in_waiting:

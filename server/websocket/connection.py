@@ -32,6 +32,12 @@ class Connection:
                 await self.handle_set_default_calibration(message)
             elif isinstance(message, GetCalibrationRequest):
                 await self._handle_get_calibration_data(message)
+            elif isinstance(message, GetFirmwareVersionRequest):
+                await self.handle_get_firmware_version(message)
+            elif isinstance(message, GetHardwareVersionRequest):
+                await self.handle_get_hardware_version(message)
+            elif isinstance(message, ResetToBootloaderRequest):
+                await self.handle_reset_to_bootloader(message)
             else:
                 Logger.warning(f"Cannot handle this message: {message}")
         except Exception as e:
@@ -166,3 +172,36 @@ class Connection:
 
         await self.conn.send(rsp.to_json())
         Logger.debug(f"Send back current_calibration data: {rsp.to_dict()}")
+
+    async def handle_get_firmware_version(self, message: GetFirmwareVersionRequest):
+        from serial_server import SerialServer 
+        write_buf_num = SerialServer.instance().send_get_firmware_version_request()
+        if write_buf_num == 0:
+            rsp = GetFirmwareVersionResponse.create_message(
+                id=message.id, code="error", 
+                message="Send get firmware version request to controller failed."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.error(f"Handle get firmware version request failed: {rsp.to_dict()}")
+
+    async def handle_get_hardware_version(self, message: GetHardwareVersionRequest):
+        from serial_server import SerialServer 
+        write_buf_num = SerialServer.instance().send_get_hardware_version_request()
+        if write_buf_num == 0:
+            rsp = GetHardwareVersionResponse.create_message(
+                id=message.id, code="error", 
+                message="Send get hardware version request to controller failed."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.error(f"Handle get hardware version request failed: {rsp.to_dict()}")
+
+    async def handle_reset_to_bootloader(self, message: ResetToBootloaderRequest):
+        from serial_server import SerialServer 
+        write_buf_num = SerialServer.instance().send_reset_to_bootloader_request()
+        if write_buf_num == 0:
+            rsp = ResetToBootloaderResponse.create_message(
+                id=message.id, code="error", 
+                message="Send reset to bootloader request to controller failed."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.error(f"Handle reset to bootloader version request failed: {rsp.to_dict()}")
