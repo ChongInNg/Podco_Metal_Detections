@@ -437,9 +437,19 @@ class SettingScreen(Screen):
         self.reset_data()
         Logger.debug("Switched to settings main page")
             
+    def update_bypass(self, value: int):
+        if self.is_button_test_page():
+            if value == 1:
+                self.get_button_test_page().highlight_bypass_button()
+            else:
+                self.get_button_test_page().normal_bypass_button()
+        
+            Logger.debug(f"Button test page update bypass successfully, val: {value}")
+        else:
+            Logger.debug(f"Not in button test page, no need to handle bypass message")
 
     def is_button_test_page(self):
         return self.current_page == 'button_test'
 
-    def get_button_test_page(self):
+    def get_button_test_page(self) -> "ButtonTestPage":
         return self.ids.settings_manager.get_screen('button_test')
