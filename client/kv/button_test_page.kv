@@ -1,132 +1,142 @@
 <ButtonTestPage>:
-    BoxLayout:
-        orientation: "vertical"
-        spacing: 20
-        padding: 30
-        canvas.before:
-            Color:
-                rgba: 0.1, 0.1, 0.15, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
-
-        # Top row: LEFT, ENTER, RIGHT
+    FloatLayout:
         BoxLayout:
-            orientation: "horizontal"
-            spacing: 30
-            size_hint_y: 0.3
+            orientation: "vertical"
+            spacing: 20
+            padding: 30
+            canvas.before:
+                Color:
+                    rgba: 0.1, 0.1, 0.15, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
-            # LEFT button
-            Button:
-                id: left_btn
-                size_hint_x: 0.28
-                Image:
-                    source: "assets/test_arrow.png"
-                    pos: self.parent.pos
-                    size: self.parent.size
-                    allow_stretch: True
-                    keep_ratio: True
+            # Top row: LEFT, ENTER, RIGHT
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 30
+                size_hint_y: 0.3
 
-            # ENTER button
-            Button:
-                id: enter_btn
-                size_hint_x: 0.28
-                Image:
-                    source: "assets/test_enter.png"
-                    pos: self.parent.pos
-                    size: self.parent.size
-                    allow_stretch: True
-                    keep_ratio: True
+                # LEFT button
+                Button:
+                    id: left_btn
+                    size_hint_x: 0.28
+                    Image:
+                        source: "assets/test_arrow.png"
+                        pos: self.parent.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        keep_ratio: True
 
-            # RIGHT button (flipped arrow)
-            Button:
-                id: right_btn
-                size_hint_x: 0.28
-                Image:
-                    source: "assets/test_arrow.png"
-                    pos: self.parent.pos
-                    size: self.parent.size
-                    allow_stretch: True
-                    keep_ratio: True
-                    canvas.before:
-                        PushMatrix:
-                        Rotate:
-                            angle: 180
-                            origin: self.center
-                    canvas.after:
-                        PopMatrix:
+                # ENTER button
+                Button:
+                    id: enter_btn
+                    size_hint_x: 0.28
+                    Image:
+                        source: "assets/test_enter.png"
+                        pos: self.parent.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        keep_ratio: True
 
-        # Middle row: DOWN, UP
-        BoxLayout:
-            orientation: "horizontal"
-            spacing: 30
-            size_hint_y: 0.3
+                # RIGHT button (flipped arrow)
+                Button:
+                    id: right_btn
+                    size_hint_x: 0.28
+                    Image:
+                        source: "assets/test_arrow.png"
+                        pos: self.parent.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        keep_ratio: True
+                        canvas.before:
+                            PushMatrix:
+                            Rotate:
+                                angle: 180
+                                origin: self.center
+                        canvas.after:
+                            PopMatrix:
 
-            Widget:
-                size_hint_x: 0.22
+            # Middle row: DOWN, UP
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 30
+                size_hint_y: 0.3
 
-            # DOWN button
-            Button:
-                id: down_btn
-                size_hint_x: 0.28
-                Image:
-                    source: "assets/test_arrow.png"
-                    pos: self.parent.pos
-                    size: self.parent.size
-                    allow_stretch: True
-                    keep_ratio: True
-                    canvas.before:
-                        PushMatrix:
-                        Rotate:
-                            angle: 90
-                            origin: self.center
-                    canvas.after:
-                        PopMatrix:
+                Widget:
+                    size_hint_x: 0.22
 
-            # UP button
-            Button:
-                id: up_btn
-                size_hint_x: 0.28
-                Image:
-                    source: "assets/test_arrow.png"
-                    pos: self.parent.pos
-                    size: self.parent.size
-                    allow_stretch: True
-                    keep_ratio: True
-                    canvas.before:
-                        PushMatrix:
-                        Rotate:
-                            angle: -90
-                            origin: self.center
-                    canvas.after:
-                        PopMatrix:
+                # DOWN button
+                Button:
+                    id: down_btn
+                    size_hint_x: 0.28
+                    Image:
+                        source: "assets/test_arrow.png"
+                        pos: self.parent.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        keep_ratio: True
+                        canvas.before:
+                            PushMatrix:
+                            Rotate:
+                                angle: 90
+                                origin: self.center
+                        canvas.after:
+                            PopMatrix:
 
-            Widget:
-                size_hint_x: 0.22
+                # UP button
+                Button:
+                    id: up_btn
+                    size_hint_x: 0.28
+                    Image:
+                        source: "assets/test_arrow.png"
+                        pos: self.parent.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        keep_ratio: True
+                        canvas.before:
+                            PushMatrix:
+                            Rotate:
+                                angle: -90
+                                origin: self.center
+                        canvas.after:
+                            PopMatrix:
 
-        # Bottom row: CAL, BYPASS
-        BoxLayout:
-            orientation: "horizontal"
-            spacing: 30
-            size_hint_y: 0.3
+                Widget:
+                    size_hint_x: 0.22
 
-            # CAL button
-            Button:
-                id: cal_btn
-                size_hint_x: 0.28
-                Image:
-                    source: "assets/test_cal.png"
-                    pos: self.parent.pos
-                    size: self.parent.size
-                    allow_stretch: True
-                    keep_ratio: True
+            # Bottom row: CAL, BYPASS
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 30
+                size_hint_y: 0.3
 
-            # BYPASS button
-            Button:
-                id: bypass_btn
-                size_hint_x: 0.28
-                Image:
-                    source: "assets/test_bypass.png"
-                    center: self.parent.center
-                    allow_stretch: True
-                    keep_ratio: True
+                # CAL button
+                Button:
+                    id: cal_btn
+                    size_hint_x: 0.28
+                    Image:
+                        source: "assets/test_cal.png"
+                        pos: self.parent.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        keep_ratio: True
+
+                # BYPASS button
+                Button:
+                    id: bypass_btn
+                    size_hint_x: 0.28
+                    Image:
+                        source: "assets/test_bypass.png"
+                        center: self.parent.center
+                        allow_stretch: True
+                        keep_ratio: True
+
+        ProgressBar:
+            id: hold_progress_bar
+            max: 100
+            value: 0
+            size_hint: 0.6, None
+            height: 10
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            opacity: 0
