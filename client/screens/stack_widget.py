@@ -132,6 +132,13 @@ class StackWidget(Screen):
         else:
             Logger.warning(f"Not support direction: {direction}")
 
+    def handle_direction_release(self, direction):
+        if self.is_setting():
+            setting_screen = self.get_setting_screen()
+            setting_screen.handle_direction_release(direction)
+        else:
+            Logger.debug(f"Direction release not handled in current screen: {self.current_screen}")
+
     def change_to_screen_name(self, screen_name):
         if self.is_analyzer():
             # need to stop the analyzer thread first before switching to another screen

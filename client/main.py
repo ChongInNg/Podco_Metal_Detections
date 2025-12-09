@@ -2,7 +2,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.clock import Clock
 from screens.main_screen import MainScreen
-from screens.logo_screen import LogoScreen 
+from screens.logo_screen import LogoScreen
 from websocket.client import WebSocketClient
 from config.config import ConfigManager
 from screens.flip_screen_manager import FlippedScreenManager
@@ -20,12 +20,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from share.wsmessage import *
 
 from kivy.config import Config
-Config.set('graphics', 'width', '320')  
-Config.set('graphics', 'height', '240') 
+Config.set('graphics', 'width', '320')
+Config.set('graphics', 'height', '240')
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'multisamples', '0')
 Config.set('graphics', 'fullscreen', '0')
-Config.set('graphics', 'dpi', '96')  
+Config.set('graphics', 'dpi', '96')
 
 from kivy.core.window import Window
 # Window.size = (640, 480)
@@ -42,7 +42,7 @@ class MetalDetectionApp(App):
             sm = ScreenManager()
 
         self.idle_controller = IdleController(
-            ConfigManager.instance().idle_seconds, 
+            ConfigManager.instance().idle_seconds,
             self.switch_to_logo_screen,
         )
         self.joystick = None
@@ -50,22 +50,23 @@ class MetalDetectionApp(App):
         self.logo_screen = LogoScreen(name="logo")
         self.main_screen = MainScreen(name="main")
 
-        sm.add_widget(self.logo_screen) 
+        sm.add_widget(self.logo_screen)
         sm.add_widget(self.main_screen)
-        
+
         self.logo_screen.set_title(ConfigManager.instance().logo_tile)
         self.logo_screen.set_version(ConfigManager.instance().version)
 
         self.event_loop = asyncio.new_event_loop()
         self.loop_thread = threading.Thread(target=self._run_event_loop, daemon=True)
         self.loop_thread.start()
-        
+
         if ConfigManager.instance().run_on_rpi():
             self.monitor_joystick()
             Logger.info("start monitor_joystick........")
-        
+
         if ConfigManager.instance().is_support_keyboard():
             Window.bind(on_key_down=self.handle_keyboard)
+            Window.bind(on_key_up=self.handle_keyboard_release)
             Logger.info("start listening keyboard input.")
 
         self._start_idle_handling()
@@ -105,7 +106,7 @@ class MetalDetectionApp(App):
         self._stop_joystick()
 
     def _start_idle_handling(self):
-        if ConfigManager.instance().is_enable_idle_checking():   
+        if ConfigManager.instance().is_enable_idle_checking():
             self.idle_controller.start()
 
     def _stop_idle_handling(self):
@@ -132,10 +133,10 @@ class MetalDetectionApp(App):
 
     def is_calibration_failed_popup_showing(self):
         return self.main_screen.get_stack_widget().is_calibration_failed_popup_showing()
-    
+
     def dismiss_calibration_failed_popup(self):
         self.main_screen.get_stack_widget().dismiss_calibration_failed_popup()
-        
+
     def handle_signal(self, direction: str):
         Logger.debug(f"Received direction signal: {direction}")
         if ConfigManager.instance().is_enable_idle_checking():
@@ -143,12 +144,12 @@ class MetalDetectionApp(App):
 
         current_screen = self.root.current
         if current_screen == "main":
-            stack_widget = self.root.get_screen("main").ids.stack_widget     
+            stack_widget = self.root.get_screen("main").ids.stack_widget
             stack_widget.handle_direction(direction)
             skip_flag = False
             if stack_widget.is_analyzer():
                 skip_flag = True
-            
+
             if ConfigManager.instance().is_enable_idle_checking():
                 self.idle_controller.set_skip_checking(is_skip=skip_flag)
         else:
@@ -158,6 +159,18 @@ class MetalDetectionApp(App):
 
     def handle_signal_by_clock(self, direction: str):
         Clock.schedule_once(lambda dt: self.handle_signal(direction))
+
+    def handle_signal_release(self, direction: str):
+        Logger.debug(f"Received direction release signal: {direction}")
+
+        current_screen = self.root.current
+        if current_screen == "main":
+            stack_widget = self.root.get_screen("main").ids.stack_widget
+            stack_widget.handle_direction_release(direction)
+        Logger.debug(f"Handle direction release signal done: {direction}")
+
+    def handle_signal_release_by_clock(self, direction: str):
+        Clock.schedule_once(lambda dt: self.handle_signal_release(direction))
 
     def start_websocket(self):
         if not self.event_loop.is_running():
@@ -192,6 +205,22 @@ class MetalDetectionApp(App):
             Logger.debug(f"Keyboard event detected: {direction}")
             self.handle_signal(direction)
 
+    def handle_keyboard_release(self, window, key, *args):
+        key_mapping = {
+            273: "up",
+            274: "down",
+            276: "left",
+            275: "right",
+            13: "center",
+            48: "left_right",
+            57: "up_down"
+        }
+
+        if key in key_mapping:
+            direction = key_mapping[key]
+            Logger.debug(f"Keyboard release event detected: {direction}")
+            self.handle_signal_release(direction)
+
 if __name__ == "__main__":
     config_path = f"{get_current_program_folder()}/config/config.json"
     ConfigManager.instance().read_config(config_path)
@@ -200,7 +229,7 @@ if __name__ == "__main__":
         log_file_level=40, # only write the error log of server
         max_bytes=1024*1024*50, # 50M for server.log file size
         backup_count=10, # 10 server.log file can keep
-        print_log_level=20
+        print_log_level=10
     )
 
     Logger.error(f"Podco Metal Detection Client started...")

@@ -38,4 +38,20 @@ class ButtonTestPage(Screen):
                 self.ids[btn_id].state = "down"
                 Logger.debug(f"Button test: {btn_id} highlighted (state=down)")
 
-    
+    def release_button(self, direction):
+        button_map = {
+            "left": "left_btn",
+            "right": "right_btn",
+            "up": "up_btn",
+            "down": "down_btn",
+            "center": "enter_btn",
+            "left_right": "cal_btn",
+            "up_down": "bypass_btn"
+        }
+
+        if direction in button_map:
+            btn_id = button_map[direction]
+            if btn_id in self.ids:
+                self.ids[btn_id].state = "normal"
+                Logger.debug(f"Button test: {btn_id} released (state=normal)")
+

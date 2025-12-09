@@ -289,7 +289,15 @@ class SettingScreen(Screen):
             if self.brightness + self.brightness_step <= 100:
                 self.brightness = self.brightness + self.brightness_step
         Logger.debug("setting screen on_right_pressed")
-    
+
+    def handle_direction_release(self, direction):
+        if self.is_button_test_page():
+            button_test_page = self.get_button_test_page()
+            button_test_page.release_button(direction)
+            Logger.debug(f"setting screen handle_direction_release: {direction}")
+        else:
+            Logger.debug("Not on button test page, ignoring direction release")
+
     def highlight_slider(self):
         self.slider_color = SettingScreen.HIGHLIGHT_slider_color
         Logger.debug("highlight_slider.........")
