@@ -1,8 +1,8 @@
 <ButtonTestPage>:
     BoxLayout:
         orientation: "vertical"
-        spacing: 5
-        padding: 10
+        spacing: 20
+        padding: 30
         canvas.before:
             Color:
                 rgba: 0.1, 0.1, 0.15, 1
@@ -13,54 +13,41 @@
         # Top row: LEFT, ENTER, RIGHT
         BoxLayout:
             orientation: "horizontal"
-            spacing: 10
-            size_hint_y: 0.25
+            spacing: 30
+            size_hint_y: 0.3
 
             # LEFT button
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 2
+            Button:
+                id: left_btn
+                size_hint_x: 0.28
                 Image:
                     source: "assets/test_arrow.png"
+                    pos: self.parent.pos
+                    size: self.parent.size
                     allow_stretch: True
                     keep_ratio: True
-                    canvas.before:
-                        Color:
-                            rgba: (0.2, 0.8, 0.2, 1) if root.left_highlighted else (1, 1, 1, 1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                Label:
-                    text: "LEFT"
-                    font_size: "16sp"
-                    size_hint_y: 0.2
-                    color: (0.2, 0.8, 0.2, 1) if root.left_highlighted else (1, 1, 1, 1)
 
             # ENTER button
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 2
+            Button:
+                id: enter_btn
+                size_hint_x: 0.28
                 Image:
                     source: "assets/test_enter.png"
+                    pos: self.parent.pos
+                    size: self.parent.size
                     allow_stretch: True
                     keep_ratio: True
-                    canvas.before:
-                        Color:
-                            rgba: (0.2, 0.8, 0.2, 1) if root.enter_highlighted else (1, 1, 1, 1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                Label:
-                    text: "ENTER"
-                    font_size: "16sp"
-                    size_hint_y: 0.2
-                    color: (0.2, 0.8, 0.2, 1) if root.enter_highlighted else (1, 1, 1, 1)
 
             # RIGHT button (flipped arrow)
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 2
-                BoxLayout:
+            Button:
+                id: right_btn
+                size_hint_x: 0.28
+                Image:
+                    source: "assets/test_arrow.png"
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    allow_stretch: True
+                    keep_ratio: True
                     canvas.before:
                         PushMatrix:
                         Rotate:
@@ -68,38 +55,26 @@
                             origin: self.center
                     canvas.after:
                         PopMatrix:
-                    Image:
-                        source: "assets/test_arrow.png"
-                        allow_stretch: True
-                        keep_ratio: True
-                        canvas.before:
-                            Color:
-                                rgba: (0.2, 0.8, 0.2, 1) if root.right_highlighted else (1, 1, 1, 1)
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                Label:
-                    text: "RIGHT"
-                    font_size: "16sp"
-                    size_hint_y: 0.2
-                    color: (0.2, 0.8, 0.2, 1) if root.right_highlighted else (1, 1, 1, 1)
 
         # Middle row: DOWN, UP
         BoxLayout:
             orientation: "horizontal"
-            spacing: 10
-            size_hint_y: 0.25
+            spacing: 30
+            size_hint_y: 0.3
 
-            Label:
-                text: ""
-                size_hint_x: 0.2
+            Widget:
+                size_hint_x: 0.22
 
-            # DOWN button (rotated arrow)
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 2
-                size_hint_x: 0.3
-                BoxLayout:
+            # DOWN button
+            Button:
+                id: down_btn
+                size_hint_x: 0.28
+                Image:
+                    source: "assets/test_arrow.png"
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    allow_stretch: True
+                    keep_ratio: True
                     canvas.before:
                         PushMatrix:
                         Rotate:
@@ -107,28 +82,17 @@
                             origin: self.center
                     canvas.after:
                         PopMatrix:
-                    Image:
-                        source: "assets/test_arrow.png"
-                        allow_stretch: True
-                        keep_ratio: True
-                        canvas.before:
-                            Color:
-                                rgba: (0.2, 0.8, 0.2, 1) if root.down_highlighted else (1, 1, 1, 1)
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                Label:
-                    text: "DOWN"
-                    font_size: "16sp"
-                    size_hint_y: 0.2
-                    color: (0.2, 0.8, 0.2, 1) if root.down_highlighted else (1, 1, 1, 1)
 
-            # UP button (rotated arrow)
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 2
-                size_hint_x: 0.3
-                BoxLayout:
+            # UP button
+            Button:
+                id: up_btn
+                size_hint_x: 0.28
+                Image:
+                    source: "assets/test_arrow.png"
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    allow_stretch: True
+                    keep_ratio: True
                     canvas.before:
                         PushMatrix:
                         Rotate:
@@ -136,87 +100,34 @@
                             origin: self.center
                     canvas.after:
                         PopMatrix:
-                    Image:
-                        source: "assets/test_arrow.png"
-                        allow_stretch: True
-                        keep_ratio: True
-                        canvas.before:
-                            Color:
-                                rgba: (0.2, 0.8, 0.2, 1) if root.up_highlighted else (1, 1, 1, 1)
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                Label:
-                    text: "UP"
-                    font_size: "16sp"
-                    size_hint_y: 0.2
-                    color: (0.2, 0.8, 0.2, 1) if root.up_highlighted else (1, 1, 1, 1)
 
-            Label:
-                text: ""
-                size_hint_x: 0.2
+            Widget:
+                size_hint_x: 0.22
 
         # Bottom row: CAL, BYPASS
         BoxLayout:
             orientation: "horizontal"
-            spacing: 10
-            size_hint_y: 0.25
+            spacing: 30
+            size_hint_y: 0.3
 
             # CAL button
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 2
+            Button:
+                id: cal_btn
+                size_hint_x: 0.28
                 Image:
                     source: "assets/test_cal.png"
+                    pos: self.parent.pos
+                    size: self.parent.size
                     allow_stretch: True
                     keep_ratio: True
-                    canvas.before:
-                        Color:
-                            rgba: (0.2, 0.8, 0.2, 1) if root.cal_highlighted else (1, 1, 1, 1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                Label:
-                    text: "CAL"
-                    font_size: "16sp"
-                    size_hint_y: 0.2
-                    color: (0.2, 0.8, 0.2, 1) if root.cal_highlighted else (1, 1, 1, 1)
 
             # BYPASS button
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 2
+            Button:
+                id: bypass_btn
+                size_hint_x: 0.28
                 Image:
                     source: "assets/test_bypass.png"
+                    pos: self.parent.pos
+                    size: self.parent.size
                     allow_stretch: True
                     keep_ratio: True
-                    canvas.before:
-                        Color:
-                            rgba: (0.2, 0.8, 0.2, 1) if root.bypass_highlighted else (1, 1, 1, 1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                Label:
-                    text: "BYPASS"
-                    font_size: "16sp"
-                    size_hint_y: 0.2
-                    color: (0.2, 0.8, 0.2, 1) if root.bypass_highlighted else (1, 1, 1, 1)
-
-        # Back button
-        BoxLayout:
-            orientation: "horizontal"
-            spacing: 5
-            padding: [10, 5]
-            size_hint_y: 0.15
-            Label:
-                text: ""
-                size_hint_x: 0.3
-            Button:
-                id: back_btn
-                text: "Back"
-                font_size: "20sp"
-                size_hint_x: 0.4
-                on_release: root.on_back_pressed()
-            Label:
-                text: ""
-                size_hint_x: 0.3
