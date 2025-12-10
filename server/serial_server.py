@@ -6,9 +6,12 @@ from command_handler import CommandHandler
 from log.logger import Logger
 from config.config import ConfigManager
 
-SET_THRESHOLD_RESPONSE_COMMAND:int = 0x0B
-SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND: int = 0xB0
-RAW_DATA_RESPONSE_COMMAND:int = 0xAA
+SET_THRESHOLD_COMMAND:int = 0x0B
+SET_DEFAULT_CALIBRATION_COMMAND: int = 0xB0
+NOTIFY_RAW_DATA_COMMAND:int = 0xAA
+GET_FIRMWARE_VERSION_COMMAND:int=0xFB
+GET_HARDWARE_VERSION_COMMAND:int=0xFC
+RESET_TO_BOOTLOADER_COMMAND:int=0xFA
 
 class CommandData:
     def __init__(self, command_type: int, data_length: int, data: bytes):
@@ -65,7 +68,7 @@ class SerialServer:
 
     def send_default_calibration_request(self) -> int:
         req_value = 1
-        command_type = SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND
+        command_type = SET_DEFAULT_CALIBRATION_COMMAND
         encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
         data_length = 1
         encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
@@ -77,7 +80,7 @@ class SerialServer:
 
     def send_set_threshold_request(self, threshold: int) -> int:
         req_value = threshold
-        command_type = SET_THRESHOLD_RESPONSE_COMMAND
+        command_type = SET_THRESHOLD_COMMAND
         encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
         data_length = 2
         encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
@@ -88,13 +91,40 @@ class SerialServer:
         return num
     
     def send_get_firmware_version_request(self) -> int:
-        pass
+        req_value = 1
+        command_type = GET_FIRMWARE_VERSION_COMMAND
+        encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
+        data_length = 1
+        encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
+        encoded += req_value.to_bytes(1, self.bytes_endian) # data value
+        
+        num = self._write_data(encoded)
+        print(f"Send get firmware request to serial port. bytes: {num}")
+        return num
 
     def send_get_hardware_version_request(self) -> int:
-        pass
+        req_value = 1
+        command_type = GET_HARDWARE_VERSION_COMMAND
+        encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
+        data_length = 1
+        encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
+        encoded += req_value.to_bytes(1, self.bytes_endian) # data value
+        
+        num = self._write_data(encoded)
+        print(f"Send get hardware request to serial port. bytes: {num}")
+        return num
     
     def send_reset_to_bootloader_request(self) -> int:
-        pass
+        req_value = 1
+        command_type = RESET_TO_BOOTLOADER_COMMAND
+        encoded = command_type.to_bytes(1, self.bytes_endian) # command_type
+        data_length = 1
+        encoded += data_length.to_bytes(1, self.bytes_endian) # data_length
+        encoded += req_value.to_bytes(1, self.bytes_endian) # data value
+        
+        num = self._write_data(encoded)
+        print(f"Send reset to bootloader request to serial port. bytes: {num}")
+        return num
 
     def _read_data(self):
         while self.running:
@@ -177,11 +207,17 @@ class SerialServer:
         return self._write_data(encoded)
     
     def need_send_back_response_to_controller(self, command_type: int):
-        if command_type == RAW_DATA_RESPONSE_COMMAND:
+        if command_type == NOTIFY_RAW_DATA_COMMAND:
             return False
-        elif command_type == SET_THRESHOLD_RESPONSE_COMMAND:
+        elif command_type == SET_THRESHOLD_COMMAND:
             return False
-        elif command_type == SET_DEFAULT_CALIBRATION_RESPONSE_COMMAND:
+        elif command_type == SET_DEFAULT_CALIBRATION_COMMAND:
+            return False
+        elif command_type == GET_FIRMWARE_VERSION_COMMAND:
+            return False
+        elif command_type == GET_HARDWARE_VERSION_COMMAND:
+            return False
+        elif command_type == RESET_TO_BOOTLOADER_COMMAND:
             return False
         return True
     

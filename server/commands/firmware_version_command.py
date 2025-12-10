@@ -1,9 +1,10 @@
 from .base_command import BaseCommand
 
-class GetFirmwareVersionCommandResp(BaseCommand):
+class FirmwareVersionCommand(BaseCommand):
     def __init__(self):
         super().__init__()
-        self.name = "get_firmware_version_resp"
+        self.name = "firmware_version"
+        self.command = 0xBF
         self.data_len = 6
         self.major = None
         self.minor = None

@@ -1,9 +1,10 @@
 from .base_command import BaseCommand
 
-class GetHardwareVersionCommandResp(BaseCommand):
+class HardwareVersionCommand(BaseCommand):
     def __init__(self):
         super().__init__()
-        self.name = "get_hardware_version_resp"
+        self.name = "hardware_version"
+        self.command = 0xCF
         self.data_len = 6
         self.major = None
         self.minor = None

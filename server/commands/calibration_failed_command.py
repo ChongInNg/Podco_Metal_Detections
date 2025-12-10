@@ -4,6 +4,7 @@ class CalibrationFailedCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "calibration_failed"
+        self.command = 0xC0
         self.data_len = 2
         self.reason = None
 

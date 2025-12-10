@@ -4,6 +4,7 @@ class DetectionCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "detection"
+        self.command = 0x0A
         self.data_len = 8
         self.ch1_area_p = None
         self.ch1_area_n = None

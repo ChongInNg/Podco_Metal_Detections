@@ -73,16 +73,16 @@
         {
             "name": "get_firmware_version_response",
             "command_type": "0xFB",
-            "data_length_bytes": 6,
-            "each_item_bytes": 2, 
-            "data": [1,2,3]
+            "data_length_bytes": 1,
+            "each_item_bytes": 1, 
+            "data": [1]
         },
         {
             "name": "get_hardware_version_response",
             "command_type": "0xFC",
-            "data_length_bytes": 6,
-            "each_item_bytes": 2, 
-            "data": [3,2,1]
+            "data_length_bytes": 1,
+            "each_item_bytes": 1, 
+            "data": [1]
         },
         {
             "name": "reset_to_bootloader_response",
@@ -90,6 +90,20 @@
             "data_length_bytes": 1,
             "each_item_bytes": 1, 
             "data": [1]
+        },
+        {
+            "name": "firmware_version",
+            "command_type": "0xBF",
+            "data_length_bytes": 6,
+            "each_item_bytes": 2, 
+            "data": [1,2,3]
+        },
+        {
+            "name": "hardware_version",
+            "command_type": "0xCF",
+            "data_length_bytes": 6,
+            "each_item_bytes": 2, 
+            "data": [3,1,2]
         }
     ]
 }

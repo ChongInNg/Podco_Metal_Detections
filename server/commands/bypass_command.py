@@ -4,6 +4,7 @@ class BypassCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "bypass"
+        self.command = 0x0F
         self.data_len = 2
         self.bypass = None
 

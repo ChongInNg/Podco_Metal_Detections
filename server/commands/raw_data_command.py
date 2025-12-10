@@ -4,6 +4,7 @@ class RawDataCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "raw_data"
+        self.command = 0xAA
         self.data_len = 12
         self.input1_raw = None
         self.input2_raw = None

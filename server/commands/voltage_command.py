@@ -4,6 +4,7 @@ class VoltageCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "voltage"
+        self.command = 0x0D
         self.data_len = 2
         self.voltage = None
 

@@ -4,6 +4,7 @@ class CalibrationCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "calibration"
+        self.command = 0xA0
         self.data_len = 14
         self.pos_threshold1 = None
         self.neg_threshold1 = None

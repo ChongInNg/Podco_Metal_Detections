@@ -4,6 +4,7 @@ class CalButtCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "calbutt"
+        self.command = 0xD0
         self.data_len = 2
         self.calbutt = 0
 

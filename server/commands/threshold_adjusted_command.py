@@ -4,6 +4,7 @@ class ThresholdAdjustedCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.name = "threshold"
+        self.command = 0xF0
         self.data_len = 2
         self.area_threshold = None
 

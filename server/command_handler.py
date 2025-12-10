@@ -4,14 +4,12 @@ from commands.raw_data_command import RawDataCommand
 from commands.threshold_adjusted_command import ThresholdAdjustedCommand
 from commands.bypass_command import BypassCommand
 from commands.base_command import BaseCommand
-from commands.set_threshold_command_resp import SetThresholdCommandResp
-from commands.set_default_calibration_command_resp import SetDefaultCalibrationCommandResp
+from commands.ack_command_resps import *
 from commands.calibration_failed_command import CalibrationFailedCommand
 from commands.voltage_command import VoltageCommand
 from commands.calbutt_command import CalButtCommand
-from commands.get_firmware_version_command_resp import GetFirmwareVersionCommandResp
-from commands.get_hardware_version_command_resp import GetHardwareVersionCommandResp
-from commands.reset_to_bootloader_command_resp import ResetToBootloaderCommandResp
+from commands.firmware_version_command import FirmwareVersionCommand
+from commands.hardware_version_command import HardwareVersionCommand
 
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
@@ -40,7 +38,9 @@ class CommandHandler:
         0xD0: CalButtCommand,
         0xFA: ResetToBootloaderCommandResp,
         0xFB: GetFirmwareVersionCommandResp,
-        0xFC: GetHardwareVersionCommandResp
+        0xFC: GetHardwareVersionCommandResp,
+        0xBF: FirmwareVersionCommand,
+        0xCF: HardwareVersionCommand
     }
 
     def __init__(self):
@@ -126,10 +126,7 @@ class CommandHandler:
             return GetFirmwareVersionResponse.create_message(
                 id="get_firmware_version",
                 code="OK",
-                message="Get firmware version from controller success.",
-                major=command.major,
-                minor=command.minor,
-                bugfix=command.bugfix
+                message="Get firmware version from controller success."
             )
         elif isinstance(command, GetHardwareVersionCommandResp):
             Logger.info("Received get hardware version response")
@@ -137,9 +134,6 @@ class CommandHandler:
                 id="get_hardware_version",
                 code="OK",
                 message="Get hardware version from controller success.",
-                major=command.major,
-                minor=command.minor,
-                bugfix=command.bugfix
             )
         elif isinstance(command, ResetToBootloaderCommandResp):
             Logger.info("Received reset to bootloader response")
@@ -147,6 +141,20 @@ class CommandHandler:
                 id="reset_to_bootloader",
                 code="OK",
                 message="Reset to bootloader controller success."
+            )
+        elif isinstance(command, FirmwareVersionCommand):
+            Logger.info("Received FirmwareVersionCommand")
+            return NotifyFirmwareVersion.create_message(
+                major=command.major,
+                minor=command.minor,
+                bugfix=command.bugfix
+            )
+        elif isinstance(command, HardwareVersionCommand):
+            Logger.info("Received HardwareVersionCommand")
+            return NotifyHardwareVersion.create_message(
+                major=command.major,
+                minor=command.minor,
+                bugfix=command.bugfix
             )
         else:
             raise ValueError(f"Unknown command: {command.name}")
