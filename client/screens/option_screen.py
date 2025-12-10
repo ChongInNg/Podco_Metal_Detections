@@ -15,13 +15,17 @@ class OptionScreen(Screen):
     setting_hidden = BooleanProperty(False)
     detection_hidden = BooleanProperty(False)
     calibration_hidden = BooleanProperty(False)
+    system_hidden = BooleanProperty(False)
+    status_hidden = BooleanProperty(False)
 
     admin_button_ids = ["detection_btn", "calibration_btn", 
-                "analyzer_btn", "status_btn", "setting_btn", "exit_btn"]
+                "analyzer_btn", "status_btn", "setting_btn","system_btn", "exit_btn"]
     
     user_button_ids = ["detection_btn", "calibration_btn",  "status_btn",
                 "setting_btn", "exit_btn"]
     
+    MAX_VISIBLE_BUTTONS = 4
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.button_ids = OptionScreen.user_button_ids
@@ -29,6 +33,7 @@ class OptionScreen(Screen):
     def on_kv_post(self, base_widget):
         self.reset_data()
         self._hide_analyzer_option()
+        self._hide_system_option()
         self._hide_exit_option()
  
     def reset_data(self):
@@ -53,32 +58,54 @@ class OptionScreen(Screen):
 
         self.reset_ui_visiblities()
                 
-    
+    def _show_button(self, button_id):
+        if button_id == "detection_btn":
+            self._show_detection_option()
+        elif button_id == "calibration_btn":
+            self._show_calibration_option()
+        elif button_id == "analyzer_btn":
+            self._show_analyzer_option()
+        elif button_id == "setting_btn":
+            self._show_setting_option()
+        elif button_id == "status_btn":
+            self._show_status_option()
+        elif button_id == "system_btn":
+            self._show_system_option()
+        elif button_id == "exit_btn":
+            self._show_exit_option()
+
+    def _hide_button(self, button_id):
+        if button_id == "detection_btn":
+            self._hide_detection_option()
+        elif button_id == "calibration_btn":
+            self._hide_calibration_option()
+        elif button_id == "analyzer_btn":
+            self._hide_analyzer_option()
+        elif button_id == "setting_btn":
+            self._hide_setting_option()
+        elif button_id == "status_btn":
+            self._hide_status_option()
+        elif button_id == "system_btn":
+            self._hide_system_option()
+        elif button_id == "exit_btn":
+            self._hide_exit_option()
+
     def reset_ui_visiblities(self):
-        if RoleManager.instance().is_admin():
-            if self.current_button == "detection_btn":
-                self._hide_exit_option()
-                self._hide_setting_option()
-                self._show_detection_option()
-                self._show_calibration_option()
-                self._show_analyzer_option()
-            elif self.current_button == "status_btn":
-                self._hide_exit_option()
-                self._hide_detection_option()
-                self._show_setting_option()
-                self._show_calibration_option()
-            elif self.current_button == "exit_btn":
-                self._show_exit_option()
-                self._show_setting_option()
-                self._hide_detection_option()
-                self._hide_calibration_option()
-        else:
-            if self.current_button == "detection_btn":
-                self._hide_exit_option()
-                self._show_detection_option()
-            elif self.current_button == "exit_btn":
-                self._show_exit_option()
-                self._hide_detection_option()
+        if len(self.button_ids) <= self.MAX_VISIBLE_BUTTONS:
+            for button_id in self.button_ids:
+                self._show_button(button_id)
+            return
+        
+        current_index = self.button_ids.index(self.current_button)
+        visible_start = max(0, min(current_index - 1, len(self.button_ids) - self.MAX_VISIBLE_BUTTONS))
+        visible_end = visible_start + self.MAX_VISIBLE_BUTTONS
+        #print(f"start: {visible_start}, end: {visible_end}")
+
+        for i, button_id in enumerate(self.button_ids):
+            if visible_start <= i < visible_end:
+                self._show_button(button_id)
+            else:
+                self._hide_button(button_id)
 
     def clear_focus(self):
         for button_id in self.button_ids:
@@ -103,6 +130,8 @@ class OptionScreen(Screen):
             self.on_setting_btn_click()
         elif self.current_button == "status_btn":
             self.on_status_btn_click()
+        elif self.current_button == "system_btn":
+            self.on_system_btn_click()
         elif self.current_button == "exit_btn":
             self.on_exit_btn_click()
         else:
@@ -126,7 +155,9 @@ class OptionScreen(Screen):
 
     def on_setting_btn_click(self):
         self.navigate_to_screen("setting")
-
+    def on_system_btn_click(self):
+        self.navigate_to_screen("system")
+        
     def on_status_btn_click(self):
          self.navigate_to_screen("status")
 
@@ -150,6 +181,14 @@ class OptionScreen(Screen):
     def _show_detection_option(self):
         self.detection_hidden = False
         self.ids.detection_layout.opacity = 1
+
+    def _hide_system_option(self):
+        self.system_hidden = True
+        self.ids.system_layout.opacity = 0
+
+    def _show_system_option(self):
+        self.system_hidden = False
+        self.ids.system_layout.opacity = 1
 
     def _hide_exit_option(self):
         self.exit_hidden = True
@@ -175,20 +214,20 @@ class OptionScreen(Screen):
         self.calibration_hidden = False
         self.ids.calibration_layout.opacity = 1
 
+    def _hide_status_option(self):
+        self.status_hidden = True
+        self.ids.status_layout.opacity = 0
+
+    def _show_status_option(self):
+        self.status_hidden = False
+        self.ids.status_layout.opacity = 1
+
     def update_ui_when_admin_login(self):
-        self._show_analyzer_option()
-        self._hide_exit_option()
-        self._hide_setting_option()
-        self._show_detection_option()
-        self._show_calibration_option()
         self.button_ids = OptionScreen.admin_button_ids
+        self.reset_ui_visiblities()
 
     def update_ui_when_user_login(self):
-        self._hide_analyzer_option()
-        self._hide_exit_option()
-
-        self._show_detection_option()
-        self._show_calibration_option()
-        self._show_setting_option()
         self.button_ids = OptionScreen.user_button_ids
-
+        self._hide_analyzer_option()
+        self._hide_system_option()
+        self.reset_ui_visiblities()

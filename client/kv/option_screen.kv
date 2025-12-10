@@ -81,9 +81,11 @@
 
             # "Status"
             BoxLayout:
+                id: status_layout
                 orientation: "horizontal"
                 spacing: 5
-                size_hint_y: 1
+                size_hint_y: None if root.status_hidden else 1
+                height: 0 if root.status_hidden else self.height
 
                 Image:
                     source: "assets/status_icon.png"
@@ -119,6 +121,26 @@
                     on_release: root.on_setting_btn_click()
                     font_size: "26sp"
 
+            # "System"
+            BoxLayout:
+                id: system_layout
+                orientation: "horizontal"
+                spacing: 5
+                size_hint_y: None if root.system_hidden else 1
+                height: 0 if root.system_hidden else self.height
+
+                Image:
+                    source: "assets/system_icon.png"
+                    size_hint: None, None
+                    size: 48, 48
+                    fit_mode: 'contain'
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                Button:
+                    id: system_btn
+                    text: "System"
+                    on_release: root.on_system_btn_click()
+                    font_size: "26sp"
             # "Exit"
             BoxLayout:
                 id: exit_layout
