@@ -215,7 +215,12 @@ class BaseWsMessage:
                 return GetHardwareVersionRequest.from_dict(header=header, data=msg_data)
             else:
                 return GetHardwareVersionResponse.from_dict(header=header, data=msg_data) 
-            
+        elif header.is_reset_to_bootloader_message():
+            if header.is_request():
+                return ResetToBootloaderRequest.from_dict(header=header, data=msg_data)
+            else:
+                return ResetToBootloaderResponse.from_dict(header=header, data=msg_data)
+    
         elif header.is_system_error_message():
             return SystemErrorResponse.from_dict(header=header, data=msg_data)
         elif header.is_notify_bypass_message():

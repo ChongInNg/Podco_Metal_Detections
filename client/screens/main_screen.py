@@ -62,6 +62,16 @@ class MainScreen(Screen):
                 self._handle_voltage(msg)
             elif isinstance(msg, NotifyCalButtMessage):
                 self._handle_calbutt_clicked(msg)
+            elif isinstance(msg, NotifyFirmwareVersion):
+                self._handle_firmware_version_data(msg)
+            elif isinstance(msg, NotifyHardwareVersion):
+                self._handle_hardware_version_data(msg)
+            elif isinstance(msg, GetFirmwareVersionResponse):
+                self._handle_firmware_version_response(msg)
+            elif isinstance(msg, GetHardwareVersionResponse):
+                self._handle_hardware_version_response(msg)
+            elif isinstance(msg, ResetToBootloaderResponse):
+                self._handle_reset_to_bootloader_response(msg)
             else:
                 Logger.error(f"Cannot handle this message: {msg}")
         except Exception as ex:
@@ -202,3 +212,18 @@ class MainScreen(Screen):
 
     def _handle_calbutt_clicked(self, msg: NotifyCalButtMessage):
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_setting_screen().update_calbutt(msg.calbutt))
+
+    def _handle_firmware_version_data(self, msg: NotifyFirmwareVersion):
+        pass
+
+    def _handle_hardware_version_data(self, msg: NotifyHardwareVersion):
+        pass
+
+    def _handle_firmware_version_response(self, msg: GetFirmwareVersionResponse):
+        pass
+
+    def _handle_hardware_version_response(self, msg: GetHardwareVersionResponse):
+        pass
+
+    def _handle_reset_to_bootloader_response(self, msg: ResetToBootloaderResponse):
+        pass
