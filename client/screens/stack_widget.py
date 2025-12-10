@@ -12,6 +12,7 @@ from screens.analyzer_screen import AnalyzerScreen
 from screens.screen_header import ScreenHeader
 from screens.setting_screen import SettingScreen
 from screens.status_screen import StatusScreen
+from screens.system_screen import SystemScreen
 from screens.common_popup import CommonPopup
 from log.logger import Logger
 from controller.role_manager import RoleManager
@@ -92,6 +93,9 @@ class StackWidget(Screen):
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_up_pressed()
+            elif self.is_system():
+                system_screen = self.get_system_screen()
+                system_screen.on_up_pressed()
             else:
                 Logger.debug(f"Not support up direction in this screen: {self.current_screen}")
 
@@ -108,6 +112,9 @@ class StackWidget(Screen):
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_down_pressed()
+            elif self.is_system():
+                system_screen = self.get_system_screen()
+                system_screen.on_down_pressed()
             else:
                 Logger.debug(f"Not support down direction in this screen: {self.current_screen}")
 
@@ -121,6 +128,9 @@ class StackWidget(Screen):
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.handle_on_enter()
+            elif self.is_system():
+                system_screen = self.get_system_screen()
+                system_screen.handle_on_enter()
             else:
                 Logger.debug(f"Not support center direction in this screen: {self.current_screen}")
         elif direction == "up_down":
@@ -171,6 +181,10 @@ class StackWidget(Screen):
         elif self.is_status():
             screen = self.get_status_screen()
             title = screen.get_title()
+        elif self.is_system():
+            screen = self.get_system_screen()
+            title = screen.get_title()
+            screen.reset_data()
         self.get_screen_header().update_header(title)
 
     def change_to_option_screen(self):
@@ -206,6 +220,9 @@ class StackWidget(Screen):
     def is_status(self) -> bool:
         return self.current_screen == "status"
     
+    def is_system(self) -> bool:
+        return self.current_screen == "system"
+    
     def get_option_screen(self) -> OptionScreen:
         return self.ids.stack_manager.get_screen("option")
     
@@ -223,6 +240,9 @@ class StackWidget(Screen):
     
     def get_status_screen(self)-> StatusScreen:
         return self.ids.stack_manager.get_screen("status")
+    
+    def get_system_screen(self)-> SystemScreen:
+        return self.ids.stack_manager.get_screen("system")
 
     def get_screen_header(self)-> ScreenHeader:
         app = App.get_running_app()
