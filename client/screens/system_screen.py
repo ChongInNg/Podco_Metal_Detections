@@ -20,15 +20,15 @@ class SystemScreen(Screen):
     firmware_version = StringProperty(DEFAULT_VERSION)
     hardware_version = StringProperty(DEFAULT_VERSION)
     current_button = StringProperty('upgrade_btn')
-    
-    button_ids = ['upgrade_btn', 'rollback_btn', 'back_btn']
+    versions_loaded = BooleanProperty(False)
+    show_retry_button = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.is_upgrading = False
         
         self.loading_screen = LoadingScreen(
-            timeout=3,
+            timeout=10,
             on_timeout_callback=self.on_version_request_timeout
         )
         
@@ -37,11 +37,22 @@ class SystemScreen(Screen):
         self.firmware_response_received = False
         self.hardware_response_received = False
     
+    def get_button_ids(self):
+        if self.show_retry_button:
+            return ['retry_btn', 'back_btn']
+        elif self.versions_loaded:
+            return ['upgrade_btn', 'rollback_btn', 'back_btn']
+        else:
+            return ['back_btn']
+
     def on_kv_post(self, base_widget):
         self.reset_data()
 
     def reset_data(self):
-        self.current_button = 'upgrade_btn'
+        self.versions_loaded = False
+        self.show_retry_button = False
+        button_ids = self.get_button_ids()
+        self.current_button = button_ids[0]
         self.set_focus_button(self.current_button)
         self.request_versions()
 
@@ -50,8 +61,16 @@ class SystemScreen(Screen):
             Logger.warning("WebSocket not connected, cannot request versions")
             self.firmware_version = DEFAULT_VERSION
             self.hardware_version = DEFAULT_VERSION
+            self.versions_loaded = False
+            self.show_retry_button = True
+
+            button_ids = self.get_button_ids()
+            self.current_button = button_ids[0]
+            self.set_focus_button(self.current_button)
+            self.show_error_popup("Server not connected! Please try again.")
             return
-    
+
+        self.show_retry_button = False
         self.firmware_response_received = False
         self.hardware_response_received = False
    
@@ -68,28 +87,44 @@ class SystemScreen(Screen):
 
     def update_firmware_version_ack(self):
         Logger.debug("Received get firmware version ack")
+        if self.loading_screen.is_showing():
+            self.loading_screen.update_message("Got firmware vesion ack")
 
     def update_hardware_version_ack(self):
         Logger.debug("Received get hardware version ack")
+        if self.loading_screen.is_showing():
+            self.loading_screen.update_message("Got hardware vesion ack")
 
     def update_firmware_version_response(self, major: int, minor:int, bugfix: int):
         self.firmware_response_received = True
         self.firmware_version = f"{major}.{minor}.{bugfix}"
         Logger.debug(f"Firmware version updated: { self.firmware_version}")
-        
+        if self.loading_screen.is_showing():
+            self.loading_screen.update_message(f"Got firmware vesion: {self.firmware_version}")
         self.check_all_responses_received()
 
     def update_hardware_version_response(self, major: int, minor:int, bugfix: int):
         self.hardware_response_received = True
         self.hardware_version = f"{major}.{minor}.{bugfix}"
         Logger.debug(f"Hardware version updated: {self.hardware_version}")
-
+        if self.loading_screen.is_showing():
+            self.loading_screen.update_message(f"Got hardware vesion: {self.hardware_version}")
         self.check_all_responses_received()
 
     def check_all_responses_received(self):
         if self.firmware_response_received and self.hardware_response_received:
             Logger.debug("Both version responses received, hiding loading screen")
             self.loading_screen.hide()
+
+            if self.common_popup.is_showing():
+                self.common_popup.handle_dismiss(self)
+
+            self.versions_loaded = True
+            self.show_retry_button = False
+
+            button_ids = self.get_button_ids()
+            self.current_button = button_ids[0]
+            self.set_focus_button(self.current_button)
 
     def on_version_request_timeout(self):
         Logger.warning("Version request timed out")
@@ -98,7 +133,14 @@ class SystemScreen(Screen):
             self.firmware_version = DEFAULT_VERSION
         if not self.hardware_response_received:
             self.hardware_version = DEFAULT_VERSION
-        
+
+        self.versions_loaded = False
+        self.show_retry_button = True
+
+        button_ids = self.get_button_ids()
+        self.current_button = button_ids[0] #retry button
+        self.set_focus_button(self.current_button)
+
         self.show_error_popup("Request timed out! Please try again.")
 
     def show_error_popup(self, message):
@@ -116,10 +158,11 @@ class SystemScreen(Screen):
         if self.common_popup.is_showing():
             Logger.debug("popup is showing, ignore up pressed")
             return
-        
-        current_index = self.button_ids.index(self.current_button)
-        new_index = (current_index - 1) % len(self.button_ids)
-        self.current_button = self.button_ids[new_index]
+
+        button_ids = self.get_button_ids()
+        current_index = button_ids.index(self.current_button)
+        new_index = (current_index - 1) % len(button_ids)
+        self.current_button = button_ids[new_index]
         self.set_focus_button(self.current_button)
     
     def on_down_pressed(self):
@@ -129,14 +172,16 @@ class SystemScreen(Screen):
         if self.common_popup.is_showing():
             Logger.debug("popup is showing, ignore down pressed")
             return
-        
-        current_index = self.button_ids.index(self.current_button)
-        new_index = (current_index + 1) % len(self.button_ids)
-        self.current_button = self.button_ids[new_index]
+
+        button_ids = self.get_button_ids()
+        current_index = button_ids.index(self.current_button)
+        new_index = (current_index + 1) % len(button_ids)
+        self.current_button = button_ids[new_index]
         self.set_focus_button(self.current_button)
 
     def clear_focus(self):
-        for button_id in self.button_ids:
+        all_button_ids = ['upgrade_btn', 'rollback_btn', 'retry_btn', 'back_btn']
+        for button_id in all_button_ids:
             if button_id in self.ids:
                 self.ids[button_id].state = "normal"
 
@@ -149,16 +194,18 @@ class SystemScreen(Screen):
         if self.loading_screen.is_showing():
             Logger.debug("loading scree is showing, ignore enter pressed")
             return
-        
+
         if self.common_popup.is_showing():
             Logger.debug("pop up is showing, dismiss it when enter pressed")
             self.dismiss_popups()
             return
-        
+
         if self.current_button == 'upgrade_btn':
             self.on_upgrade_btn_click()
         elif self.current_button == 'rollback_btn':
             self.on_rollback_btn_click()
+        elif self.current_button == 'retry_btn':
+            self.on_retry_btn_click()
         elif self.current_button == 'back_btn':
             self.on_back_btn_click()
         
@@ -173,6 +220,10 @@ class SystemScreen(Screen):
     def on_rollback_btn_click(self):
         Logger.debug("Rollback button clicked")
         pass
+
+    def on_retry_btn_click(self):
+        Logger.debug("Retry button clicked - requesting versions again")
+        self.request_versions()
 
     def on_back_btn_click(self):
         Logger.debug("Back button clicked")

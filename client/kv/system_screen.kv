@@ -78,6 +78,7 @@
                 size_hint_x: 0.5
                 size_hint_y: 0.6
                 font_size: "18sp"
+                disabled: not root.versions_loaded
                 on_release: root.on_upgrade_btn_click()
 
             # Row 4: Rollback Button
@@ -95,6 +96,7 @@
                 size_hint_x: 0.5
                 size_hint_y: 0.6
                 font_size: "18sp"
+                disabled: not root.versions_loaded
                 on_release: root.on_rollback_btn_click()
 
         # Back button at bottom
@@ -107,8 +109,16 @@
                 text: ""
                 size_hint_x: 0.5
             Button:
+                id: retry_btn
+                text: "Retry"
+                font_size: "18sp"
+                size_hint_x: 0.25
+                opacity: 1 if root.show_retry_button else 0
+                disabled: not root.show_retry_button
+                on_release: root.on_retry_btn_click()
+            Button:
                 id: back_btn
                 text: "Back"
                 font_size: "18sp"
-                size_hint_x: 0.5
+                size_hint_x: 0.25
                 on_release: root.on_back_btn_click()
