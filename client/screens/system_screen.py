@@ -49,12 +49,13 @@ class SystemScreen(Screen):
         self.reset_data()
 
     def reset_data(self):
-        self.versions_loaded = False
+        # self.versions_loaded = False
         self.show_retry_button = False
         button_ids = self.get_button_ids()
         self.current_button = button_ids[0]
         self.set_focus_button(self.current_button)
-        self.request_versions()
+        if not self.versions_loaded:
+            self.request_versions()
 
     def request_versions(self):
         if not WebSocketClient.instance().is_connected():
