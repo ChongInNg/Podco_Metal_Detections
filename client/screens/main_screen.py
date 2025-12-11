@@ -214,16 +214,28 @@ class MainScreen(Screen):
         Clock.schedule_once(lambda dt: self.get_stack_widget().get_setting_screen().update_calbutt(msg.calbutt))
 
     def _handle_firmware_version_data(self, msg: NotifyFirmwareVersion):
-        pass
+        system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.update_firmware_version_response(
+            major=msg.major,
+            minor=msg.minor,
+            bugfix=msg.bugfix
+        ))
 
     def _handle_hardware_version_data(self, msg: NotifyHardwareVersion):
-        pass
+        system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.update_hardware_version_response(
+            major=msg.major,
+            minor=msg.minor,
+            bugfix=msg.bugfix
+        ))
 
     def _handle_firmware_version_response(self, msg: GetFirmwareVersionResponse):
-        pass
+        system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.update_firmware_version_ack())
 
     def _handle_hardware_version_response(self, msg: GetHardwareVersionResponse):
-        pass
+        system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.update_hardware_version_ack())
 
     def _handle_reset_to_bootloader_response(self, msg: ResetToBootloaderResponse):
-        pass
+        system_screen = self.get_stack_widget().get_system_screen()
