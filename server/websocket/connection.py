@@ -38,6 +38,8 @@ class Connection:
                 await self.handle_get_hardware_version(message)
             elif isinstance(message, ResetToBootloaderRequest):
                 await self.handle_reset_to_bootloader(message)
+            elif isinstance(message, UpdateFirmwareRequest):
+                await self.handle_update_firmware(message)
             else:
                 Logger.warning(f"Cannot handle this message: {message}")
         except Exception as e:
@@ -205,3 +207,10 @@ class Connection:
             )
             await self.conn.send(rsp.to_json())
             Logger.error(f"Handle reset to bootloader version request failed: {rsp.to_dict()}")
+
+    async def handle_update_firmware(self, message: UpdateFirmwareRequest):
+        Logger.debug("Received update firmware request")
+        rsp = UpdateFirmwareResponse.create_message(id=message.id, code="OK")
+        await self.conn.send(rsp.to_json())
+        Logger.debug("handle update firmware request successfully")
+        pass

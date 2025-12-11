@@ -17,6 +17,7 @@ MessageName_SystemError = "system_error"
 MessageName_GetFirmwareVersion = "get_firmware_version"
 MessageName_GetHardwareVersion = "get_hardware_version"
 MessageName_ResetToBootloader = "reset_to_bootloader"
+MessageName_UpdateFirmware = "update_firmware"
 
 MessageName_NotifyByPass = "notify_bypass"
 MessageName_NotifyCalibration = "notify_calibration"
@@ -29,6 +30,7 @@ MessageName_NotifyVoltage = "notify_voltage"
 MessageName_NotifyCalButt = "notify_calbutt"
 MessageName_NotifyFirmwareVersion = "notify_firmware_version"
 MessageName_NotifyHardwareVersion = "notify_hardware_version"
+MessageName_NotifyFirmwareProgress = "notify_firmware_progress"
 
 class Header:
     def __init__(self, name: str, message_type: str, id: str=None, ts: str = None):
@@ -78,6 +80,9 @@ class Header:
     def is_reset_to_bootloader_message(self):
         return self.name == MessageName_ResetToBootloader
     
+    def is_update_firmware_message(self):
+        return self.name == MessageName_UpdateFirmware
+    
     def is_notify_bypass_message(self):
         return self.name == MessageName_NotifyByPass
 
@@ -114,6 +119,9 @@ class Header:
     def is_notify_hardware_version_message(self):
         return self.name == MessageName_NotifyHardwareVersion
     
+    def is_notify_firmware_progress(self):
+        return self.name == MessageName_NotifyFirmwareProgress
+    
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
         name = data.get("name")
@@ -146,7 +154,9 @@ class Header:
             MessageName_GetHardwareVersion,
             MessageName_ResetToBootloader,
             MessageName_NotifyFirmwareVersion,
-            MessageName_NotifyHardwareVersion
+            MessageName_NotifyHardwareVersion,
+            MessageName_UpdateFirmware,
+            MessageName_NotifyFirmwareProgress
         ]:
             if name == message_name:
                 return
@@ -220,7 +230,12 @@ class BaseWsMessage:
                 return ResetToBootloaderRequest.from_dict(header=header, data=msg_data)
             else:
                 return ResetToBootloaderResponse.from_dict(header=header, data=msg_data)
-    
+        elif header.is_update_firmware_message():
+            if header.is_request():
+                return UpdateFirmwareRequest.from_dict(header=header, data=data)
+            else:
+                return UpdateFirmwareResponse.from_dict(header=header, data=msg_data)
+
         elif header.is_system_error_message():
             return SystemErrorResponse.from_dict(header=header, data=msg_data)
         elif header.is_notify_bypass_message():
@@ -245,6 +260,8 @@ class BaseWsMessage:
             return NotifyFirmwareVersion.from_dict(header=header, data=msg_data)
         elif header.is_notify_hardware_version_message():
             return NotifyHardwareVersion.from_dict(header=header, data=msg_data)
+        elif header.is_notify_firmware_progress():
+            return NotifyFirmwareProgress.from_dict(header=header, data=msg_data)
         else:
             raise ValueError(f"Message name is wrong. {header.to_dict()}")
         
@@ -1321,3 +1338,95 @@ class NotifyHardwareVersion(BaseWsNotify)   :
         
         header = Header(name=MessageName_NotifyHardwareVersion, message_type=MessageType_Notify)
         return cls(header, major, minor, bugfix)
+    
+class UpdateFirmwareRequest(BaseWsRequest):
+    def __init__(self, header: Header, hardware_version: str, action: str):
+        super().__init__(header=header)
+        self.hardware_version = hardware_version
+        self.action = action
+
+    def to_dict(self) -> dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "hardware_version": self.hardware_version,
+            "action": self.action,
+        }
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'UpdateFirmwareRequest':
+        if not header.is_update_firmware_message():
+            raise ValueError("Message is not UpdateFirmwareRequest.")
+        
+        hardware_version = data.get("hardware_version")
+        if hardware_version is None or not isinstance(hardware_version, str):
+            raise ValueError("hardware_version is not valid.")
+        action = data.get("action")
+        if action is None or not isinstance(action, str):
+            raise ValueError("action is not valid.")
+        return cls(header, hardware_version, action)
+    
+    @classmethod
+    def create_message(cls, hardware_version: str, action: str) -> 'UpdateFirmwareRequest':
+        if hardware_version is None or not isinstance(hardware_version, str):
+            raise ValueError("hardware_version is not valid.")
+        if action is None or not isinstance(action, str):
+            raise ValueError("action is not valid.")
+        header = Header(name=MessageName_UpdateFirmware, message_type=MessageType_Request)
+        return cls(header, hardware_version, action)
+
+class UpdateFirmwareResponse(BaseWsResponse):
+    def __init__(self, header: Header, code: str, message: str, meta: dict=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'UpdateFirmwareResponse':
+        if not header.is_update_firmware_message():
+            raise ValueError("Message is not UpdateFirmwareResponse.")
+        
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        return cls(header, code, message, meta)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, meta: str=None) -> 'RegistrationWsResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+        if code is None or not isinstance(code, str):
+            raise ValueError("code is not valid.")        
+        header = Header(id=id, name=MessageName_UpdateFirmware, message_type=MessageType_Response)
+        return cls(header, code, message, meta)
+    
+class NotifyFirmwareProgress(BaseWsNotify)   :
+    def __init__(self, header: Header, total, progress:int):
+        super().__init__(header=header)
+        self.total = total
+        self.progress = progress
+
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "total": self.total,
+            "progress": self.progress,
+        }
+        return base_dict
+    
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'NotifyFirmwareProgress':
+        if not header.is_notify_firmware_progress():
+            raise ValueError("Message is not NotifyFirmwareProgress.")
+        
+        total = data.get("total")
+        progress = data.get("progress")
+        return cls(header, total, progress)
+    
+    @classmethod
+    def create_message(cls, total, progress:int) -> 'NotifyFirmwareProgress':
+        if total is None or not isinstance(total, int):
+            raise ValueError("total is not valid.")
+        if progress is None or not isinstance(progress, int):
+            raise ValueError("progress is not valid.")
+        
+        header = Header(name=MessageName_NotifyFirmwareProgress, message_type=MessageType_Notify)
+        return cls(header, total, progress)
