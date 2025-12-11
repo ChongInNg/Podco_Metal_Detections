@@ -78,7 +78,7 @@
                 size_hint_x: 0.5
                 size_hint_y: 0.6
                 font_size: "18sp"
-                disabled: not root.versions_loaded
+                disabled: not (root.versions_loaded and root.upgrade_available)
                 on_release: root.on_upgrade_btn_click()
 
             # Row 4: Rollback Button
@@ -96,7 +96,7 @@
                 size_hint_x: 0.5
                 size_hint_y: 0.6
                 font_size: "18sp"
-                disabled: not root.versions_loaded
+                disabled: not (root.versions_loaded and root.rollback_available)
                 on_release: root.on_rollback_btn_click()
 
         # Back button at bottom

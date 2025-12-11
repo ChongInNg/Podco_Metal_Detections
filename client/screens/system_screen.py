@@ -2,12 +2,14 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty, BooleanProperty
 from kivy.lang import Builder
+from kivy.clock import Clock
 from log.logger import Logger
 from websocket.client import WebSocketClient
 from screens.loading_screen import LoadingScreen
 from screens.common_popup import CommonPopup
 import sys
 import os
+import glob
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import GetFirmwareVersionRequest, GetHardwareVersionRequest
@@ -22,6 +24,8 @@ class SystemScreen(Screen):
     current_button = StringProperty('upgrade_btn')
     versions_loaded = BooleanProperty(False)
     show_retry_button = BooleanProperty(False)
+    upgrade_available = BooleanProperty(False)
+    rollback_available = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -41,7 +45,15 @@ class SystemScreen(Screen):
         if self.show_retry_button:
             return ['retry_btn', 'back_btn']
         elif self.versions_loaded:
-            return ['upgrade_btn', 'rollback_btn', 'back_btn']
+            if self.upgrade_available and self.rollback_available:
+                return ['upgrade_btn', 'rollback_btn', 'back_btn']
+            else:
+                if self.upgrade_available:
+                    return ['upgrade_btn',  'back_btn']
+                elif self.rollback_available:
+                    return ['rollback_btn', 'back_btn']
+                else:
+                    return ['back_btn']
         else:
             return ['back_btn']
 
@@ -49,7 +61,6 @@ class SystemScreen(Screen):
         self.reset_data()
 
     def reset_data(self):
-        # self.versions_loaded = False
         self.show_retry_button = False
         button_ids = self.get_button_ids()
         self.current_button = button_ids[0]
@@ -57,18 +68,46 @@ class SystemScreen(Screen):
         if not self.versions_loaded:
             self.request_versions()
 
+    def check_firmware_availability(self):
+        self.upgrade_available = False
+        self.rollback_available = False
+
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+        firmware_versions_dir = os.path.join(base_dir, "firmware_versions")
+
+        if self.hardware_version == DEFAULT_VERSION:
+            Logger.debug("Hardware version not available, cannot check firmware files")
+            return
+
+        hw_version_dir = os.path.join(firmware_versions_dir, self.hardware_version)
+        upgrade_dir = os.path.join(hw_version_dir, "upgrade")
+        rollback_dir = os.path.join(hw_version_dir, "rollback")
+
+        if os.path.exists(upgrade_dir):
+            upgrade_files = glob.glob(os.path.join(upgrade_dir, "*.img"))
+            if upgrade_files:
+                self.upgrade_available = True
+                Logger.debug(f"Upgrade firmware found: {upgrade_files[0]}")
+            else:
+                Logger.debug(f"No .img file found in {upgrade_dir}")
+        else:
+            Logger.debug(f"Upgrade directory not found: {upgrade_dir}")
+
+        if os.path.exists(rollback_dir):
+            rollback_files = glob.glob(os.path.join(rollback_dir, "*.img"))
+            if rollback_files:
+                self.rollback_available = True
+                Logger.debug(f"Rollback firmware found: {rollback_files[0]}")
+            else:
+                Logger.debug(f"No .img file found in {rollback_dir}")
+        else:
+            Logger.debug(f"Rollback directory not found: {rollback_dir}")
+
+        Logger.debug(f"Firmware availability - Upgrade: {self.upgrade_available}, Rollback: {self.rollback_available}")
+
     def request_versions(self):
         if not WebSocketClient.instance().is_connected():
             Logger.warning("WebSocket not connected, cannot request versions")
-            self.firmware_version = DEFAULT_VERSION
-            self.hardware_version = DEFAULT_VERSION
-            self.versions_loaded = False
-            self.show_retry_button = True
-
-            button_ids = self.get_button_ids()
-            self.current_button = button_ids[0]
-            self.set_focus_button(self.current_button)
-            self.show_error_popup("Server not connected! Please try again.")
             return
 
         self.show_retry_button = False
@@ -117,11 +156,10 @@ class SystemScreen(Screen):
             Logger.debug("Both version responses received, hiding loading screen")
             self.loading_screen.hide()
 
-            if self.common_popup.is_showing():
-                self.common_popup.handle_dismiss(self)
-
             self.versions_loaded = True
             self.show_retry_button = False
+
+            self.check_firmware_availability()
 
             button_ids = self.get_button_ids()
             self.current_button = button_ids[0]
@@ -142,7 +180,7 @@ class SystemScreen(Screen):
         self.current_button = button_ids[0] #retry button
         self.set_focus_button(self.current_button)
 
-        self.show_error_popup("Request timed out! Please try again.")
+        Clock.schedule_once(lambda dt: self.show_error_popup("Request timed out! Please try again."), 0.1)
 
     def show_error_popup(self, message):
         self.common_popup.update_title("Error")
