@@ -70,8 +70,10 @@ class MainScreen(Screen):
                 self._handle_firmware_version_response(msg)
             elif isinstance(msg, GetHardwareVersionResponse):
                 self._handle_hardware_version_response(msg)
-            elif isinstance(msg, ResetToBootloaderResponse):
-                self._handle_reset_to_bootloader_response(msg)
+            elif isinstance(msg, UpdateFirmwareResponse):
+                self._handle_update_firmware_response(msg)
+            elif isinstance(msg, NotifyFirmwareProgress):
+                self._handle_notify_firmware_progress(msg)
             else:
                 Logger.error(f"Cannot handle this message: {msg}")
         except Exception as ex:
@@ -231,11 +233,16 @@ class MainScreen(Screen):
 
     def _handle_firmware_version_response(self, msg: GetFirmwareVersionResponse):
         system_screen = self.get_stack_widget().get_system_screen()
-        Clock.schedule_once(lambda dt: system_screen.update_firmware_version_ack())
+        Clock.schedule_once(lambda dt: system_screen.get_firmware_version_ack())
 
     def _handle_hardware_version_response(self, msg: GetHardwareVersionResponse):
         system_screen = self.get_stack_widget().get_system_screen()
-        Clock.schedule_once(lambda dt: system_screen.update_hardware_version_ack())
+        Clock.schedule_once(lambda dt: system_screen.get_hardware_version_ack())
 
-    def _handle_reset_to_bootloader_response(self, msg: ResetToBootloaderResponse):
+    def _handle_update_firmware_response(self, msg: UpdateFirmwareResponse):
         system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.handle_update_firmware_response(code=msg.code, message=msg.message))
+
+    def _handle_notify_firmware_progress(self, msg: NotifyFirmwareProgress):
+        system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.handle_notify_firmware_progress(total=msg.total, progress=msg.progress))

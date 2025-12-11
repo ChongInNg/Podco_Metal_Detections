@@ -16,7 +16,6 @@ MessageName_GetCalibration = "get_calibration"
 MessageName_SystemError = "system_error"
 MessageName_GetFirmwareVersion = "get_firmware_version"
 MessageName_GetHardwareVersion = "get_hardware_version"
-MessageName_ResetToBootloader = "reset_to_bootloader"
 MessageName_UpdateFirmware = "update_firmware"
 
 MessageName_NotifyByPass = "notify_bypass"
@@ -76,10 +75,7 @@ class Header:
     
     def is_get_hardware_version_message(self):
         return self.name == MessageName_GetHardwareVersion
-    
-    def is_reset_to_bootloader_message(self):
-        return self.name == MessageName_ResetToBootloader
-    
+
     def is_update_firmware_message(self):
         return self.name == MessageName_UpdateFirmware
     
@@ -152,7 +148,6 @@ class Header:
             MessageName_NotifyCalButt,
             MessageName_GetFirmwareVersion,
             MessageName_GetHardwareVersion,
-            MessageName_ResetToBootloader,
             MessageName_NotifyFirmwareVersion,
             MessageName_NotifyHardwareVersion,
             MessageName_UpdateFirmware,
@@ -225,14 +220,9 @@ class BaseWsMessage:
                 return GetHardwareVersionRequest.from_dict(header=header, data=msg_data)
             else:
                 return GetHardwareVersionResponse.from_dict(header=header, data=msg_data) 
-        elif header.is_reset_to_bootloader_message():
-            if header.is_request():
-                return ResetToBootloaderRequest.from_dict(header=header, data=msg_data)
-            else:
-                return ResetToBootloaderResponse.from_dict(header=header, data=msg_data)
         elif header.is_update_firmware_message():
             if header.is_request():
-                return UpdateFirmwareRequest.from_dict(header=header, data=data)
+                return UpdateFirmwareRequest.from_dict(header=header, data=msg_data)
             else:
                 return UpdateFirmwareResponse.from_dict(header=header, data=msg_data)
 
@@ -1217,51 +1207,6 @@ class GetHardwareVersionResponse(BaseWsResponse)   :
         
         header = Header(id=id, name=MessageName_GetHardwareVersion, message_type=MessageType_Response)
         return cls(header, code, message)
-
-class ResetToBootloaderRequest(BaseWsRequest):
-    def __init__(self,  header: Header):
-        super().__init__(header=header)
-    
-    def to_dict(self) -> dict[str, Any]:
-        base_dict = super().to_dict()
-        base_dict["data"] = {}
-        return base_dict
-
-    @classmethod
-    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'ResetToBootloaderRequest':
-        if not header.is_reset_to_bootloader_message():
-            raise ValueError("Message is not ResetToBootloaderRequest.")
-        
-        return cls(header)
-    
-    @classmethod
-    def create_message(cls) -> 'ResetToBootloaderRequest':
-        header = Header(name=MessageName_ResetToBootloader, message_type=MessageType_Request)
-        return cls(header)
-    
-class ResetToBootloaderResponse(BaseWsResponse)   :
-    def __init__(self, header: Header, code: str, message: str, meta: dict=None):
-        super().__init__(header=header, code=code, message=message, meta=meta)
-
-    @classmethod
-    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'ResetToBootloaderResponse':
-        if not header.is_reset_to_bootloader_message():
-            raise ValueError("Message is not ResetToBootloaderResponse.")
-        
-        code = data.get("code")
-        message = data.get("message")
-        meta = data.get("meta")
-        return cls(header, code, message, meta)
-    
-    @classmethod
-    def create_message(cls, id: str, code: str, message: str, meta: str=None) -> 'ResetToBootloaderResponse':
-        if id is None or not isinstance(id, str):
-            raise ValueError("Id is not valid.")
-        if code is None or not isinstance(code, str):
-            raise ValueError("code is not valid.")
-           
-        header = Header(id=id, name=MessageName_ResetToBootloader, message_type=MessageType_Response)
-        return cls(header, code, message, meta)
 
 class NotifyFirmwareVersion(BaseWsNotify)   :
     def __init__(self, header: Header, major, minor, bugfix:int):

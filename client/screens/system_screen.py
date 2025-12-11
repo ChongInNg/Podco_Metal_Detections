@@ -12,7 +12,7 @@ import os
 import glob
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from share.wsmessage import GetFirmwareVersionRequest, GetHardwareVersionRequest
+from share.wsmessage import GetFirmwareVersionRequest, GetHardwareVersionRequest, UpdateFirmwareRequest
 
 Builder.load_file("kv/system_screen.kv")
 
@@ -125,12 +125,12 @@ class SystemScreen(Screen):
         WebSocketClient.instance().send_json_sync(hardware_msg.to_json())
         Logger.debug("Sent GetHardwareVersionRequest to server")
 
-    def update_firmware_version_ack(self):
+    def get_firmware_version_ack(self):
         Logger.debug("Received get firmware version ack")
         if self.loading_screen.is_showing():
             self.loading_screen.update_message("Got firmware vesion ack")
 
-    def update_hardware_version_ack(self):
+    def get_hardware_version_ack(self):
         Logger.debug("Received get hardware version ack")
         if self.loading_screen.is_showing():
             self.loading_screen.update_message("Got hardware vesion ack")
@@ -253,6 +253,17 @@ class SystemScreen(Screen):
             Logger.debug("Upgrade already in progress")
             return
         
+        if not WebSocketClient.instance().is_connected():
+            Logger.warning("WebSocket not connected, cannot request versions")
+            return
+
+        update_firmware_msg = UpdateFirmwareRequest.create_message(
+            hardware_version=self.hardware_version,
+            action="upgrade"
+        )
+        WebSocketClient.instance().send_json_sync(update_firmware_msg.to_json())
+        Logger.debug("Sent UpdateFirmwareRequest to server")
+        
         Logger.debug("Starting upgrade process...")
         self.is_upgrading = True
 
@@ -278,3 +289,10 @@ class SystemScreen(Screen):
         if self.common_popup.is_showing():
             self.common_popup.opacity = 1
             self.common_popup.handle_dismiss(self)
+
+    def handle_update_firmware_response(self, code, message: str):
+        Logger.debug(f"Received update firmware response. code: {code}")
+        
+
+    def handle_notify_firmware_progress(self, total, progress: int):
+        Logger.debug(f"Received notify firmware progress. total: {total}, progress: {progress}")

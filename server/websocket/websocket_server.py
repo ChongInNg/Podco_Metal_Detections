@@ -55,6 +55,7 @@ class WebSocketServer:
             connection = connection_manager.get_or_create_connection(client_id, websocket)
             await connection.handle_message(message)
         except ValueError as ve:
+            Logger.error(f"handle ws message error: {ve}, message data: {data}")
             error_rsp = SystemErrorResponse.create_message(f"Invalid message: {ve}")
             await websocket.send(error_rsp.to_json())
         except Exception as e:

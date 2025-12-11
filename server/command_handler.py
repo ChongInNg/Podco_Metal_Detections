@@ -136,11 +136,11 @@ class CommandHandler:
                 message="Get hardware version from controller success.",
             )
         elif isinstance(command, ResetToBootloaderCommandResp):
-            Logger.info("Received reset to bootloader response")
-            return ResetToBootloaderResponse.create_message(
-                id="reset_to_bootloader",
+            Logger.info("Received reset to bootloader command response")
+            return UpdateFirmwareResponse.create_message(
+                id="reset_to_boot_loader",
                 code="OK",
-                message="Reset to bootloader controller success."
+                message="Reset to bootloader to controller success"
             )
         elif isinstance(command, FirmwareVersionCommand):
             Logger.info("Received FirmwareVersionCommand")

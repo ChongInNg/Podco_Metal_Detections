@@ -40,6 +40,7 @@ class ConnectionManager:
         
     def put_message_to_queue(self, message: BaseWsMessage):
         try:
+            Logger.debug(f"put ws message in queue: {message.to_json()}")
             self.ws_queue.enqueue_message_to_loop(message)
         except Exception as e:
             Logger.error(f"Enqueu message to event loop error: {e}, message: {message}.")

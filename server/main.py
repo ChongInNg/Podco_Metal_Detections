@@ -40,7 +40,7 @@ if __name__ == "__main__":
         log_file_level=40, # only write the error log of server
         max_bytes=1024*1024*50, # 50M for server.log file size
         backup_count=10, # 10 server.log file can keep
-        print_log_level=20
+        print_log_level=10
     )
 
     Logger.error(f"Podco Metal Detection Server started...")
