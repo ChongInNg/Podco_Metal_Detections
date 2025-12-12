@@ -8,6 +8,7 @@ from websocket.client import WebSocketClient
 from screens.loading_screen import LoadingScreen
 from screens.common_popup import CommonPopup
 from screens.progress_popup import ProgressPopup
+from screens.confirmation_popup import ConfirmationPopup
 import sys
 import os
 import glob
@@ -30,8 +31,6 @@ class SystemScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.is_upgrading = False
-
         self.loading_screen = LoadingScreen(
             timeout=10,
             on_timeout_callback=self.on_version_request_timeout
@@ -39,6 +38,7 @@ class SystemScreen(Screen):
 
         self.common_popup = CommonPopup()
         self.progress_popup = ProgressPopup()
+        self.confirmation_popup = ConfirmationPopup()
 
         self.firmware_response_received = False
         self.hardware_response_received = False
@@ -205,13 +205,16 @@ class SystemScreen(Screen):
         if self.progress_popup.is_showing():
             Logger.debug("progress popup is showing, ignore up pressed")
             return
-        
+        if self.confirmation_popup.is_showing():
+            Logger.debug("confirmation popup is showing, ignore up pressed")
+            return
+
         button_ids = self.get_button_ids()
         current_index = button_ids.index(self.current_button)
         new_index = (current_index - 1) % len(button_ids)
         self.current_button = button_ids[new_index]
         self.set_focus_button(self.current_button)
-    
+
     def on_down_pressed(self):
         if self.loading_screen.is_showing():
             Logger.debug("loading screen is showing. ignore down pressed.")
@@ -222,12 +225,27 @@ class SystemScreen(Screen):
         if self.progress_popup.is_showing():
             Logger.debug("progress popup is showing, ignore down pressed")
             return
-        
+        if self.confirmation_popup.is_showing():
+            Logger.debug("confirmation popup is showing, ignore down pressed")
+            return
+
         button_ids = self.get_button_ids()
         current_index = button_ids.index(self.current_button)
         new_index = (current_index + 1) % len(button_ids)
         self.current_button = button_ids[new_index]
         self.set_focus_button(self.current_button)
+
+    def on_left_pressed(self):
+        if self.confirmation_popup.is_showing():
+            self.confirmation_popup.on_left_pressed()
+            return
+        Logger.debug("Left pressed (not handled in system screen)")
+
+    def on_right_pressed(self):
+        if self.confirmation_popup.is_showing():
+            self.confirmation_popup.on_right_pressed()
+            return
+        Logger.debug("Right pressed (not handled in system screen)")
 
     def clear_focus(self):
         all_button_ids = ['upgrade_btn', 'rollback_btn', 'retry_btn', 'back_btn']
@@ -253,7 +271,12 @@ class SystemScreen(Screen):
         if self.progress_popup.is_showing():
             Logger.debug("progress popup is showing, ignore enter pressed")
             return
-        
+
+        if self.confirmation_popup.is_showing():
+            Logger.debug("confirmation popup is showing, handle enter")
+            self.confirmation_popup.handle_on_enter()
+            return
+
         if self.current_button == 'upgrade_btn':
             self.on_upgrade_btn_click()
         elif self.current_button == 'rollback_btn':
@@ -264,20 +287,38 @@ class SystemScreen(Screen):
             self.on_back_btn_click()
         
     def on_upgrade_btn_click(self):
-        if self.is_upgrading:
-            Logger.debug("Upgrade already in progress")
+        if not WebSocketClient.instance().is_connected():
+            Logger.error("WebSocket not connected, cannot upgrade firmware")
+            Clock.schedule_once(lambda dt: self.show_error_popup("Server not connected!"), 0.1)
             return
 
+        self.confirmation_popup.reset_state()
+        self.confirmation_popup.title = "Confirm Upgrade"
+        self.confirmation_popup.message_label.text = "Are you sure you want to upgrade the firmware?"
+        self.confirmation_popup.on_confirm_callback = self._execute_upgrade
+        self.confirmation_popup.handle_open()
+
+    def on_rollback_btn_click(self):
         if not WebSocketClient.instance().is_connected():
-            Logger.error("WebSocket not connected, cannot request versions")
+            Logger.error("WebSocket not connected, cannot rollback firmware")
+            Clock.schedule_once(lambda dt: self.show_error_popup("Server not connected!"), 0.1)
             return
+
+        self.confirmation_popup.reset_state()
+        self.confirmation_popup.title = "Confirm Rollback"
+        self.confirmation_popup.message_label.text = "Are you sure you want to rollback the firmware?"
+        self.confirmation_popup.on_confirm_callback = self._execute_rollback
+        self.confirmation_popup.handle_open()
+
+    def _execute_upgrade(self):
+        Logger.debug("Executing firmware upgrade...")
 
         update_firmware_msg = UpdateFirmwareRequest.create_message(
             hardware_version=self.hardware_version,
             action="upgrade"
         )
         WebSocketClient.instance().send_json_sync(update_firmware_msg.to_json())
-        Logger.debug("Sent UpdateFirmwareRequest to server")
+        Logger.debug("Sent UpdateFirmwareRequest (upgrade) to server")
 
         self.progress_popup.reset()
         self.progress_popup.set_title("Upgrading")
@@ -286,12 +327,22 @@ class SystemScreen(Screen):
 
         self.response_timeout_event = Clock.schedule_once(self._on_response_timeout, 5.0)
 
-        Logger.debug("Starting upgrade process...")
-        self.is_upgrading = True
+    def _execute_rollback(self):
+        Logger.debug("Executing firmware rollback...")
 
-    def on_rollback_btn_click(self):
-        Logger.debug("Rollback button clicked")
-        pass
+        update_firmware_msg = UpdateFirmwareRequest.create_message(
+            hardware_version=self.hardware_version,
+            action="rollback"
+        )
+        WebSocketClient.instance().send_json_sync(update_firmware_msg.to_json())
+        Logger.debug("Sent UpdateFirmwareRequest (rollback) to server")
+
+        self.progress_popup.reset()
+        self.progress_popup.set_title("Rolling Back")
+        self.progress_popup.update_status("Reseting device to bootloader...")
+        self.progress_popup.handle_open()
+
+        self.response_timeout_event = Clock.schedule_once(self._on_response_timeout, 5.0)
 
     def on_retry_btn_click(self):
         Logger.debug("Retry button clicked - requesting versions again")
@@ -324,7 +375,7 @@ class SystemScreen(Screen):
             self.upload_timeout_event = Clock.schedule_once(self._on_update_timeout, 30.0)
         else:
             self.progress_popup.update_status("Reset to bootloader failed!")
-            Clock.schedule_once(lambda dt: self._finish_upgrade_with_error(), 2.0)
+            Clock.schedule_once(lambda dt: self._finish_update_with_error(), 2.0)
 
     def handle_notify_firmware_progress(self, total, progress: int):
         Logger.debug(f"Received notify firmware progress. total: {total}, progress: {progress}")
@@ -336,24 +387,22 @@ class SystemScreen(Screen):
                     Clock.unschedule(self.upload_timeout_event)
                     self.upload_timeout_event = None
 
-                self.progress_popup.update_status("Firmware upgrade completed!")
-                Clock.schedule_once(lambda dt: self._finish_upgrade(), 2.0)
+                self.progress_popup.update_status("Firmware update completed!")
+                Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
 
-    def _finish_upgrade(self):
-        self._cancel_all_upgrade_timers()
-
-        self.progress_popup.handle_dismiss()
-        self.is_upgrading = False
-        Logger.debug("Firmware upgrade process finished successfully")
-
-    def _finish_upgrade_with_error(self):
-        self._cancel_all_upgrade_timers()
+    def _finish_update(self):
+        self._cancel_all_update_timers()
 
         self.progress_popup.handle_dismiss()
-        self.is_upgrading = False
-        Logger.debug("Firmware upgrade process finished with error")
+        Logger.debug("Firmware update process finished successfully")
 
-    def _cancel_all_upgrade_timers(self):
+    def _finish_update_with_error(self):
+        self._cancel_all_update_timers()
+
+        self.progress_popup.handle_dismiss()
+        Logger.debug("Firmware update process finished with error")
+
+    def _cancel_all_update_timers(self):
         if self.response_timeout_event:
             Clock.unschedule(self.response_timeout_event)
             self.response_timeout_event = None
@@ -367,7 +416,7 @@ class SystemScreen(Screen):
 
         if self.progress_popup.is_showing():
             self.progress_popup.update_status("Response timeout!")
-            Clock.schedule_once(lambda dt: self._finish_upgrade_with_error(), 2.0)
+            Clock.schedule_once(lambda dt: self._finish_update_with_error(), 2.0)
 
     def _on_update_timeout(self, dt):
         Logger.warning("Firmware update timeout")
@@ -375,4 +424,4 @@ class SystemScreen(Screen):
 
         if self.progress_popup.is_showing():
             self.progress_popup.update_status("Firmware update timeout!")
-            Clock.schedule_once(lambda dt: self._finish_upgrade_with_error(), 2.0)
+            Clock.schedule_once(lambda dt: self._finish_update_with_error(), 2.0)

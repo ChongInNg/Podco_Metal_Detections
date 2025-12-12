@@ -55,6 +55,9 @@ class StackWidget(Screen):
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_left_pressed()
+            elif self.is_system():
+                system_screen = self.get_system_screen()
+                system_screen.on_left_pressed()
             else:
                 Logger.debug(f"Not support left direction in this screen: {self.current_screen}")
         elif direction == "right":
@@ -77,6 +80,9 @@ class StackWidget(Screen):
             elif self.is_setting():
                 setting_screen = self.get_setting_screen()
                 setting_screen.on_right_pressed()
+            elif self.is_system():
+                system_screen = self.get_system_screen()
+                system_screen.on_right_pressed()
             else:
                 Logger.debug(f"Not support left direction in this screen: {self.current_screen}")
 
