@@ -59,6 +59,25 @@ class SerialServer:
             self.set_server_status_off()
             return False
 
+    def reconnect(self) -> bool:
+        if self.running:
+            Logger.warning("Serial server is running, no need to reconnect")
+            return False
+        
+        Logger.info("Serial server is reconnecting")
+        try:
+            #only restart the read_thread, the process_thread no need to restart.
+            self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
+            self.running = True
+            self.read_thread = threading.Thread(target=self._read_data, daemon=True)
+            self.read_thread.start()
+            Logger.info("Serial server is reconnected")
+            return True
+        except Exception as e:
+            Logger.error(f"Failed to reconnect to Serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
+            self.set_server_status_off()
+            return False
+        
     def start(self):
         self.read_thread = threading.Thread(target=self._read_data, daemon=True)
         self.proces_thread = threading.Thread(target=self._process_queue_data, daemon=True)

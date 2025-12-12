@@ -137,6 +137,30 @@ class CommandHandler:
             )
         elif isinstance(command, ResetToBootloaderCommandResp):
             Logger.info("Received reset to bootloader command response")
+
+            from firmware_update.manager import FirmwareUpdateManager
+            from serial_server import SerialServer
+            
+            manager = FirmwareUpdateManager.instance()
+
+            if manager.has_pending_task():
+                Logger.info("Triggering firmware update after bootloader reset...")
+                
+                Logger.info("Closing SerialServer to release serial port for firmware update...")
+                SerialServer.instance().close()
+                Logger.info("SerialServer closed successfully")
+                
+                update_triggered = manager.trigger_update()
+
+                if update_triggered:
+                    Logger.info("Firmware update started successfully")
+                else:
+                    Logger.error("Failed to trigger firmware update")
+                    Logger.info("Reopening SerialServer after failed update trigger...")
+                    SerialServer.instance().reconnect()
+            else:
+                Logger.warning("No pending firmware update task found after bootloader reset")
+
             return UpdateFirmwareResponse.create_message(
                 id="reset_to_boot_loader",
                 code="OK",

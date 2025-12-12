@@ -47,7 +47,7 @@ class FirmwareUpdateManager:
         self._port = port
         self._baudrate = baudrate
 
-    def set_update_task(self, hardware_version: str, action: str, request_id: str) -> bool:
+    def set_update_task(self, hardware_version: str, action: str, request_id: str, firmware_image_path: str) -> bool:
         with self._lock:
             if self._is_updating:
                 Logger.error("Firmware update already in progress. Cannot set new task.")
@@ -59,7 +59,8 @@ class FirmwareUpdateManager:
             self._pending_task = FirmwareUpdateTask(
                 hardware_version=hardware_version,
                 action=action,
-                request_id=request_id
+                request_id=request_id,
+                firmware_image_path=firmware_image_path
             )
 
             Logger.info(f"Firmware update task set: {self._pending_task.to_dict()}")
@@ -118,12 +119,33 @@ class FirmwareUpdateManager:
             self._send_completion_notification(task, success=False, message=f"Firmware update error: {e}")
 
         finally:
+            self._reopen_serial_server()
+            
             with self._lock:
                 self._pending_task = None
                 self._is_updating = False
                 self._update_thread = None
 
             Logger.info("Firmware update execution completed and cleaned up")
+
+    def _reopen_serial_server(self):
+        try:
+            from serial_server import SerialServer
+            import time
+            
+            Logger.info("Reopening SerialServer after firmware update...")
+            time.sleep(2)
+            
+            serial_server = SerialServer.instance()
+            reconnected = serial_server.reconnect()
+            
+            if reconnected:
+                Logger.info("SerialServer reopened successfully")
+            else:
+                Logger.error("Failed to reopen SerialServer")
+                
+        except Exception as e:
+            Logger.error(f"Error reopening SerialServer: {e}")
 
     def _send_completion_notification(self, task: FirmwareUpdateTask, success: bool, message: str):
         try:
@@ -133,8 +155,7 @@ class FirmwareUpdateManager:
             from websocket.connection_manager import ConnectionManager
 
             msg = NotifyFirmwareUpdateResult.create_message(
-                id=task.request_id,
-                result="OK" if success else "error",
+                code="OK" if success else "error",
                 message=message,
             )
 
@@ -149,3 +170,15 @@ class FirmwareUpdateManager:
     def is_updating(self) -> bool:
         with self._lock:
             return self._is_updating
+
+    def cancel_pending_task(self):
+        if not self.has_pending_task():
+            Logger.info("No pending task can be cancelled")
+            return
+        
+        with self._lock:
+            self._pending_task = None
+            self._is_updating = False
+            self._update_thread = None
+        
+        Logger.info("Pending task was cancelled")

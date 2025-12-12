@@ -197,15 +197,53 @@ class Connection:
 
     async def handle_update_firmware(self, message: UpdateFirmwareRequest):
         Logger.debug("Received update firmware request")
-        from serial_server import SerialServer 
+        from serial_server import SerialServer
+        from firmware_update.manager import FirmwareUpdateManager
+        from config.config import ConfigManager
+        from share.firmware_image_manager import FirmwareImageManager
+
+        firmware_manager = FirmwareImageManager()
+
+        firmware_image_path = firmware_manager.get_firmware_path(
+            hardware_version=message.hardware_version,
+            action=message.action
+        )
+
+        if firmware_image_path is None:
+            rsp = UpdateFirmwareResponse.create_message(
+                id=message.id, code="error",
+                message=f"Firmware image not found for hardware version {message.hardware_version}, action {message.action}"
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.error(f"Firmware image not found: {message.hardware_version}/{message.action}")
+            return
+
+        Logger.info(f"Found firmware image: {firmware_image_path}")
+        task_set = FirmwareUpdateManager.instance().set_update_task(
+            hardware_version=message.hardware_version,
+            action=message.action,
+            request_id=message.id,
+            firmware_image_path=firmware_image_path,
+        )
+
+        if not task_set:
+            rsp = UpdateFirmwareResponse.create_message(
+                id=message.id, code="error",
+                message="Failed to set firmware update task. Update may already be in progress."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.error(f"Failed to set firmware update task: {rsp.to_dict()}")
+            return
+
         write_buf_num = SerialServer.instance().send_reset_to_bootloader_request()
         if write_buf_num == 0:
+            FirmwareUpdateManager.instance().cancel_pending_task()
             rsp = UpdateFirmwareResponse.create_message(
-                id=message.id, code="error", 
+                id=message.id, code="error",
                 message="Send reset to bootloader request to controller failed."
             )
             await self.conn.send(rsp.to_json())
             Logger.error(f"Handle update firmware request failed: {rsp.to_dict()}")
+            return
 
-        Logger.debug("handle update firmware request successfully")
-        pass
+        Logger.info(f"Firmware update task set and reset to bootloader sent. Waiting for bootloader response...")
