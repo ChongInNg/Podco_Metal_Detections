@@ -74,6 +74,8 @@ class MainScreen(Screen):
                 self._handle_update_firmware_response(msg)
             elif isinstance(msg, NotifyFirmwareProgress):
                 self._handle_notify_firmware_progress(msg)
+            elif isinstance(msg, NotifyFirmwareUpdateResult):
+                self._handle_notify_firmware_result(msg)
             else:
                 Logger.error(f"Cannot handle this message: {msg}")
         except Exception as ex:
@@ -245,4 +247,10 @@ class MainScreen(Screen):
 
     def _handle_notify_firmware_progress(self, msg: NotifyFirmwareProgress):
         system_screen = self.get_stack_widget().get_system_screen()
-        Clock.schedule_once(lambda dt: system_screen.handle_notify_firmware_progress(total=msg.total, progress=msg.progress))
+        Clock.schedule_once(lambda dt: system_screen.handle_notify_firmware_progress(
+            total=msg.total, progress=msg.progress))
+        
+    def _handle_notify_firmware_result(self, msg: NotifyFirmwareUpdateResult):
+        system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.handle_notify_firmware_result(
+           code=msg.code, message=msg.message))

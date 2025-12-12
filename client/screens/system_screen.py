@@ -386,6 +386,9 @@ class SystemScreen(Screen):
                 self.progress_popup.update_status("Firmware update completed!")
                 Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
 
+    def handle_notify_firmware_result(self, code: str, message: str):
+        Logger.debug(f"Received update firmware result. code: {code}, message: {message}")
+
     def _finish_update(self):
         self._cancel_all_update_timers()
 
