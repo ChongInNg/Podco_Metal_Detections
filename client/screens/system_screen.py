@@ -15,6 +15,7 @@ import glob
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import GetFirmwareVersionRequest, GetHardwareVersionRequest, UpdateFirmwareRequest
+from share.firmware_image_manager import FirmwareImageManager
 
 Builder.load_file("kv/system_screen.kv")
 
@@ -81,40 +82,27 @@ class SystemScreen(Screen):
         self.upgrade_version = ""
         self.rollback_version = ""
 
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-        firmware_versions_dir = os.path.join(base_dir, "firmware_versions")
-
         if self.hardware_version == DEFAULT_VERSION:
             Logger.debug("Hardware version not available, cannot check firmware files")
             return
 
-        hw_version_dir = os.path.join(firmware_versions_dir, self.hardware_version)
-        upgrade_dir = os.path.join(hw_version_dir, "upgrade")
-        rollback_dir = os.path.join(hw_version_dir, "rollback")
+        firmware_manager = FirmwareImageManager()
 
-        if os.path.exists(upgrade_dir):
-            upgrade_files = glob.glob(os.path.join(upgrade_dir, "*.img"))
-            if upgrade_files:
-                self.upgrade_available = True
-                upgrade_filename = os.path.basename(upgrade_files[0])
-                self.upgrade_version = os.path.splitext(upgrade_filename)[0]
-                Logger.debug(f"Upgrade firmware found: {upgrade_files[0]}, version: {self.upgrade_version}")
-            else:
-                Logger.debug(f"No .img file found in {upgrade_dir}")
+        upgrade_info = firmware_manager.get_firmware_info(self.hardware_version, FirmwareImageManager.ACTION_UPGRADE)
+        if upgrade_info and upgrade_info.exists:
+            self.upgrade_available = True
+            self.upgrade_version = upgrade_info.version
+            Logger.debug(f"Upgrade firmware found: {upgrade_info.file_path}, version: {self.upgrade_version}")
         else:
-            Logger.debug(f"Upgrade directory not found: {upgrade_dir}")
+            Logger.debug("No upgrade firmware found")
 
-        if os.path.exists(rollback_dir):
-            rollback_files = glob.glob(os.path.join(rollback_dir, "*.img"))
-            if rollback_files:
-                self.rollback_available = True
-                rollback_filename = os.path.basename(rollback_files[0])
-                self.rollback_version = os.path.splitext(rollback_filename)[0]
-                Logger.debug(f"Rollback firmware found: {rollback_files[0]}, version: {self.rollback_version}")
-            else:
-                Logger.debug(f"No .img file found in {rollback_dir}")
+        rollback_info = firmware_manager.get_firmware_info(self.hardware_version, FirmwareImageManager.ACTION_ROLLBACK)
+        if rollback_info and rollback_info.exists:
+            self.rollback_available = True
+            self.rollback_version = rollback_info.version
+            Logger.debug(f"Rollback firmware found: {rollback_info.file_path}, version: {self.rollback_version}")
         else:
-            Logger.debug(f"Rollback directory not found: {rollback_dir}")
+            Logger.debug("No rollback firmware found")
 
         Logger.debug(f"Firmware availability - Upgrade: {self.upgrade_available} ({self.upgrade_version}), Rollback: {self.rollback_available} ({self.rollback_version})")
 
