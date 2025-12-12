@@ -8,7 +8,7 @@ import signal
 import sys
 from websocket.websocket_server import WebSocketServer
 from config.config import ConfigManager
-
+from firmware_update.manager import FirmwareUpdateManager
 
 def signal_handler(sig, frame):
     sig_name = signal.Signals(sig).name 
@@ -47,16 +47,14 @@ if __name__ == "__main__":
     port = ''
     config_path = f"{get_current_program_folder()}/config/config.json"
     ConfigManager.instance().read_config(config_path)
-    if ConfigManager.instance().run_on_rpi():
-        port = ConfigManager.instance().rpi_serial_port
-    else:
-        port = ConfigManager.instance().win_serial_port
-    baudrate = ConfigManager.instance().serial_baudrate
+    port = ConfigManager.instance().get_serial_port()
+    baudrate = ConfigManager.instance().get_serial_baudrate()
 
     while not SerialServer.instance().connect(port=port, baudrate=baudrate, timeout=None):
         Logger.error(f"Serial Server cannot connect to {port} with baudrate: {baudrate} now, keep trying...")
         time.sleep(1)
 
+    FirmwareUpdateManager.instance().init_serial_info(port=port, baudrate=baudrate)
     LogManager.instance().setup(f"{get_current_program_folder()}/system_logs")
     try:
         asyncio.run(start_web_server())

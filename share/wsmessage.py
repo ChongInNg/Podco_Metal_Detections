@@ -30,6 +30,7 @@ MessageName_NotifyCalButt = "notify_calbutt"
 MessageName_NotifyFirmwareVersion = "notify_firmware_version"
 MessageName_NotifyHardwareVersion = "notify_hardware_version"
 MessageName_NotifyFirmwareProgress = "notify_firmware_progress"
+MessageName_NotifyFirmwareUpdateResult = "notify_firmware_update_result"
 
 class Header:
     def __init__(self, name: str, message_type: str, id: str=None, ts: str = None):
@@ -118,6 +119,9 @@ class Header:
     def is_notify_firmware_progress(self):
         return self.name == MessageName_NotifyFirmwareProgress
     
+    def is_notify_firmware_update_result(self):
+        return self.name == MessageName_NotifyFirmwareUpdateResult
+    
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
         name = data.get("name")
@@ -151,7 +155,8 @@ class Header:
             MessageName_NotifyFirmwareVersion,
             MessageName_NotifyHardwareVersion,
             MessageName_UpdateFirmware,
-            MessageName_NotifyFirmwareProgress
+            MessageName_NotifyFirmwareProgress,
+            MessageName_NotifyFirmwareUpdateResult
         ]:
             if name == message_name:
                 return
@@ -252,6 +257,8 @@ class BaseWsMessage:
             return NotifyHardwareVersion.from_dict(header=header, data=msg_data)
         elif header.is_notify_firmware_progress():
             return NotifyFirmwareProgress.from_dict(header=header, data=msg_data)
+        elif header.is_notify_firmware_update_result():
+            return NotifyFirmwareUpdateResult.from_dict(header=header, data=msg_data)
         else:
             raise ValueError(f"Message name is wrong. {header.to_dict()}")
         
@@ -1343,17 +1350,19 @@ class UpdateFirmwareResponse(BaseWsResponse):
         header = Header(id=id, name=MessageName_UpdateFirmware, message_type=MessageType_Response)
         return cls(header, code, message, meta)
     
-class NotifyFirmwareProgress(BaseWsNotify)   :
-    def __init__(self, header: Header, total, progress:int):
+class NotifyFirmwareProgress(BaseWsNotify):
+    def __init__(self, header: Header, total, progress:int, percentage:float):
         super().__init__(header=header)
         self.total = total
         self.progress = progress
+        self.percentage = percentage
 
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict["data"] = {
             "total": self.total,
             "progress": self.progress,
+            "percentage": self.percentage,
         }
         return base_dict
     
@@ -1364,14 +1373,54 @@ class NotifyFirmwareProgress(BaseWsNotify)   :
         
         total = data.get("total")
         progress = data.get("progress")
-        return cls(header, total, progress)
+        percentage = data.get("percentage")
+        return cls(header, total, progress, percentage)
     
     @classmethod
-    def create_message(cls, total, progress:int) -> 'NotifyFirmwareProgress':
+    def create_message(cls, total, progress:int, percentage:float) -> 'NotifyFirmwareProgress':
         if total is None or not isinstance(total, int):
             raise ValueError("total is not valid.")
         if progress is None or not isinstance(progress, int):
             raise ValueError("progress is not valid.")
+        if percentage is None or not isinstance(percentage, (int, float)):
+            raise ValueError("percentage is not valid.")
         
         header = Header(name=MessageName_NotifyFirmwareProgress, message_type=MessageType_Notify)
-        return cls(header, total, progress)
+        return cls(header, total, progress, percentage)
+    
+class NotifyFirmwareUpdateResult(BaseWsNotify):
+    def __init__(self, header: Header, code: str, message: str):
+        super().__init__(header=header)
+        self.code = code
+        self.message = message
+
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["data"] = {
+            "code": self.code,
+            "message": self.message
+        }
+        return base_dict
+    
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'NotifyFirmwareUpdateResult':
+        if not header.is_notify_firmware_update_result():
+            raise ValueError("Message is not NotifyFirmwareUpdateResult.")
+        
+        code = data.get("code")
+        if code is None or not isinstance(code, str):
+            raise ValueError("code is not valid.")
+        
+        message = data.get("message")
+        if message is None or not isinstance(message, str):
+            raise ValueError("message is not valid.")
+        return cls(header, code, message)
+    
+    @classmethod
+    def create_message(cls, code: str, message: str) -> 'NotifyFirmwareUpdateResult':
+        if code is None or not isinstance(code, str):
+            raise ValueError("code is not valid.")
+        if message is None or not isinstance(message, str):
+            raise ValueError("message is not valid.")
+        header = Header(name=MessageName_NotifyFirmwareUpdateResult, message_type=MessageType_Notify)
+        return cls(header, code, message)

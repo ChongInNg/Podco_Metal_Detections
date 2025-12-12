@@ -51,6 +51,14 @@ class ConfigManager:
     
     def is_support_keyboard(self) -> bool:
         return self.support_keyboard.lower() == "true"
+    
+    def get_serial_port(self)->int:
+        if self.run_on_rpi():
+            return self.rpi_serial_port
+        else:
+            return self.win_serial_port
+    def get_serial_baudrate(self)->int:
+        return self.serial_baudrate
 # config = Config.instance()
 # config.read_config("config.json")
 # print(config) 
