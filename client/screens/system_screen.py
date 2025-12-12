@@ -28,6 +28,8 @@ class SystemScreen(Screen):
     show_retry_button = BooleanProperty(False)
     upgrade_available = BooleanProperty(False)
     rollback_available = BooleanProperty(False)
+    upgrade_version = StringProperty("")
+    rollback_version = StringProperty("")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -76,6 +78,8 @@ class SystemScreen(Screen):
     def check_firmware_availability(self):
         self.upgrade_available = False
         self.rollback_available = False
+        self.upgrade_version = ""
+        self.rollback_version = ""
 
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
         firmware_versions_dir = os.path.join(base_dir, "firmware_versions")
@@ -92,7 +96,9 @@ class SystemScreen(Screen):
             upgrade_files = glob.glob(os.path.join(upgrade_dir, "*.img"))
             if upgrade_files:
                 self.upgrade_available = True
-                Logger.debug(f"Upgrade firmware found: {upgrade_files[0]}")
+                upgrade_filename = os.path.basename(upgrade_files[0])
+                self.upgrade_version = os.path.splitext(upgrade_filename)[0]
+                Logger.debug(f"Upgrade firmware found: {upgrade_files[0]}, version: {self.upgrade_version}")
             else:
                 Logger.debug(f"No .img file found in {upgrade_dir}")
         else:
@@ -102,13 +108,15 @@ class SystemScreen(Screen):
             rollback_files = glob.glob(os.path.join(rollback_dir, "*.img"))
             if rollback_files:
                 self.rollback_available = True
-                Logger.debug(f"Rollback firmware found: {rollback_files[0]}")
+                rollback_filename = os.path.basename(rollback_files[0])
+                self.rollback_version = os.path.splitext(rollback_filename)[0]
+                Logger.debug(f"Rollback firmware found: {rollback_files[0]}, version: {self.rollback_version}")
             else:
                 Logger.debug(f"No .img file found in {rollback_dir}")
         else:
             Logger.debug(f"Rollback directory not found: {rollback_dir}")
 
-        Logger.debug(f"Firmware availability - Upgrade: {self.upgrade_available}, Rollback: {self.rollback_available}")
+        Logger.debug(f"Firmware availability - Upgrade: {self.upgrade_available} ({self.upgrade_version}), Rollback: {self.rollback_available} ({self.rollback_version})")
 
     def request_versions(self):
         if not WebSocketClient.instance().is_connected():
@@ -294,7 +302,7 @@ class SystemScreen(Screen):
 
         self.confirmation_popup.reset_state()
         self.confirmation_popup.title = "Confirm Upgrade"
-        self.confirmation_popup.message_label.text = "Are you sure you want to upgrade the firmware?"
+        self.confirmation_popup.message_label.text = f"Are you sure you want to upgrade to {self.upgrade_version}"
         self.confirmation_popup.on_confirm_callback = self._execute_upgrade
         self.confirmation_popup.handle_open()
 
@@ -306,7 +314,7 @@ class SystemScreen(Screen):
 
         self.confirmation_popup.reset_state()
         self.confirmation_popup.title = "Confirm Rollback"
-        self.confirmation_popup.message_label.text = "Are you sure you want to rollback the firmware?"
+        self.confirmation_popup.message_label.text = f"Are you sure you want to rollback to {self.rollback_version}?"
         self.confirmation_popup.on_confirm_callback = self._execute_rollback
         self.confirmation_popup.handle_open()
 

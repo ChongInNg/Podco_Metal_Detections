@@ -65,7 +65,7 @@
 
             # Row 3: Upgrade Button
             Label:
-                text: "Upgrade:"
+                text: "Upgrade:" if not root.upgrade_version else f"Upgrade({root.upgrade_version}):"
                 font_size: "18sp"
                 size_hint_x: 0.5
                 halign: "left"
@@ -83,7 +83,7 @@
 
             # Row 4: Rollback Button
             Label:
-                text: "Rollback:"
+                text: "Rollback:" if not root.rollback_version else f"Rollback({root.rollback_version}):"
                 font_size: "18sp"
                 size_hint_x: 0.5
                 halign: "left"
