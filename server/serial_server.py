@@ -65,7 +65,14 @@ class SerialServer:
             return False
         
         Logger.info("Serial server is reconnecting")
-        return self.connect(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+        if not self.connect(port=self.port, baudrate=self.baudrate, timeout=self.timeout):
+            Logger.error("SerialServer reconnect failed")
+            return False
+
+        self.set_server_status_on()
+        Logger.info("Serial server is reconnected successfully")
+        return True
+        
         
     def start(self):
         self.read_thread = threading.Thread(target=self._read_data, daemon=True)
