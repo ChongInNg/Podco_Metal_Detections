@@ -38,6 +38,7 @@ class SystemScreen(Screen):
             timeout=10,
             on_timeout_callback=self.on_version_request_timeout
         )
+        self.for_debug = False
 
         self.common_popup = CommonPopup()
         self.progress_popup = ProgressPopup()
@@ -68,6 +69,14 @@ class SystemScreen(Screen):
         self.reset_data()
 
     def reset_data(self):
+        if not self.for_debug:
+            self.firmware_response_received = False
+            self.response_timeout_event = None
+            self.upload_timeout_event = None
+            self.firmware_version = DEFAULT_VERSION
+            self.hardware_version = DEFAULT_VERSION
+            self.versions_loaded = False
+
         self.show_retry_button = False
         button_ids = self.get_button_ids()
         self.current_button = button_ids[0]
