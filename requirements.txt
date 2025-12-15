@@ -23,3 +23,4 @@ requests==2.32.3
 ulid-py==1.1.0
 urllib3==2.3.0
 websockets==14.1
+pymdfu==2.7.0.12
