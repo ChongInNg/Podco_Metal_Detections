@@ -96,7 +96,7 @@ class JoyStick:
                     Logger.debug(f"Button pressed: {direction}")
                     self.callback(direction)
                     self.previous_states[button_name] = current_state
-                    time.sleep(0.3)
+                    time.sleep(0.15)
                     break
 
                 elif previous_state == GPIO.LOW and current_state == GPIO.HIGH:
@@ -104,7 +104,7 @@ class JoyStick:
                     Logger.debug(f"Button released: {direction}")
                     self.callback(direction)
                     self.previous_states[button_name] = current_state
-                    time.sleep(0.3)
+                    time.sleep(0.15)
                     break
 
             time.sleep(0.01)
