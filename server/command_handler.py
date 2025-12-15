@@ -140,6 +140,8 @@ class CommandHandler:
                 SerialServer.instance().close()
                 Logger.info("SerialServer closed successfully")
                 
+                time.sleep(1)
+                Logger.error("Starting firmware update...")
                 update_triggered = manager.trigger_update()
 
                 if update_triggered:
