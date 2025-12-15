@@ -15,7 +15,6 @@ MessageName_SetDefaultCalibration = "set_default_calibration"
 MessageName_GetCalibration = "get_calibration"
 MessageName_SystemError = "system_error"
 MessageName_GetFirmwareVersion = "get_firmware_version"
-MessageName_GetHardwareVersion = "get_hardware_version"
 MessageName_UpdateFirmware = "update_firmware"
 
 MessageName_NotifyByPass = "notify_bypass"
@@ -28,7 +27,6 @@ MessageName_NotifyEngineHour = "notify_engine_hour"
 MessageName_NotifyVoltage = "notify_voltage"
 MessageName_NotifyCalButt = "notify_calbutt"
 MessageName_NotifyFirmwareVersion = "notify_firmware_version"
-MessageName_NotifyHardwareVersion = "notify_hardware_version"
 MessageName_NotifyFirmwareProgress = "notify_firmware_progress"
 MessageName_NotifyFirmwareUpdateResult = "notify_firmware_update_result"
 
@@ -73,9 +71,6 @@ class Header:
     
     def is_get_firmware_version_message(self):
         return self.name == MessageName_GetFirmwareVersion
-    
-    def is_get_hardware_version_message(self):
-        return self.name == MessageName_GetHardwareVersion
 
     def is_update_firmware_message(self):
         return self.name == MessageName_UpdateFirmware
@@ -113,9 +108,6 @@ class Header:
     def is_notify_firmware_version_message(self):
         return self.name == MessageName_NotifyFirmwareVersion
     
-    def is_notify_hardware_version_message(self):
-        return self.name == MessageName_NotifyHardwareVersion
-    
     def is_notify_firmware_progress(self):
         return self.name == MessageName_NotifyFirmwareProgress
     
@@ -151,9 +143,7 @@ class Header:
             MessageName_NotifyCalibration_Failed,
             MessageName_NotifyCalButt,
             MessageName_GetFirmwareVersion,
-            MessageName_GetHardwareVersion,
             MessageName_NotifyFirmwareVersion,
-            MessageName_NotifyHardwareVersion,
             MessageName_UpdateFirmware,
             MessageName_NotifyFirmwareProgress,
             MessageName_NotifyFirmwareUpdateResult
@@ -220,11 +210,6 @@ class BaseWsMessage:
                 return GetFirmwareVersionRequest.from_dict(header=header, data=msg_data)
             else:
                 return GetFirmwareVersionResponse.from_dict(header=header, data=msg_data)
-        elif header.is_get_hardware_version_message():
-            if header.is_request():
-                return GetHardwareVersionRequest.from_dict(header=header, data=msg_data)
-            else:
-                return GetHardwareVersionResponse.from_dict(header=header, data=msg_data) 
         elif header.is_update_firmware_message():
             if header.is_request():
                 return UpdateFirmwareRequest.from_dict(header=header, data=msg_data)
@@ -253,8 +238,6 @@ class BaseWsMessage:
             return NotifyCalButtMessage.from_dict(header=header, data=msg_data)
         elif header.is_notify_firmware_version_message():
             return NotifyFirmwareVersion.from_dict(header=header, data=msg_data)
-        elif header.is_notify_hardware_version_message():
-            return NotifyHardwareVersion.from_dict(header=header, data=msg_data)
         elif header.is_notify_firmware_progress():
             return NotifyFirmwareProgress.from_dict(header=header, data=msg_data)
         elif header.is_notify_firmware_update_result():
@@ -1170,57 +1153,17 @@ class GetFirmwareVersionResponse(BaseWsResponse)   :
         
         header = Header(id=id, name=MessageName_GetFirmwareVersion, message_type=MessageType_Response)
         return cls(header, code, message)
-    
-class GetHardwareVersionRequest(BaseWsRequest):
-    def __init__(self,  header: Header):
-        super().__init__(header=header)
-    
-    def to_dict(self) -> dict[str, Any]:
-        base_dict = super().to_dict()
-        base_dict["data"] = {}
-        return base_dict
-
-    @classmethod
-    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetHardwareVersionRequest':
-        if not header.is_get_hardware_version_message():
-            raise ValueError("Message is not GetHardwareVersionRequest.")
-        
-        return cls(header)
-    
-    @classmethod
-    def create_message(cls) -> 'GetHardwareVersionRequest':
-        header = Header(name=MessageName_GetHardwareVersion, message_type=MessageType_Request)
-        return cls(header)
-    
-class GetHardwareVersionResponse(BaseWsResponse)   :
-    def __init__(self, header: Header, code: str, message: str):
-        super().__init__(header=header, code=code, message=message)
-    
-    @classmethod
-    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'GetHardwareVersionResponse':
-        if not header.is_get_hardware_version_message():
-            raise ValueError("Message is not GetHardwareVersionResponse.")
-        
-        code = data.get("code")
-        message = data.get("message")
-        return cls(header, code, message)
-    
-    @classmethod
-    def create_message(cls, id: str, code: str, message: str) -> 'GetHardwareVersionResponse':
-        if id is None or not isinstance(id, str):
-            raise ValueError("Id is not valid.")
-        if code is None or not isinstance(code, str):
-            raise ValueError("code is not valid.")
-        
-        header = Header(id=id, name=MessageName_GetHardwareVersion, message_type=MessageType_Response)
-        return cls(header, code, message)
 
 class NotifyFirmwareVersion(BaseWsNotify)   :
-    def __init__(self, header: Header, major, minor, bugfix:int):
+    def __init__(self, header: Header, major, minor, bugfix:int,
+                h_major, h_minor, h_bugfix:int):
         super().__init__(header=header)
         self.major = major
         self.minor = minor
         self.bugfix = bugfix
+        self.h_major = h_major
+        self.h_minor = h_minor
+        self.h_bugfix = h_bugfix
 
     def to_dict(self):
         base_dict = super().to_dict()
@@ -1228,6 +1171,9 @@ class NotifyFirmwareVersion(BaseWsNotify)   :
             "major": self.major,
             "minor": self.minor,
             "bugfix": self.bugfix,
+            "h_major": self.h_major,
+            "h_minor": self.h_minor,
+            "h_bugfix": self.h_bugfix,
         }
         return base_dict
     
@@ -1239,57 +1185,29 @@ class NotifyFirmwareVersion(BaseWsNotify)   :
         major = data.get("major")
         minor = data.get("minor")
         bugfix = data.get("bugfix")
-        return cls(header, major, minor, bugfix)
+        h_major = data.get("h_major")
+        h_minor = data.get("h_minor")
+        h_bugfix = data.get("h_bugfix")
+        return cls(header, major, minor, bugfix, h_major, h_minor, h_bugfix)
     
     @classmethod
-    def create_message(cls, major, minor, bugfix:int) -> 'NotifyFirmwareVersion':
+    def create_message(cls, major, minor, bugfix:int, h_major, h_minor, h_bugfix:int) -> 'NotifyFirmwareVersion':
         if major is None or not isinstance(major, int):
             raise ValueError("major is not valid.")
         if minor is None or not isinstance(minor, int):
             raise ValueError("minor is not valid.")
         if bugfix is None or not isinstance(bugfix, int):
             raise ValueError("bugfix is not valid.")
+        
+        if h_major is None or not isinstance(h_major, int):
+            raise ValueError("h_major is not valid.")
+        if h_minor is None or not isinstance(h_minor, int):
+            raise ValueError("h_minor is not valid.")
+        if h_bugfix is None or not isinstance(h_bugfix, int):
+            raise ValueError("h_bugfix is not valid.")
         
         header = Header(name=MessageName_NotifyFirmwareVersion, message_type=MessageType_Notify)
-        return cls(header, major, minor, bugfix)
-    
-class NotifyHardwareVersion(BaseWsNotify)   :
-    def __init__(self, header: Header,major, minor, bugfix:int):
-        super().__init__(header=header)
-        self.major = major
-        self.minor = minor
-        self.bugfix = bugfix
-
-    def to_dict(self):
-        base_dict = super().to_dict()
-        base_dict["data"] = {
-            "major": self.major,
-            "minor": self.minor,
-            "bugfix": self.bugfix,
-        }
-        return base_dict
-    
-    @classmethod
-    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'NotifyHardwareVersion':
-        if not header.is_notify_hardware_version_message():
-            raise ValueError("Message is not NotifyHardwareVersion.")
-        
-        major = data.get("major")
-        minor = data.get("minor")
-        bugfix = data.get("bugfix")
-        return cls(header, major, minor, bugfix)
-    
-    @classmethod
-    def create_message(cls, major, minor, bugfix:int) -> 'NotifyHardwareVersion':
-        if major is None or not isinstance(major, int):
-            raise ValueError("major is not valid.")
-        if minor is None or not isinstance(minor, int):
-            raise ValueError("minor is not valid.")
-        if bugfix is None or not isinstance(bugfix, int):
-            raise ValueError("bugfix is not valid.")
-        
-        header = Header(name=MessageName_NotifyHardwareVersion, message_type=MessageType_Notify)
-        return cls(header, major, minor, bugfix)
+        return cls(header, major, minor, bugfix, h_major, h_minor, h_bugfix)
     
 class UpdateFirmwareRequest(BaseWsRequest):
     def __init__(self, header: Header, hardware_version: str, action: str):

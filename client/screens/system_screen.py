@@ -14,7 +14,7 @@ import os
 import glob
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from share.wsmessage import GetFirmwareVersionRequest, GetHardwareVersionRequest, UpdateFirmwareRequest
+from share.wsmessage import GetFirmwareVersionRequest, UpdateFirmwareRequest
 from share.firmware_image_manager import FirmwareImageManager
 
 Builder.load_file("kv/system_screen.kv")
@@ -44,7 +44,6 @@ class SystemScreen(Screen):
         self.confirmation_popup = ConfirmationPopup()
 
         self.firmware_response_received = False
-        self.hardware_response_received = True
 
         self.response_timeout_event = None
         self.upload_timeout_event = None
@@ -113,7 +112,6 @@ class SystemScreen(Screen):
 
         self.show_retry_button = False
         self.firmware_response_received = False
-        self.hardware_response_received = True
    
         self.loading_screen.update_message("Loading versions...")
         self.loading_screen.show(enable_timeout=True)
@@ -122,57 +120,40 @@ class SystemScreen(Screen):
         WebSocketClient.instance().send_json_sync(firmware_msg.to_json())
         Logger.debug("Sent GetFirmwareVersionRequest to server")
 
-        # hardware_msg = GetHardwareVersionRequest.create_message()
-        # WebSocketClient.instance().send_json_sync(hardware_msg.to_json())
-        Logger.debug("Sent GetHardwareVersionRequest to server")
-
-    def get_firmware_version_ack(self):
+    def got_firmware_version_ack(self):
         Logger.debug("Received get firmware version ack")
         if self.loading_screen.is_showing():
             self.loading_screen.update_message("Got firmware vesion ack")
 
-    def get_hardware_version_ack(self):
-        Logger.debug("Received get hardware version ack")
-        if self.loading_screen.is_showing():
-            self.loading_screen.update_message("Got hardware vesion ack")
-
-    def update_firmware_version_response(self, major: int, minor:int, bugfix: int):
+    def update_firmware_version_response(self, major: int, minor:int, bugfix: int,
+                                    h_major: int, h_minor:int, h_bugfix: int):
         self.firmware_response_received = True
         self.firmware_version = f"{major}.{minor}.{bugfix}"
-        Logger.debug(f"Firmware version updated: { self.firmware_version}")
+        self.hardware_version = f"{h_major}.{h_minor}.{h_bugfix}"
+        Logger.debug(f"Firmware version updated: { self.firmware_version}, {self.hardware_version}")
         if self.loading_screen.is_showing():
-            self.loading_screen.update_message(f"Got firmware vesion: {self.firmware_version}")
-        self.check_all_responses_received()
+            self.loading_screen.update_message(f"Got vesions: {self.firmware_version}, {self.hardware_version}")
+        self.after_response_received()
 
-    def update_hardware_version_response(self, major: int, minor:int, bugfix: int):
-        self.hardware_response_received = True
-        self.hardware_version = f"{major}.{minor}.{bugfix}"
-        Logger.debug(f"Hardware version updated: {self.hardware_version}")
-        if self.loading_screen.is_showing():
-            self.loading_screen.update_message(f"Got hardware vesion: {self.hardware_version}")
-        self.check_all_responses_received()
+    def after_response_received(self):
+        Logger.debug("Both version responses received, hiding loading screen")
+        self.loading_screen.hide()
 
-    def check_all_responses_received(self):
-        self.hardware_response_received = True
-        if self.firmware_response_received and self.hardware_response_received:
-            Logger.debug("Both version responses received, hiding loading screen")
-            self.loading_screen.hide()
+        self.versions_loaded = True
+        self.show_retry_button = False
 
-            self.versions_loaded = True
-            self.show_retry_button = False
+        self.check_firmware_availability()
 
-            self.check_firmware_availability()
-
-            button_ids = self.get_button_ids()
-            self.current_button = button_ids[0]
-            self.set_focus_button(self.current_button)
+        button_ids = self.get_button_ids()
+        self.current_button = button_ids[0]
+        self.set_focus_button(self.current_button)
+            
 
     def on_version_request_timeout(self):
         Logger.warning("Version request timed out")
 
         if not self.firmware_response_received:
             self.firmware_version = DEFAULT_VERSION
-        if not self.hardware_response_received:
             self.hardware_version = DEFAULT_VERSION
 
         self.versions_loaded = False

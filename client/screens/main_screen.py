@@ -64,12 +64,8 @@ class MainScreen(Screen):
                 self._handle_calbutt_clicked(msg)
             elif isinstance(msg, NotifyFirmwareVersion):
                 self._handle_firmware_version_data(msg)
-            elif isinstance(msg, NotifyHardwareVersion):
-                self._handle_hardware_version_data(msg)
             elif isinstance(msg, GetFirmwareVersionResponse):
                 self._handle_firmware_version_response(msg)
-            elif isinstance(msg, GetHardwareVersionResponse):
-                self._handle_hardware_version_response(msg)
             elif isinstance(msg, UpdateFirmwareResponse):
                 self._handle_update_firmware_response(msg)
             elif isinstance(msg, NotifyFirmwareProgress):
@@ -222,24 +218,15 @@ class MainScreen(Screen):
         Clock.schedule_once(lambda dt: system_screen.update_firmware_version_response(
             major=msg.major,
             minor=msg.minor,
-            bugfix=msg.bugfix
-        ))
-
-    def _handle_hardware_version_data(self, msg: NotifyHardwareVersion):
-        system_screen = self.get_stack_widget().get_system_screen()
-        Clock.schedule_once(lambda dt: system_screen.update_hardware_version_response(
-            major=msg.major,
-            minor=msg.minor,
-            bugfix=msg.bugfix
+            bugfix=msg.bugfix,
+            h_major=msg.h_major,
+            h_minor=msg.h_minor,
+            h_bugfix=msg.h_bugfix,
         ))
 
     def _handle_firmware_version_response(self, msg: GetFirmwareVersionResponse):
         system_screen = self.get_stack_widget().get_system_screen()
-        Clock.schedule_once(lambda dt: system_screen.get_firmware_version_ack())
-
-    def _handle_hardware_version_response(self, msg: GetHardwareVersionResponse):
-        system_screen = self.get_stack_widget().get_system_screen()
-        Clock.schedule_once(lambda dt: system_screen.get_hardware_version_ack())
+        Clock.schedule_once(lambda dt: system_screen.got_firmware_version_ack())
 
     def _handle_update_firmware_response(self, msg: UpdateFirmwareResponse):
         system_screen = self.get_stack_widget().get_system_screen()

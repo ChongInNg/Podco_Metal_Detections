@@ -9,7 +9,6 @@ from commands.calibration_failed_command import CalibrationFailedCommand
 from commands.voltage_command import VoltageCommand
 from commands.calbutt_command import CalButtCommand
 from commands.firmware_version_command import FirmwareVersionCommand
-from commands.hardware_version_command import HardwareVersionCommand
 
 from websocket.connection_manager import ConnectionManager
 from log_manager import LogManager
@@ -38,9 +37,7 @@ class CommandHandler:
         0xD0: CalButtCommand,
         0xFA: ResetToBootloaderCommandResp,
         0xFB: GetFirmwareVersionCommandResp,
-        0xFC: GetHardwareVersionCommandResp,
         0xBF: FirmwareVersionCommand,
-        0xCF: HardwareVersionCommand
     }
 
     def __init__(self):
@@ -128,13 +125,6 @@ class CommandHandler:
                 code="OK",
                 message="Get firmware version from controller success."
             )
-        elif isinstance(command, GetHardwareVersionCommandResp):
-            Logger.info("Received get hardware version response")
-            return GetHardwareVersionResponse.create_message(
-                id="get_hardware_version",
-                code="OK",
-                message="Get hardware version from controller success.",
-            )
         elif isinstance(command, ResetToBootloaderCommandResp):
             Logger.info("Received reset to bootloader command response")
 
@@ -172,14 +162,10 @@ class CommandHandler:
             return NotifyFirmwareVersion.create_message(
                 major=command.major,
                 minor=command.minor,
-                bugfix=command.bugfix
-            )
-        elif isinstance(command, HardwareVersionCommand):
-            Logger.info("Received HardwareVersionCommand")
-            return NotifyHardwareVersion.create_message(
-                major=command.major,
-                minor=command.minor,
-                bugfix=command.bugfix
+                bugfix=command.bugfix,
+                h_major=command.h_major,
+                h_minor=command.h_minor,
+                h_bugfix=command.h_bugfix
             )
         else:
             raise ValueError(f"Unknown command: {command.name}")

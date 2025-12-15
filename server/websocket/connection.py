@@ -34,8 +34,6 @@ class Connection:
                 await self._handle_get_calibration_data(message)
             elif isinstance(message, GetFirmwareVersionRequest):
                 await self.handle_get_firmware_version(message)
-            elif isinstance(message, GetHardwareVersionRequest):
-                await self.handle_get_hardware_version(message)
             elif isinstance(message, UpdateFirmwareRequest):
                 await self.handle_update_firmware(message)
             else:
@@ -183,17 +181,6 @@ class Connection:
             )
             await self.conn.send(rsp.to_json())
             Logger.error(f"Handle get firmware version request failed: {rsp.to_dict()}")
-
-    async def handle_get_hardware_version(self, message: GetHardwareVersionRequest):
-        from serial_server import SerialServer 
-        write_buf_num = SerialServer.instance().send_get_hardware_version_request()
-        if write_buf_num == 0:
-            rsp = GetHardwareVersionResponse.create_message(
-                id=message.id, code="error", 
-                message="Send get hardware version request to controller failed."
-            )
-            await self.conn.send(rsp.to_json())
-            Logger.error(f"Handle get hardware version request failed: {rsp.to_dict()}")
 
     async def handle_update_firmware(self, message: UpdateFirmwareRequest):
         Logger.debug("Received update firmware request")
