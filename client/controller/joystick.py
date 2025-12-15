@@ -17,6 +17,14 @@ class JoyStick:
             "CENTER": 26
         }
 
+        self.previous_states = {
+            "UP": GPIO.HIGH,
+            "DOWN": GPIO.HIGH,
+            "LEFT": GPIO.HIGH,
+            "RIGHT": GPIO.HIGH,
+            "CENTER": GPIO.HIGH
+        }
+
         self.keep_pressing_seconds = ConfigManager.instance().keep_pressing_seconds
 
     def setup(self, up: int, down: int, left: int, right: int, center: int):
@@ -72,28 +80,32 @@ class JoyStick:
                 self.callback("left_right")
                 time.sleep(0.3)
                 continue
-            
+
             if self.check_press_up_down():
                 Logger.debug(f"Press up down in the same time over {self.keep_pressing_seconds} seconds.")
                 self.callback("up_down")
                 time.sleep(0.3)
                 continue
 
-            direction = ""
-            if GPIO.input(self.JOYSTICK_PINS["LEFT"]) == GPIO.LOW:
-                direction = "left"
-            elif GPIO.input(self.JOYSTICK_PINS["RIGHT"]) == GPIO.LOW:
-                direction = "right"
-            elif GPIO.input(self.JOYSTICK_PINS["UP"]) == GPIO.LOW:
-                direction = "up"
-            elif GPIO.input(self.JOYSTICK_PINS["DOWN"]) == GPIO.LOW:
-                direction = "down"
-            elif GPIO.input(self.JOYSTICK_PINS["CENTER"]) == GPIO.LOW:
-                direction = "center"
+            for button_name, pin in self.JOYSTICK_PINS.items():
+                current_state = GPIO.input(pin)
+                previous_state = self.previous_states[button_name]
 
-            if len(direction) > 0:
-                self.callback(direction)
-                time.sleep(0.3)
+                if previous_state == GPIO.HIGH and current_state == GPIO.LOW:
+                    direction = button_name.lower()
+                    Logger.debug(f"Button pressed: {direction}")
+                    self.callback(direction)
+                    self.previous_states[button_name] = current_state
+                    time.sleep(0.3)
+                    break
+
+                elif previous_state == GPIO.LOW and current_state == GPIO.HIGH:
+                    direction = button_name.lower() + "_release"
+                    Logger.debug(f"Button released: {direction}")
+                    self.callback(direction)
+                    self.previous_states[button_name] = current_state
+                    time.sleep(0.3)
+                    break
 
             time.sleep(0.01)
 

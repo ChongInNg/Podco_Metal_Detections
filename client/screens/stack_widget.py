@@ -34,7 +34,12 @@ class StackWidget(Screen):
             else:
                 self.dismiss_calibration_failed_popup()
                 return
-            
+        
+        if direction.find("_release") != -1:
+            self.handle_direction_release(direction.replace("_release", ""))
+            Logger.debug(f"Handle direction release: {direction}")
+            return
+        
         if direction == "left":
             if self.is_detection():
                 self.change_to_option_screen()
