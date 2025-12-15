@@ -157,6 +157,7 @@ class CommandHandler:
                 else:
                     Logger.error("Failed to trigger firmware update")
                     Logger.info("Reopening SerialServer after failed update trigger...")
+                    manager.cancel_pending_task()
                     SerialServer.instance().reconnect()
             else:
                 Logger.warning("No pending firmware update task found after bootloader reset")

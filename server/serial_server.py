@@ -65,18 +65,7 @@ class SerialServer:
             return False
         
         Logger.info("Serial server is reconnecting")
-        try:
-            #only restart the read_thread, the process_thread no need to restart.
-            self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
-            self.running = True
-            self.read_thread = threading.Thread(target=self._read_data, daemon=True)
-            self.read_thread.start()
-            Logger.info("Serial server is reconnected")
-            return True
-        except Exception as e:
-            Logger.error(f"Failed to reconnect to Serial on port:{self.port}, baudrate:{self.baudrate}, err: {e}")
-            self.set_server_status_off()
-            return False
+        return self.connect(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
         
     def start(self):
         self.read_thread = threading.Thread(target=self._read_data, daemon=True)
@@ -178,7 +167,7 @@ class SerialServer:
     def _process_queue_data(self):
         while self.running:
             try:
-                command_data: CommandData = self.cmd_queue.get(block=True)
+                command_data: CommandData = self.cmd_queue.get(block=True, timeout=0.1)
                 try:
                     result = self.command_handler.handle_command(
                         command_type=command_data.command_type,
@@ -202,9 +191,8 @@ class SerialServer:
             Logger.info("Serial connection closed.")
             self.read_thread.join()
             Logger.info("Read queue thread closed.")
-            # cannot join this thread because the queue is using block mode for better performance.
-            # self.proces_thread.join()
-            Logger.info("Process queue thread closed.")
+            # self.proces_thread.join() #can't join here due to it will trigger by itself
+            Logger.info("Process queue thread will exit automatically.")
         
         self.set_server_status_off()
         Logger.info("Serial server close successfully..")
