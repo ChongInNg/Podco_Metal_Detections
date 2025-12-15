@@ -44,7 +44,7 @@ class SystemScreen(Screen):
         self.confirmation_popup = ConfirmationPopup()
 
         self.firmware_response_received = False
-        self.hardware_response_received = False
+        self.hardware_response_received = True
 
         self.response_timeout_event = None
         self.upload_timeout_event = None
@@ -113,7 +113,7 @@ class SystemScreen(Screen):
 
         self.show_retry_button = False
         self.firmware_response_received = False
-        self.hardware_response_received = False
+        self.hardware_response_received = True
    
         self.loading_screen.update_message("Loading versions...")
         self.loading_screen.show(enable_timeout=True)
@@ -122,8 +122,8 @@ class SystemScreen(Screen):
         WebSocketClient.instance().send_json_sync(firmware_msg.to_json())
         Logger.debug("Sent GetFirmwareVersionRequest to server")
 
-        hardware_msg = GetHardwareVersionRequest.create_message()
-        WebSocketClient.instance().send_json_sync(hardware_msg.to_json())
+        # hardware_msg = GetHardwareVersionRequest.create_message()
+        # WebSocketClient.instance().send_json_sync(hardware_msg.to_json())
         Logger.debug("Sent GetHardwareVersionRequest to server")
 
     def get_firmware_version_ack(self):
@@ -153,6 +153,7 @@ class SystemScreen(Screen):
         self.check_all_responses_received()
 
     def check_all_responses_received(self):
+        self.hardware_response_received = True
         if self.firmware_response_received and self.hardware_response_received:
             Logger.debug("Both version responses received, hiding loading screen")
             self.loading_screen.hide()
