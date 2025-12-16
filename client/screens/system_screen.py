@@ -9,9 +9,13 @@ from screens.loading_screen import LoadingScreen
 from screens.common_popup import CommonPopup
 from screens.progress_popup import ProgressPopup
 from screens.confirmation_popup import ConfirmationPopup
+from controller.device_detector import DeviceDetector
+from config.config import ConfigManager
 import sys
 import os
 import glob
+import threading
+import shutil
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import GetFirmwareVersionRequest, UpdateFirmwareRequest
@@ -48,6 +52,11 @@ class SystemScreen(Screen):
 
         self.response_timeout_event = None
         self.upload_timeout_event = None
+        
+        self.usb_copy_in_progress = False
+        self.backup_folder_path = None
+        self.copied_from_usb = False
+        self.device_detector = DeviceDetector(mount_point=ConfigManager.instance().mount_point)
     
     def get_button_ids(self):
         if self.show_retry_button:
@@ -114,6 +123,170 @@ class SystemScreen(Screen):
 
         Logger.debug(f"Firmware availability - Upgrade: {self.upgrade_available} ({self.upgrade_version}), Rollback: {self.rollback_available} ({self.rollback_version})")
 
+    def check_usb_firmware_availability(self) -> bool:
+        if not ConfigManager.instance().run_on_rpi():
+            Logger.debug("Not running on RPi, skipping USB firmware check")
+            return False
+        
+        if self.hardware_version == DEFAULT_VERSION:
+            Logger.debug("Hardware version not available, cannot check USB firmware")
+            return False
+
+        usb_detected = self.device_detector.detect()
+        if not usb_detected:
+            Logger.debug("No USB device detected")
+            return False
+        
+        usb_firmware_path = os.path.join(
+            ConfigManager.instance().mount_point,
+            FirmwareImageManager.FIRMWARE_DIR_NAME,
+            self.hardware_version
+        )
+        
+        if os.path.exists(usb_firmware_path):
+            Logger.debug(f"USB firmware folder found: {usb_firmware_path}")
+            Clock.schedule_once(lambda dt: self.show_usb_firmware_confirmation(), 0.1)
+            return True
+        else:
+            Logger.debug(f"USB firmware folder not found at: {usb_firmware_path}")
+            self.device_detector.umount_device()
+            return False
+
+    def show_usb_firmware_confirmation(self):
+        self.confirmation_popup.reset_state()
+        self.confirmation_popup.title = "USB Firmware Detected"
+        self.confirmation_popup.update_message(
+            f"Firmware found on USB for hardware {self.hardware_version}.\n"
+            "Copy firmware from USB?"
+        )
+        self.confirmation_popup.on_confirm_callback = self._start_usb_firmware_copy
+        self.confirmation_popup.handle_open()
+
+    def _start_usb_firmware_copy(self):
+        Logger.debug("Starting USB firmware copy process...")
+
+        self.usb_copy_in_progress = True
+        self.copied_from_usb = False
+
+        self.loading_screen.update_message("Preparing to copy firmware from USB...")
+        self.loading_screen.show(enable_timeout=False)
+
+        copy_thread = threading.Thread(
+            target=self._execute_usb_firmware_copy,
+            daemon=True
+        )
+        copy_thread.start()
+
+    def _execute_usb_firmware_copy(self):
+        backup_created = False
+        copy_successful = False
+
+        try:
+            firmware_manager = FirmwareImageManager()
+            local_firmware_base = firmware_manager.firmware_dir
+            local_hw_folder = os.path.join(local_firmware_base, self.hardware_version)
+            backup_folder = f"{local_hw_folder}.bak"
+            usb_hw_folder = os.path.join(
+                ConfigManager.instance().mount_point,
+                FirmwareImageManager.FIRMWARE_DIR_NAME,
+                self.hardware_version
+            )
+
+            if not os.path.exists(usb_hw_folder):
+                raise Exception(f"USB firmware folder not found: {usb_hw_folder}")
+
+            Clock.schedule_once(
+                lambda dt: self.loading_screen.update_message("Backing up current firmware..."),
+                0
+            )
+
+            if os.path.exists(local_hw_folder):
+                if os.path.exists(backup_folder):
+                    shutil.rmtree(backup_folder)
+
+                os.rename(local_hw_folder, backup_folder)
+                self.backup_folder_path = backup_folder
+                backup_created = True
+                Logger.debug(f"Backed up firmware: {local_hw_folder} -> {backup_folder}")
+
+            Clock.schedule_once(
+                lambda dt: self.loading_screen.update_message("Copying firmware from USB..."),
+                0
+            )
+
+            shutil.copytree(usb_hw_folder, local_hw_folder)
+            copy_successful = True
+            Logger.debug(f"Copied firmware from USB: {usb_hw_folder} -> {local_hw_folder}")
+
+            self.copied_from_usb = True
+            Clock.schedule_once(lambda dt: self._on_usb_copy_success(), 0)
+        except Exception as e:
+            Logger.error(f"USB firmware copy failed: {e}")
+            if backup_created and not copy_successful:
+                try:
+                    if os.path.exists(local_hw_folder):
+                        shutil.rmtree(local_hw_folder)
+                    if os.path.exists(backup_folder):
+                        os.rename(backup_folder, local_hw_folder)
+                        Logger.debug("Restored backup after copy failure")
+                except Exception as restore_error:
+                    Logger.error(f"Failed to restore backup: {restore_error}")
+
+            Clock.schedule_once(lambda dt: self._on_usb_copy_failure(str(e)), 0)
+
+        finally:
+            if self.device_detector:
+                self.device_detector.umount_device()
+
+            self.usb_copy_in_progress = False
+
+    def _on_usb_copy_success(self):
+        Logger.debug("USB firmware copy successful")
+
+        self.loading_screen.hide()
+        self.after_response_received()
+
+    def _on_usb_copy_failure(self, error_message: str):
+        Logger.error(f"USB firmware copy failed: {error_message}")
+
+        self.loading_screen.hide()
+        self.show_error_popup(f"Failed to copy firmware from USB:\n{error_message}")
+
+        self.copied_from_usb = False
+        self.backup_folder_path = None
+
+    def _cleanup_usb_copy_state(self, success: bool):
+        if not self.copied_from_usb or not self.backup_folder_path:
+            Logger.debug("No USB copy state to clean up")
+            return
+
+        try:
+            if success:
+                if os.path.exists(self.backup_folder_path):
+                    shutil.rmtree(self.backup_folder_path)
+                    Logger.debug(f"Deleted backup folder after successful upgrade: {self.backup_folder_path}")
+            else:
+                firmware_manager = FirmwareImageManager()
+                local_hw_folder = os.path.join(
+                    firmware_manager.firmware_dir,
+                    self.hardware_version
+                )
+
+                # Delete failed firmware
+                if os.path.exists(local_hw_folder):
+                    shutil.rmtree(local_hw_folder)
+
+                # Restore backup
+                if os.path.exists(self.backup_folder_path):
+                    os.rename(self.backup_folder_path, local_hw_folder)
+                    Logger.debug(f"Restored backup after failed upgrade: {self.backup_folder_path} -> {local_hw_folder}")
+
+        except Exception as e:
+            Logger.error(f"Error cleaning up USB copy state: {e}")
+        finally:
+            self.copied_from_usb = False
+            self.backup_folder_path = None
+
     def request_versions(self):
         if not WebSocketClient.instance().is_connected():
             Logger.warning("WebSocket not connected, cannot request versions")
@@ -142,21 +315,25 @@ class SystemScreen(Screen):
         Logger.debug(f"Firmware version updated: { self.firmware_version}, {self.hardware_version}")
         if self.loading_screen.is_showing():
             self.loading_screen.update_message(f"Got vesions: {self.firmware_version}, {self.hardware_version}")
+            self.loading_screen.hide()
+        
+        if self.check_usb_firmware_availability():
+            return
+        
+        # don't exist usb firmware, continue normal flow
         self.after_response_received()
 
     def after_response_received(self):
         Logger.debug("Both version responses received, hiding loading screen")
-        self.loading_screen.hide()
 
         self.versions_loaded = True
         self.show_retry_button = False
 
         self.check_firmware_availability()
-
+        
         button_ids = self.get_button_ids()
         self.current_button = button_ids[0]
         self.set_focus_button(self.current_button)
-            
 
     def on_version_request_timeout(self):
         Logger.warning("Version request timed out")
@@ -388,6 +565,8 @@ class SystemScreen(Screen):
             Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
         else:
             self._finish_update_with_error("Firmware update failed!")
+
+        self._cleanup_usb_copy_state(success=(code == "OK"))
 
     def _finish_update(self):
         self._cancel_all_update_timers()

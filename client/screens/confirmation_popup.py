@@ -76,3 +76,6 @@ class ConfirmationPopup(FlippedPopup):
 
     def is_showing(self) -> bool:
         return self.current_state == "opened"
+    
+    def update_message(self, new_message: str):
+        self.message_label.text = new_message
