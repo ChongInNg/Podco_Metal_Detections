@@ -256,7 +256,11 @@ class SystemScreen(Screen):
             return
 
         if self.progress_popup.is_showing():
-            Logger.debug("progress popup is showing, ignore enter pressed")
+            if self.progress_popup.is_in_error_state():
+                Logger.debug("progress popup is in error state, dismiss it when enter pressed")
+                self.progress_popup.handle_dismiss()
+            else:
+                Logger.debug("progress popup is showing, ignore enter pressed")
             return
 
         if self.confirmation_popup.is_showing():
@@ -361,8 +365,7 @@ class SystemScreen(Screen):
             self.progress_popup.update_status("Reset to bootloader success.")
             self.upload_timeout_event = Clock.schedule_once(self._on_update_timeout, 30.0)
         else:
-            self.progress_popup.update_status("Reset to bootloader failed!")
-            Clock.schedule_once(lambda dt: self._finish_update_with_error(), 2.0)
+            self._finish_update_with_error("Reset to bootloader failed!")
 
     def handle_notify_firmware_progress(self, total, progress: int):
         Logger.debug(f"Received notify firmware progress. total: {total}, progress: {progress}")
@@ -374,11 +377,17 @@ class SystemScreen(Screen):
                     Clock.unschedule(self.upload_timeout_event)
                     self.upload_timeout_event = None
 
-                self.progress_popup.update_status("Firmware update completed!")
-                Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
-
     def handle_notify_firmware_result(self, code: str, message: str):
         Logger.debug(f"Received update firmware result. code: {code}, message: {message}")
+        if code == "OK":
+            if self.current_button == 'upgrade_btn':
+                self.firmware_version = self.upgrade_version
+            elif self.current_button == 'rollback_btn':
+                self.firmware_version = self.rollback_version
+            self.progress_popup.update_status("Firmware update completed successfully.")
+            Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
+        else:
+            self._finish_update_with_error("Firmware update failed!")
 
     def _finish_update(self):
         self._cancel_all_update_timers()
@@ -386,11 +395,12 @@ class SystemScreen(Screen):
         self.progress_popup.handle_dismiss()
         Logger.debug("Firmware update process finished successfully")
 
-    def _finish_update_with_error(self):
+    def _finish_update_with_error(self, error_message: str):
         self._cancel_all_update_timers()
 
-        self.progress_popup.handle_dismiss()
-        Logger.debug("Firmware update process finished with error")
+        if self.progress_popup.is_showing():
+            self.progress_popup.show_error_state(error_message)
+        Logger.debug(f"Firmware update process finished with error: {error_message}")
 
     def _cancel_all_update_timers(self):
         if self.response_timeout_event:
@@ -405,13 +415,11 @@ class SystemScreen(Screen):
         self.response_timeout_event = None
 
         if self.progress_popup.is_showing():
-            self.progress_popup.update_status("Response timeout!")
-            Clock.schedule_once(lambda dt: self._finish_update_with_error(), 2.0)
+            self._finish_update_with_error("Reset bootloader timeout!")
 
     def _on_update_timeout(self, dt):
         Logger.warning("Firmware update timeout")
         self.upload_timeout_event = None
 
         if self.progress_popup.is_showing():
-            self.progress_popup.update_status("Firmware update timeout!")
-            Clock.schedule_once(lambda dt: self._finish_update_with_error(), 2.0)
+            self._finish_update_with_error("Firmware update timeout!")

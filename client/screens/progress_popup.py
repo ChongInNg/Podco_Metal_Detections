@@ -1,6 +1,7 @@
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.progressbar import ProgressBar
+from kivy.uix.button import Button
 from screens.flip_popup import FlippedPopup
 from log.logger import Logger
 
@@ -21,7 +22,7 @@ class ProgressPopup(FlippedPopup):
         self.status_label.bind(size=self.status_label.setter("text_size"))
 
         self.progress_value_label = Label(
-            text="0/100",
+            text="0%",
             halign="center",
             valign="middle",
             font_size=22,
@@ -37,12 +38,21 @@ class ProgressPopup(FlippedPopup):
             size_hint_y=0.4
         )
 
+        self.confirm_button = Button(
+            text="Confirm",
+            size_hint_y=0.4,
+            font_size=20
+        )
+        self.confirm_button.bind(on_release=self._on_confirm)
+
         layout.add_widget(self.status_label)
         layout.add_widget(self.progress_value_label)
         layout.add_widget(self.progress_bar)
 
         self.content = layout
+        self.main_layout = layout
         self.current_state = "dismiss"
+        self.error_state = False
 
     def set_title(self, title: str):
         self.title = title
@@ -53,8 +63,9 @@ class ProgressPopup(FlippedPopup):
         Logger.debug(f"Progress popup status updated: {status_text}")
 
     def update_progress_value(self, current: int, total: int):
-        self.progress_value_label.text = f"{current}/{total}"
-        Logger.debug(f"Progress popup value updated: {current}/{total}")
+        percentage = int((current / total * 100)) if total > 0 else 0
+        self.progress_value_label.text = f"{percentage}%"
+        Logger.debug(f"Progress popup value updated: {percentage}% ({current}/{total})")
 
     def update_progress_percentage(self, percentage: int):
         self.progress_value_label.text = f"{percentage}%"
@@ -70,16 +81,52 @@ class ProgressPopup(FlippedPopup):
         self.update_progress_value(current, total)
         self.update_progress_bar(current, total)
 
+    def show_error_state(self, error_message: str):
+        self.error_state = True
+        self.status_label.text = error_message
+
+        if self.progress_value_label in self.main_layout.children:
+            self.main_layout.remove_widget(self.progress_value_label)
+        if self.progress_bar in self.main_layout.children:
+            self.main_layout.remove_widget(self.progress_bar)
+
+        if self.confirm_button not in self.main_layout.children:
+            self.main_layout.add_widget(self.confirm_button)
+
+        self.confirm_button.state = "down"
+        Logger.debug(f"Progress popup switched to error state: {error_message}")
+
+    def show_normal_state(self):
+        self.error_state = False
+        if self.confirm_button in self.main_layout.children:
+            self.main_layout.remove_widget(self.confirm_button)
+
+        if self.progress_bar not in self.main_layout.children:
+            self.main_layout.add_widget(self.progress_value_label)
+            self.main_layout.add_widget(self.progress_bar)
+
+        Logger.debug("Progress popup switched to normal state")
+
+    def is_in_error_state(self) -> bool:
+        return self.error_state
+
+    def _on_confirm(self, instance):
+        Logger.debug("Confirm button pressed in progress popup")
+        self.handle_dismiss()
+
     def reset(self):
         self.title = "Progress"
         self.status_label.text = "Processing..."
-        self.progress_value_label.text = "0/100"
+        self.progress_value_label.text = "0%"
         self.progress_bar.value = 0
         self.progress_bar.max = 100
+        self.error_state = False
+        self.show_normal_state()
         Logger.debug("Progress popup reset to initial state")
 
     def reset_state(self):
         self.current_state = "dismiss"
+        self.error_state = False
 
     def handle_dismiss(self):
         self.dismiss()
