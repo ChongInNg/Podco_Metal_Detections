@@ -18,8 +18,8 @@
 
                 BoxLayout:
                     orientation: "vertical"
-                    spacing: 5
-                    padding: [10, 15]
+                    spacing: 3
+                    padding: [5, 10]
                     size_hint_y: 0.85
                     canvas.before:
                         Color:
@@ -31,13 +31,13 @@
                     # Brightness
                     BoxLayout:
                         orientation: "horizontal"
-                        spacing: 5
+                        spacing: 3
                         Label:
                             text: "Brightness:"
                             halign: "left"
                             valign: "middle"
                             text_size: self.size
-                            padding: [10, 0]
+                            padding: [2, 0]
                             font_size: "18sp"
                             size_hint_x: 0.4
                         Label:
@@ -47,7 +47,7 @@
                             text_size: self.size
                             text: str(int(root.brightness))
                             font_size: "18sp"
-                            size_hint_x: 0.1
+                            size_hint_x: 0.12
                         Slider:
                             id: brightness_slider
                             min: 0
@@ -65,13 +65,13 @@
                     # reset factory
                     BoxLayout:
                         orientation: "horizontal"
-                        spacing: 5
+                        spacing: 3
                         Label:
                             text: "Reset to Factory:"
                             halign: "left"
                             valign: "middle"
                             text_size: self.size
-                            padding: [10, 0]
+                            padding: [2, 0]
                             font_size: "18sp"
                             size_hint_x: 0.5
                             size_hint_y: 0.6
@@ -87,7 +87,7 @@
                     BoxLayout:
                         id: log_backup_layout
                         orientation: "horizontal"
-                        spacing: 5
+                        spacing: 3
                         size_hint_y: None if root.log_hidden else 1
                         height: 0 if root.log_hidden else self.height
 
@@ -96,7 +96,7 @@
                             halign: "left"
                             valign: "middle"
                             text_size: self.size
-                            padding: [10, 0]
+                            padding: [2, 0]
                             font_size: "18sp"
                             size_hint_x: 0.5
                             size_hint_y: 0.6
@@ -112,7 +112,7 @@
                     BoxLayout:
                         id: button_test_layout
                         orientation: "horizontal"
-                        spacing: 5
+                        spacing: 3
                         size_hint_y: None if root.test_button_hidden else 1
                         height: 0 if root.test_button_hidden else self.height
 
@@ -121,7 +121,7 @@
                             halign: "left"
                             valign: "middle"
                             text_size: self.size
-                            padding: [10, 0]
+                            padding: [2, 0]
                             font_size: "18sp"
                             size_hint_x: 0.5
                             size_hint_y: 0.6
@@ -135,7 +135,7 @@
                 # back_btn
                 BoxLayout:
                     orientation: "horizontal"
-                    spacing: 5
+                    spacing: 3
                     padding: [10, 5]
                     size_hint_y: 0.15
                     Label:
