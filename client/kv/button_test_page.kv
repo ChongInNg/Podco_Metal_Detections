@@ -2,7 +2,7 @@
     FloatLayout:
         BoxLayout:
             orientation: "vertical"
-            spacing: 12
+            spacing: 6
             padding: [5, 5]
             canvas.before:
                 Color:
@@ -52,7 +52,7 @@
                             keep_ratio: True
                     Label:
                         text: "hold 2s to exit"
-                        font_size: "10sp"
+                        font_size: "12sp"
                         size_hint_y: 0.15
 
                 # RIGHT button 
@@ -88,13 +88,13 @@
                 size_hint_y: 0.33
 
                 Widget:
-                    size_hint_x: 0.17
+                    size_hint_x: 0.1
 
                 # DOWN button 
                 BoxLayout:
                     orientation: "vertical"
                     spacing: 2
-                    size_hint_x: 0.33
+                    size_hint_x: 0.40
                     Button:
                         id: down_btn
                         size_hint_y: 0.85
@@ -120,7 +120,7 @@
                 BoxLayout:
                     orientation: "vertical"
                     spacing: 2
-                    size_hint_x: 0.33
+                    size_hint_x: 0.40
                     Button:
                         id: up_btn
                         size_hint_y: 0.85
@@ -143,7 +143,7 @@
                         size_hint_y: 0.15
 
                 Widget:
-                    size_hint_x: 0.17
+                    size_hint_x: 0.1
 
             # Bottom row: CAL, BYPASS
             BoxLayout:
@@ -186,7 +186,7 @@
                             keep_ratio: True
                     Label:
                         text: ""
-                        font_size: "10sp"
+                        font_size: "12sp"
                         size_hint_y: 0.15
 
         ProgressBar:
