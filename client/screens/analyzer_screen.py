@@ -15,11 +15,53 @@ from screens.image_button import ImageButton
 from dataclasses import dataclass
 from log.logger import Logger
 from kivy.uix.image import Image
+from kivy.uix.widget import Widget
+from kivy.graphics import Color, Line
 
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
+
+class RulerWidget(Widget):
+    YAXIS_LABEL_AREA_WIDTH = 53
+    TICK_OFFSET = -6
+
+    def __init__(self, graph, **kwargs):
+        super().__init__(**kwargs)
+        self.graph = graph
+        self.bind(pos=self.update_canvas, size=self.update_canvas)
+
+    def update_canvas(self, *args):
+        self.canvas.clear()
+        with self.canvas:
+            Color(0, 0, 0, 1)
+            from kivy.graphics import Rectangle
+            Rectangle(pos=self.pos, size=self.size)
+
+            graph_padding = self.graph.padding
+            plot_start_x = self.x + self.YAXIS_LABEL_AREA_WIDTH
+            plot_width = self.width - self.YAXIS_LABEL_AREA_WIDTH - (graph_padding * 2)
+
+
+            tick_color = self.graph.tick_color
+            Color(tick_color[0], tick_color[1], tick_color[2], tick_color[3])
+
+            time_range = 11
+            height = self.height
+            y_top = self.y + height - self.TICK_OFFSET
+
+            major_tick_height = height * 0.8
+            for i in range(time_range + 1):
+                x_pos = plot_start_x + (i * plot_width / time_range)
+                Line(points=[x_pos, y_top, x_pos, y_top - major_tick_height], width=1)
+
+            minor_tick_height = height * 0.4
+            num_minor_ticks = time_range * 5
+            for i in range(num_minor_ticks + 1):
+                if i % 5 != 0:
+                    x_pos = plot_start_x + (i * plot_width / num_minor_ticks)
+                    Line(points=[x_pos, y_top, x_pos, y_top - minor_tick_height], width=1)
 
 @dataclass
 class AnalyzerData:
@@ -32,6 +74,9 @@ class AnalyzerData:
     CH2_N: int
 
 class AnalyzerScreen(Screen):
+    GRAPH_TICK_COLOR = [1, 1, 1, 1]
+    GRAPH_LABEL_SIZE = 14
+
     title = "Analyzer"
 
     def __init__(self, **kwargs):
@@ -70,10 +115,10 @@ class AnalyzerScreen(Screen):
 
     def _create_graph(self):
         self.graph = Graph(
-            xlabel="Samples",
+            xlabel="",
             ylabel="Amplitude",
-            x_ticks_minor=5, 
-            x_ticks_major=1, 
+            # x_ticks_minor=5, 
+            # x_ticks_major=1, 
             y_ticks_minor=5,
             y_ticks_major=500,
             y_grid_label=True,
@@ -87,7 +132,8 @@ class AnalyzerScreen(Screen):
                 "color": [1, 1, 1, 1],
                 "bold": True,
             },
-            tick_color=[1, 1, 1, 1],
+            font_size=self.GRAPH_LABEL_SIZE,
+            tick_color=self.GRAPH_TICK_COLOR,
         )
 
         self.ch1_p_plot = LinePlot(color=[0, 1, 0, 1])
@@ -115,8 +161,11 @@ class AnalyzerScreen(Screen):
         self.graph.add_plot(self.ch2_n_plot)
         self.graph.add_plot(self.threshold_plot)
 
-        layout = BoxLayout(orientation="vertical")
+        layout = BoxLayout(orientation="vertical", spacing=7)
         layout.add_widget(self.graph)
+
+        self.ruler = RulerWidget(self.graph, size_hint_y=0.05)
+        layout.add_widget(self.ruler)
 
         legend_items = [
             ("T", [1, 0, 0, 1]),
