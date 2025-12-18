@@ -154,7 +154,7 @@ class AnalyzerScreen(Screen):
         self.ch2_n_plot.points = []
         self.ch2_n_data = []
 
-        self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=1)
+        self.threshold_plot = LinePlot(color=[1, 0, 0, 1], line_width=2)
         self.threshold_plot.points = []
 
         self.graph.add_plot(self.ch1_p_plot)

@@ -7,7 +7,7 @@
     "slider_step": 50,
     "server_address": "127.0.0.1",
     "server_port": 8765,
-    "run_on": "win",
+    "run_on": "rpi",
     "support_keyboard": "True",
     "idle_seconds": 120,
     "enable_idle_checking": "True",
@@ -20,20 +20,12 @@
         "right": 19,
         "center": 26
     },
-    "keypad": {
-        "up": 26,
-        "down": 6,
-        "left": 19,
-        "right": 5,
-        "center": 13
-    },
-    "control_mode": "joystick",
     "flip_screen": "false",
     "mount_point": "/home/podco/mount_point",
     "src_folders": [
         "/home/podco/Podco_Metal_Detections/server/system_logs"
     ],
     "need_copy_files_suffix": ["json", "log"],
-    "keep_pressing_seconds": 2,
+    "keep_pressing_seconds": 1,
     "support_maximum_detections": 100
 }

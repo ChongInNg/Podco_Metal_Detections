@@ -14,17 +14,6 @@ class JoyStickPins:
     def to_dict(self) -> dict:
         return asdict(self)
 
-@dataclass
-class KeypadPins:
-    up: int
-    down: int
-    left: int
-    right: int
-    center: int
-
-    def to_dict(self) -> dict:
-        return asdict(self)
-
 class ConfigManager:
     _instance = None
     _lock = threading.Lock()
@@ -47,8 +36,6 @@ class ConfigManager:
         self.brightness = 0
         self.brightness_step = 0
         self.joystick_pins = JoyStickPins(0,0,0,0,0)
-        self.keypad_pins = KeypadPins(0,0,0,0,0)
-        self.control_mode: str = ""
         self.flip_screen: str = ""
         self.mount_point: str = ""
         self.src_folders: list[str] = []
@@ -73,8 +60,6 @@ class ConfigManager:
             "brightness": self.brightness,
             "brightness_step": self.brightness_step,
             "joystick": self.joystick_pins.to_dict(),
-            "keypad": self.keypad_pins.to_dict(),
-            "control_mode": self.control_mode,
             "flip_screen": self.flip_screen,
             "mount_point": self.mount_point,
             "src_folders": self.src_folders,
@@ -121,19 +106,6 @@ class ConfigManager:
             self.joystick_pins.left = joystick.get("left")
             self.joystick_pins.right = joystick.get("right")
             self.joystick_pins.center = joystick.get("center")
-
-            keypad = data.get("keypad")
-            if keypad is None or not isinstance(keypad, dict):
-                raise ValueError("missing joystick config")
-            self.keypad_pins.up = keypad.get("up")
-            self.keypad_pins.down = keypad.get("down")
-            self.keypad_pins.left = keypad.get("left")
-            self.keypad_pins.right = keypad.get("right")
-            self.keypad_pins.center = keypad.get("center")
-
-            self.control_mode = data.get("control_mode", "")
-            if self.control_mode != "joystick" and self.control_mode != "keypad":
-                raise ValueError("control_mode value is wrong")
             
             self.flip_screen = data.get("flip_screen", "")
             self.src_folders = data.get("src_folders")
@@ -166,7 +138,5 @@ class ConfigManager:
             return True
         except Exception as e:
             return False
-        
-    def is_keypad_mode(self)->bool:
-        return self.control_mode == "keypad"
+    
 
