@@ -7,7 +7,7 @@
     "slider_step": 50,
     "server_address": "127.0.0.1",
     "server_port": 8765,
-    "run_on": "rpi",
+    "run_on": "rpi", 
     "support_keyboard": "True",
     "idle_seconds": 120,
     "enable_idle_checking": "True",
@@ -20,7 +20,6 @@
         "right": 19,
         "center": 26
     },
-    "flip_screen": "false",
     "mount_point": "/home/podco/mount_point",
     "src_folders": [
         "/home/podco/Podco_Metal_Detections/server/system_logs"

@@ -36,7 +36,6 @@ class ConfigManager:
         self.brightness = 0
         self.brightness_step = 0
         self.joystick_pins = JoyStickPins(0,0,0,0,0)
-        self.flip_screen: str = ""
         self.mount_point: str = ""
         self.src_folders: list[str] = []
         self.need_copy_files_suffix : list[str] = ""
@@ -60,7 +59,6 @@ class ConfigManager:
             "brightness": self.brightness,
             "brightness_step": self.brightness_step,
             "joystick": self.joystick_pins.to_dict(),
-            "flip_screen": self.flip_screen,
             "mount_point": self.mount_point,
             "src_folders": self.src_folders,
             "need_copy_files_suffix": self.need_copy_files_suffix,
@@ -107,7 +105,6 @@ class ConfigManager:
             self.joystick_pins.right = joystick.get("right")
             self.joystick_pins.center = joystick.get("center")
             
-            self.flip_screen = data.get("flip_screen", "")
             self.src_folders = data.get("src_folders")
             self.mount_point = data.get("mount_point")
             self.need_copy_files_suffix = data.get("need_copy_files_suffix")
@@ -122,7 +119,7 @@ class ConfigManager:
         return self.run_on == "rpi"
     
     def is_flip_screen(self) -> bool:
-        return self.flip_screen.lower() == "true"
+        return self.run_on_rpi()
     
     def is_support_keyboard(self) -> bool:
         return self.support_keyboard.lower() == "true"
