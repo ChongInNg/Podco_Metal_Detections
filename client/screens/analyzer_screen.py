@@ -26,6 +26,8 @@ from share.wsmessage import *
 class RulerWidget(Widget):
     YAXIS_LABEL_AREA_WIDTH = 53
     TICK_OFFSET = -6
+    MAJOR_TICK_HEIGHT = 15
+    MINOR_TICK_HEIGHT = MAJOR_TICK_HEIGHT / 2
 
     def __init__(self, graph, **kwargs):
         super().__init__(**kwargs)
@@ -51,12 +53,12 @@ class RulerWidget(Widget):
             height = self.height
             y_top = self.y + height - self.TICK_OFFSET
 
-            major_tick_height = height * 0.8
+            major_tick_height = self.MAJOR_TICK_HEIGHT
             for i in range(time_range + 1):
                 x_pos = plot_start_x + (i * plot_width / time_range)
                 Line(points=[x_pos, y_top, x_pos, y_top - major_tick_height], width=1)
 
-            minor_tick_height = height * 0.4
+            minor_tick_height = self.MINOR_TICK_HEIGHT
             num_minor_ticks = time_range * 5
             for i in range(num_minor_ticks + 1):
                 if i % 5 != 0:
