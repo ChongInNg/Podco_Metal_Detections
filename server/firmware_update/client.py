@@ -55,7 +55,30 @@ class FirmwareUpdateClient:
             return False
 
         finally:
-            self.mdfu_host = None
+            if self.mdfu_host:
+                self.mdfu_host.close() 
+                self.mdfu_host = None
+
+    def is_bootloader_opened(self) -> bool:
+        try:
+            mac = MacSerialPort(
+                port=self.port,
+                baudrate=self.baudrate,
+            )
+
+            transport = UartTransport(mac=mac, timeout=5)
+            mdfu_host = Mdfu(transport=transport, retries=5)
+            client_info = mdfu_host.get_client_info()
+
+            Logger.info(f"Bootloader is accessible. Client info: {client_info}")
+            return True
+
+        except Exception as e:
+            Logger.warning(f"Bootloader not accessible: {e}")
+            return False
+        finally:
+            if mdfu_host:
+                mdfu_host.close()
 
     @staticmethod
     def create_client(port: str, baudrate: int = 115200, timeout: float = 1.0) -> 'FirmwareUpdateClient':

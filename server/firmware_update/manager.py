@@ -3,6 +3,7 @@ from log.logger import Logger
 from .client import FirmwareUpdateClient
 import threading
 import os
+import time
 
 class FirmwareUpdateTask:
     def __init__(self, hardware_version: str, action: str, firmware_image_path: str, request_id: str):
@@ -66,10 +67,34 @@ class FirmwareUpdateManager:
             Logger.info(f"Firmware update task set: {self._pending_task.to_dict()}")
             return True
 
+    def set_reset_to_factory_task(self, request_id: str, firmware_image_path: str) -> bool:
+        return self.set_update_task(
+            hardware_version="Factory",
+            action="reset_to_factory",
+            request_id=request_id,
+            firmware_image_path=firmware_image_path
+        )
+    
     def has_pending_task(self) -> bool:
         with self._lock:
             return self._pending_task is not None
 
+    def is_bootloader_opened(self) -> bool:
+        try:
+            Logger.info("Closing SerialServer to check if bootloader is opened...")
+            self._close_serial_server()
+            client = FirmwareUpdateClient(
+                port=self._port,
+                baudrate=self._baudrate
+            )
+            return client.is_bootloader_opened()
+        except Exception as e:
+            Logger.error(f"Failed to check if bootloader is opened: {e}")
+            return False
+        finally:
+            Logger.info("Reopening SerialServer after checking bootloader opened...")
+            self._reopen_serial_server()
+        
     def trigger_update(self) -> bool:
         with self._lock:
             if self._pending_task is None:
@@ -98,6 +123,8 @@ class FirmwareUpdateManager:
         try:
             Logger.info(f"Starting firmware update execution: {task.to_dict()}")
 
+            self._close_serial_server()
+              
             client = FirmwareUpdateClient(
                 port=self._port,
                 baudrate=self._baudrate
@@ -112,7 +139,7 @@ class FirmwareUpdateManager:
                 self._send_completion_notification(task, success=True, message="Firmware update completed successfully")
             else:
                 Logger.error(f"Firmware update failed for task: {task.request_id}")
-                self._send_completion_notification(task, success=False, message="Firmware update failed")
+                self._send_completion_notification(task, success=False, message="Firmware pymdfu update failed")
 
         except Exception as e:
             Logger.error(f"Firmware update execution error: {e}")
@@ -131,10 +158,8 @@ class FirmwareUpdateManager:
     def _reopen_serial_server(self):
         try:
             from serial_server import SerialServer
-            import time
-            
             Logger.info("Reopening SerialServer after firmware update...")
-            time.sleep(2)
+            time.sleep(1)
             
             serial_server = SerialServer.instance()
             reconnected = serial_server.reconnect()
@@ -146,6 +171,16 @@ class FirmwareUpdateManager:
                 
         except Exception as e:
             Logger.error(f"Error reopening SerialServer: {e}")
+    
+    def _close_serial_server(self):
+        try:
+            from serial_server import SerialServer
+            Logger.info("Closing SerialServer...")
+            SerialServer.instance().close()
+            time.sleep(1)
+            Logger.info("SerialServer closed successfully")
+        except Exception as e:
+            Logger.error(f"Error closing SerialServer: {e}")
 
     def _send_completion_notification(self, task: FirmwareUpdateTask, success: bool, message: str):
         try:

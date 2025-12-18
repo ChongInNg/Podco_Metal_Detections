@@ -23,8 +23,6 @@ class FirmwareInfo:
 
 
 class FirmwareImageManager:
-    """Manager for firmware image files."""
-
     FIRMWARE_DIR_NAME = "firmware_versions"
     ACTION_UPGRADE = "upgrade"
     ACTION_ROLLBACK = "rollback"
@@ -39,8 +37,7 @@ class FirmwareImageManager:
     def _get_firmware_dir(self, hardware_version: str, action: str) -> str:
         return os.path.join(self.firmware_dir, hardware_version, action)
 
-    def get_firmware_info(self, hardware_version: str, action: str) -> FirmwareInfo:
-        firmware_dir = self._get_firmware_dir(hardware_version, action)
+    def get_firmware_info(self, firmware_dir: str, hardware_version: str, action: str) -> FirmwareInfo:
         if not os.path.exists(firmware_dir):
             return FirmwareInfo(
                 hardware_version=hardware_version,
@@ -70,14 +67,21 @@ class FirmwareImageManager:
         )
 
     def get_firmware_path(self, hardware_version: str, action: str) -> Optional[str]:
-        info = self.get_firmware_info(hardware_version, action)
+        firmware_dir = self._get_firmware_dir(hardware_version, action)
+        info = self.get_firmware_info(firmware_dir, hardware_version, action)
         return info.file_path if info.exists else None
 
     def firmware_exists(self, hardware_version: str, action: str) -> bool:
-        info = self.get_firmware_info(hardware_version, action)
+        firmware_dir = self._get_firmware_dir(hardware_version, action)
+        info = self.get_firmware_info(firmware_dir, hardware_version, action)
         return info.exists
 
     def get_firmware_version(self, hardware_version: str, action: str) -> str:
-        info = self.get_firmware_info(hardware_version, action)
+        firmware_dir = self._get_firmware_dir(hardware_version, action)
+        info = self.get_firmware_info(firmware_dir, hardware_version, action)
         return info.version
 
+    def get_factory_firmware_path(self) -> Optional[str]:
+        firmware_dir = os.path.join(self.firmware_dir, "factory")
+        info = self.get_firmware_info(firmware_dir, "Factory", "reset_to_factory")
+        return info.file_path if info.exists else None

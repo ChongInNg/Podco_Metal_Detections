@@ -134,13 +134,6 @@ class CommandHandler:
             manager = FirmwareUpdateManager.instance()
 
             if manager.has_pending_task():
-                Logger.info("Triggering firmware update after bootloader reset...")
-                
-                Logger.info("Closing SerialServer to release serial port for firmware update...")
-                SerialServer.instance().close()
-                Logger.info("SerialServer closed successfully")
-                
-                time.sleep(1)
                 Logger.error("Starting firmware update...")
                 update_triggered = manager.trigger_update()
 

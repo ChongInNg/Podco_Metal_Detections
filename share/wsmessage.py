@@ -16,6 +16,7 @@ MessageName_GetCalibration = "get_calibration"
 MessageName_SystemError = "system_error"
 MessageName_GetFirmwareVersion = "get_firmware_version"
 MessageName_UpdateFirmware = "update_firmware"
+MessageName_ResetToFactoryFirmware = "reset_to_factory_firmware"
 
 MessageName_NotifyByPass = "notify_bypass"
 MessageName_NotifyCalibration = "notify_calibration"
@@ -114,6 +115,9 @@ class Header:
     def is_notify_firmware_update_result(self):
         return self.name == MessageName_NotifyFirmwareUpdateResult
     
+    def is_reset_to_factory_firmware_message(self):
+        return self.name == MessageName_ResetToFactoryFirmware
+    
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Header':
         name = data.get("name")
@@ -146,7 +150,8 @@ class Header:
             MessageName_NotifyFirmwareVersion,
             MessageName_UpdateFirmware,
             MessageName_NotifyFirmwareProgress,
-            MessageName_NotifyFirmwareUpdateResult
+            MessageName_NotifyFirmwareUpdateResult,
+            MessageName_ResetToFactoryFirmware
         ]:
             if name == message_name:
                 return
@@ -1342,3 +1347,46 @@ class NotifyFirmwareUpdateResult(BaseWsNotify):
             raise ValueError("message is not valid.")
         header = Header(name=MessageName_NotifyFirmwareUpdateResult, message_type=MessageType_Notify)
         return cls(header, code, message)
+    
+class ResetToFactoryFirmwareRequest(BaseWsRequest):
+    def __init__(self,  header: Header):
+        super().__init__(header=header)
+
+    def to_dict(self) -> dict[str, Any]:
+        base_dict = super().to_dict()
+        base_dict["data"] = {}
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'ResetToFactoryFirmwareRequest':
+        if not header.is_reset_to_factory_firmware_message():
+            raise ValueError("Message is not ResetToFactoryFirmwareRequest.")
+
+        return cls(header)
+    
+    @classmethod
+    def create_message(cls) -> 'ResetToFactoryFirmwareRequest':
+        header = Header(name=MessageName_ResetToFactoryFirmware, message_type=MessageType_Request)
+        return cls(header)
+
+class ResetToFactoryFirmwareResponse(BaseWsResponse):
+    def __init__(self, header: Header, code: str, message: str, meta: dict=None):
+        super().__init__(header=header, code=code, message=message, meta=meta)
+
+    @classmethod
+    def from_dict(cls, header: Header, data: dict[str, Any]) -> 'ResetToFactoryFirmwareResponse':
+        if not header.is_reset_to_factory_firmware_message():
+            raise ValueError("Message is not ResetToFactoryFirmwareResponse.")
+
+        code = data.get("code")
+        message = data.get("message")
+        meta = data.get("meta")
+        return cls(header, code, message, meta)
+    
+    @classmethod
+    def create_message(cls, id: str, code: str, message: str, meta: str=None) -> 'ResetToFactoryFirmwareResponse':
+        if id is None or not isinstance(id, str):
+            raise ValueError("Id is not valid.")
+
+        header = Header(id=id, name=MessageName_ResetToFactoryFirmware, message_type=MessageType_Response)
+        return cls(header, code, message, meta)

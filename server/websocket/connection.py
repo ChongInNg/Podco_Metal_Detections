@@ -3,6 +3,7 @@ from log_manager import LogManager
 
 import sys
 import os
+import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from share.wsmessage import *
 
@@ -36,6 +37,8 @@ class Connection:
                 await self.handle_get_firmware_version(message)
             elif isinstance(message, UpdateFirmwareRequest):
                 await self.handle_update_firmware(message)
+            elif isinstance(message, ResetToFactoryFirmwareRequest):
+                await self.handle_reset_to_factory_firmware(message)
             else:
                 Logger.warning(f"Cannot handle this message: {message}")
         except Exception as e:
@@ -186,7 +189,6 @@ class Connection:
         Logger.debug("Received update firmware request")
         from serial_server import SerialServer
         from firmware_update.manager import FirmwareUpdateManager
-        from config.config import ConfigManager
         from share.firmware_image_manager import FirmwareImageManager
 
         firmware_manager = FirmwareImageManager()
@@ -234,3 +236,71 @@ class Connection:
             return
 
         Logger.info(f"Firmware update task set and reset to bootloader sent. Waiting for bootloader response...")
+
+    async def handle_reset_to_factory_firmware(self, message: ResetToFactoryFirmwareRequest):
+        Logger.debug("Received reset to factory firmware request")
+        from serial_server import SerialServer
+        from firmware_update.manager import FirmwareUpdateManager
+        from share.firmware_image_manager import FirmwareImageManager
+
+        firmware_manager = FirmwareImageManager()
+
+        firmware_image_path = firmware_manager.get_factory_firmware_path()
+        if firmware_image_path is None:
+            rsp = ResetToFactoryFirmwareResponse.create_message(
+                id=message.id, code="error",
+                message=f"Factory Firmware image not found."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.error(f"Firmware image not found: {message.hardware_version}/{message.action}")
+            return
+
+        Logger.info(f"Found Factory firmware image: {firmware_image_path}")
+        task_set = FirmwareUpdateManager.instance().set_reset_to_factory_task(
+            request_id=message.id,
+            firmware_image_path=firmware_image_path,
+        )
+
+        if not task_set:
+            rsp = ResetToFactoryFirmwareResponse.create_message(
+                id=message.id, code="error",
+                message="Failed to set reset to factory firmware task."
+            )
+            await self.conn.send(rsp.to_json())
+            Logger.error(f"Failed to set firmware update task: {rsp.to_dict()}")
+            return
+
+        if not FirmwareUpdateManager.instance().is_bootloader_opened():
+            write_buf_num = SerialServer.instance().send_reset_to_bootloader_request()
+            if write_buf_num == 0:
+                rsp = ResetToFactoryFirmwareResponse.create_message(
+                    id=message.id, code="error",
+                    message="Send reset to bootloader request to controller failed."
+                )
+                await self.conn.send(rsp.to_json())
+                Logger.error(f"Handle update firmware request failed: {rsp.to_dict()}")
+                return
+            else:
+                rsp = ResetToFactoryFirmwareResponse.create_message(
+                    id=message.id, code="OK",
+                    message="Reset to bootloader request sent successfully."
+                )
+                await self.conn.send(rsp.to_json())
+                Logger.info(f"Firmware update task set and reset to bootloader sent. Waiting for bootloader response...")
+        else:
+            Logger.info("Bootloader already opened, proceeding with factory firmware reset.")
+            is_triggered = FirmwareUpdateManager.instance().trigger_update()
+            if is_triggered:
+                rsp = ResetToFactoryFirmwareResponse.create_message(
+                    id=message.id, code="OK",
+                    message="Factory firmware update triggered successfully."
+                )
+                await self.conn.send(rsp.to_json())
+                Logger.info("Factory firmware update triggered successfully.")
+            else:
+                rsp = ResetToFactoryFirmwareResponse.create_message(
+                    id=message.id, code="error",
+                    message="Failed to trigger factory firmware update."
+                )
+                await self.conn.send(rsp.to_json())
+                Logger.error("Failed to trigger factory firmware update.")
