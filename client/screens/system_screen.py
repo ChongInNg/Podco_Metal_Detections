@@ -39,7 +39,7 @@ class SystemScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.loading_screen = LoadingScreen(
-            timeout=10,
+            timeout=5,
             on_timeout_callback=self.on_version_request_timeout
         )
         self.for_debug = False

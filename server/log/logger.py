@@ -46,7 +46,7 @@ class Logger:
             backupCount=backup_count,
         )
         self.file_handler.setFormatter(formatter)
-        self.file_handler.setLevel(logging.ERROR)
+        self.file_handler.setLevel(self.log_file_level)
         self.logger.addHandler(self.file_handler)
         self.log_file = full_log_path
 
