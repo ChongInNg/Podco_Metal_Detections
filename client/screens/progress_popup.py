@@ -40,7 +40,7 @@ class ProgressPopup(FlippedPopup):
 
         self.confirm_button = Button(
             text="Confirm",
-            size_hint_y=0.4,
+            size_hint_y=0.2,
             font_size=20
         )
         self.confirm_button.bind(on_release=self._on_confirm)

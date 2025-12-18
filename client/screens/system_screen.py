@@ -18,7 +18,7 @@ import threading
 import shutil
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from share.wsmessage import GetFirmwareVersionRequest, UpdateFirmwareRequest
+from share.wsmessage import GetFirmwareVersionRequest, UpdateFirmwareRequest, ResetToFactoryFirmwareRequest
 from share.firmware_image_manager import FirmwareImageManager
 
 Builder.load_file("kv/system_screen.kv")
@@ -30,7 +30,7 @@ class SystemScreen(Screen):
     hardware_version = StringProperty(DEFAULT_VERSION)
     current_button = StringProperty('upgrade_btn')
     versions_loaded = BooleanProperty(False)
-    show_retry_button = BooleanProperty(False)
+    show_reset_button = BooleanProperty(False)
     upgrade_available = BooleanProperty(False)
     rollback_available = BooleanProperty(False)
     upgrade_version = StringProperty("")
@@ -59,8 +59,8 @@ class SystemScreen(Screen):
         self.device_detector = DeviceDetector(mount_point=ConfigManager.instance().mount_point)
     
     def get_button_ids(self):
-        if self.show_retry_button:
-            return ['retry_btn', 'back_btn']
+        if self.show_reset_button:
+            return ['reset_btn', 'back_btn']
         elif self.versions_loaded:
             if self.upgrade_available and self.rollback_available:
                 return ['upgrade_btn', 'rollback_btn', 'back_btn']
@@ -86,7 +86,7 @@ class SystemScreen(Screen):
             self.hardware_version = DEFAULT_VERSION
             self.versions_loaded = False
 
-        self.show_retry_button = False
+        self.show_reset_button = False
         button_ids = self.get_button_ids()
         self.current_button = button_ids[0]
         self.set_focus_button(self.current_button)
@@ -292,7 +292,7 @@ class SystemScreen(Screen):
             Logger.warning("WebSocket not connected, cannot request versions")
             return
 
-        self.show_retry_button = False
+        self.show_reset_button = False
         self.firmware_response_received = False
    
         self.loading_screen.update_message("Loading versions...")
@@ -327,7 +327,7 @@ class SystemScreen(Screen):
         Logger.debug("Both version responses received, hiding loading screen")
 
         self.versions_loaded = True
-        self.show_retry_button = False
+        self.show_reset_button = False
 
         self.check_firmware_availability()
         
@@ -343,7 +343,7 @@ class SystemScreen(Screen):
             self.hardware_version = DEFAULT_VERSION
 
         self.versions_loaded = False
-        self.show_retry_button = True
+        self.show_reset_button = True
 
         button_ids = self.get_button_ids()
         self.current_button = button_ids[0] #retry button
@@ -412,7 +412,7 @@ class SystemScreen(Screen):
         Logger.debug("Right pressed (not handled in system screen)")
 
     def clear_focus(self):
-        all_button_ids = ['upgrade_btn', 'rollback_btn', 'retry_btn', 'back_btn']
+        all_button_ids = ['upgrade_btn', 'rollback_btn', 'reset_btn', 'back_btn']
         for button_id in all_button_ids:
             if button_id in self.ids:
                 self.ids[button_id].state = "normal"
@@ -449,8 +449,8 @@ class SystemScreen(Screen):
             self.on_upgrade_btn_click()
         elif self.current_button == 'rollback_btn':
             self.on_rollback_btn_click()
-        elif self.current_button == 'retry_btn':
-            self.on_retry_btn_click()
+        elif self.current_button == 'reset_btn':
+            self.on_reset_btn_click()
         elif self.current_button == 'back_btn':
             self.on_back_btn_click()
         
@@ -490,7 +490,7 @@ class SystemScreen(Screen):
 
         self.progress_popup.reset()
         self.progress_popup.set_title("Upgrading")
-        self.progress_popup.update_status("Reseting device to bootloader...")
+        self.progress_popup.update_status("Reseting device to bootloader")
         self.progress_popup.handle_open()
 
         self.response_timeout_event = Clock.schedule_once(self._on_response_timeout, 5.0)
@@ -507,14 +507,18 @@ class SystemScreen(Screen):
 
         self.progress_popup.reset()
         self.progress_popup.set_title("Rolling Back")
-        self.progress_popup.update_status("Reseting device to bootloader...")
+        self.progress_popup.update_status("Reseting device to bootloader")
         self.progress_popup.handle_open()
 
         self.response_timeout_event = Clock.schedule_once(self._on_response_timeout, 5.0)
 
-    def on_retry_btn_click(self):
-        Logger.debug("Retry button clicked - requesting versions again")
-        self.request_versions()
+    def on_reset_btn_click(self):
+        Logger.debug("Reset button clicked - requesting versions again")
+        self.confirmation_popup.reset_state()
+        self.confirmation_popup.title = "Reset Firmware"
+        self.confirmation_popup.message_label.text = f"Are you sure you want to reset to factory firmware?"
+        self.confirmation_popup.on_confirm_callback = self._excute_reset
+        self.confirmation_popup.handle_open()
 
     def on_back_btn_click(self):
         Logger.debug("Back button clicked")
@@ -539,7 +543,7 @@ class SystemScreen(Screen):
             self.response_timeout_event = None
 
         if code == "OK":
-            self.progress_popup.update_status("Reset to bootloader success.")
+            self.progress_popup.update_status("Reset to bootloader success")
             self.upload_timeout_event = Clock.schedule_once(self._on_update_timeout, 30.0)
         else:
             self._finish_update_with_error("Reset to bootloader failed!")
@@ -602,3 +606,27 @@ class SystemScreen(Screen):
 
         if self.progress_popup.is_showing():
             self._finish_update_with_error("Firmware update timeout!")
+
+    def _excute_reset(self):
+        self.progress_popup.reset()
+        self.progress_popup.set_title("Resetting")
+        self.progress_popup.update_status("Resetting to factory firmware...")
+        self.progress_popup.handle_open()
+
+        reset_msg = ResetToFactoryFirmwareRequest.create_message()
+        WebSocketClient.instance().send_json_sync(reset_msg.to_json())
+        Logger.debug("Sent ResetToFactoryFirmwareRequest to server")
+
+    def handle_reset_to_factory_firmware_response(self, code: str, message: str):
+        Logger.debug(f"Received reset to factory firmware response. code: {code}, message: {message}")
+
+        if code == "OK":
+            Logger.debug("Reset to factory firmware successful")
+            self.progress_popup.update_status("Reseting device to bootloader")
+            self.response_timeout_event = Clock.schedule_once(self._on_response_timeout, 5.0)
+        elif code == "BootloaderOpened":
+            Logger.debug("Bootloader opened after factory reset")
+            self.upload_timeout_event = Clock.schedule_once(self._on_update_timeout, 30.0)
+        else:
+            Logger.debug("Reset to factory firmware failed")
+            Clock.schedule_once(lambda dt: self.show_error_popup("Reset to factory firmware failed!"), 0)

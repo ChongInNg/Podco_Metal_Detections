@@ -72,6 +72,8 @@ class MainScreen(Screen):
                 self._handle_notify_firmware_progress(msg)
             elif isinstance(msg, NotifyFirmwareUpdateResult):
                 self._handle_notify_firmware_result(msg)
+            elif isinstance(msg, ResetToFactoryFirmwareResponse):
+                self._handle_reset_to_factory_firmware_response(msg)
             else:
                 Logger.error(f"Cannot handle this message: {msg}")
         except Exception as ex:
@@ -232,6 +234,11 @@ class MainScreen(Screen):
         system_screen = self.get_stack_widget().get_system_screen()
         Clock.schedule_once(lambda dt: system_screen.handle_update_firmware_response(code=msg.code, message=msg.message))
 
+    def _handle_reset_to_factory_firmware_response(self, msg: ResetToFactoryFirmwareResponse):
+        system_screen = self.get_stack_widget().get_system_screen()
+        Clock.schedule_once(lambda dt: system_screen.handle_reset_to_factory_firmware_response(
+            code=msg.code, message=msg.message))
+        
     def _handle_notify_firmware_progress(self, msg: NotifyFirmwareProgress):
         system_screen = self.get_stack_widget().get_system_screen()
         Clock.schedule_once(lambda dt: system_screen.handle_notify_firmware_progress(

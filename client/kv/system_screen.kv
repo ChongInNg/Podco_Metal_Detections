@@ -109,12 +109,12 @@
                 text: ""
                 size_hint_x: 0.5
             Button:
-                id: retry_btn
-                text: "Retry"
+                id: reset_btn
+                text: "Reset"
                 font_size: "18sp"
                 size_hint_x: 0.25
-                opacity: 1 if root.show_retry_button else 0
-                disabled: not root.show_retry_button
+                opacity: 1 if root.show_reset_button else 0
+                disabled: not root.show_reset_button
                 on_release: root.on_retry_btn_click()
             Button:
                 id: back_btn

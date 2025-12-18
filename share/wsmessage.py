@@ -220,7 +220,12 @@ class BaseWsMessage:
                 return UpdateFirmwareRequest.from_dict(header=header, data=msg_data)
             else:
                 return UpdateFirmwareResponse.from_dict(header=header, data=msg_data)
-
+        elif header.is_reset_to_factory_firmware_message():
+            if header.is_request():
+                return ResetToFactoryFirmwareRequest.from_dict(header=header, data=msg_data)
+            else:
+                return ResetToFactoryFirmwareResponse.from_dict(header=header, data=msg_data)
+            
         elif header.is_system_error_message():
             return SystemErrorResponse.from_dict(header=header, data=msg_data)
         elif header.is_notify_bypass_message():

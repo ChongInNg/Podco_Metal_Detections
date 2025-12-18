@@ -292,7 +292,7 @@ class Connection:
             is_triggered = FirmwareUpdateManager.instance().trigger_update()
             if is_triggered:
                 rsp = ResetToFactoryFirmwareResponse.create_message(
-                    id=message.id, code="OK",
+                    id=message.id, code="BootloaderOpened",
                     message="Factory firmware update triggered successfully."
                 )
                 await self.conn.send(rsp.to_json())
