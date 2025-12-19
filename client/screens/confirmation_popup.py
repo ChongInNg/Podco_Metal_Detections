@@ -11,6 +11,7 @@ class ConfirmationPopup(FlippedPopup):
         self.init_attributes(title=title)
 
         self.on_confirm_callback = on_confirm_callback
+        self.on_cancel_callback = None
 
         layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
 
@@ -36,11 +37,16 @@ class ConfirmationPopup(FlippedPopup):
         
         self.current_state = "dismiss"
 
+    def set_cancell_callback(self, callback):
+        self.on_cancel_callback = callback
+
     def reset_state(self):
         self.current_state = "dismiss"
         self.current_button = self.confirm_button
         self.cancel_button.state = "normal"
         self.confirm_button.state = "down"
+
+        self.on_cancel_callback = None
 
     def _on_confirm(self, instance):
         self.handle_dismiss(instance)
@@ -69,6 +75,8 @@ class ConfirmationPopup(FlippedPopup):
     def handle_dismiss(self, instance):
         self.dismiss()
         self.current_state = "dismiss"
+        if self.on_cancel_callback:
+            self.on_cancel_callback()
 
     def handle_open(self):
         self.open()

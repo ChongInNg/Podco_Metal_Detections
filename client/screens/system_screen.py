@@ -165,6 +165,7 @@ class SystemScreen(Screen):
             "Copy firmware from USB?"
         )
         self.confirmation_popup.on_confirm_callback = self._start_usb_firmware_copy
+        self.confirmation_popup.on_cancel_callback = self._handle_cancell_copy_from_usb
         self.confirmation_popup.handle_open()
 
     def _start_usb_firmware_copy(self):
@@ -323,6 +324,7 @@ class SystemScreen(Screen):
             self.loading_screen.hide()
         
         if self.check_usb_firmware_availability():
+            # exist usb firmware, wait for user confirm to copy
             return
         
         # don't exist usb firmware, continue normal flow
@@ -643,3 +645,7 @@ class SystemScreen(Screen):
         else:
             Logger.debug("Reset to factory firmware failed")
             Clock.schedule_once(lambda dt: self.show_error_popup("Reset to factory firmware failed!"), 0)
+
+    def _handle_cancell_copy_from_usb(self):
+        Logger.debug("User cancelled USB firmware copy")
+        self.after_response_received()
