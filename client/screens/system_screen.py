@@ -58,7 +58,8 @@ class SystemScreen(Screen):
         self.copied_from_usb = False
         self.device_detector = DeviceDetector(mount_point=ConfigManager.instance().mount_point)
 
-        self.factory_firmware_version = "N/A"
+        firmware_manager = FirmwareImageManager()
+        self.factory_firmware_version = firmware_manager.get_factory_firmware_version()
         self.factory_hardware_version = FirmwareImageManager.FACTORY_HARDWARE_VERSION
     
     def get_button_ids(self):
@@ -125,8 +126,6 @@ class SystemScreen(Screen):
         else:
             Logger.debug("No rollback firmware found")
 
-        self.factory_firmware_version = firmware_manager.get_factory_firmware_version()
-        Logger.debug(f"Factory firmware version: {self.factory_firmware_version}")
         Logger.debug(f"Firmware availability - Upgrade: {self.upgrade_available} ({self.upgrade_version}), Rollback: {self.rollback_available} ({self.rollback_version})")
 
     def check_usb_firmware_availability(self) -> bool:
@@ -575,6 +574,10 @@ class SystemScreen(Screen):
                 self.firmware_version = self.factory_firmware_version
                 self.hardware_version = self.factory_hardware_version
                 self.show_reset_button = False
+                self.check_firmware_availability()
+                button_ids = self.get_button_ids()
+                self.current_button = button_ids[0]
+                self.set_focus_button(self.current_button)
             self.progress_popup.update_status("Firmware update completed successfully.")
             Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
         else:
