@@ -28,6 +28,9 @@ class FirmwareImageManager:
     ACTION_ROLLBACK = "rollback"
     FIRMWARE_EXTENSION = ".img"
 
+    ACTION_RESET_TO_FACTORY = "reset_to_factory"
+    FACTORY_HARDWARE_VERSION = "2.0.0"
+
     def __init__(self, base_dir: Optional[str] = None):
         if base_dir is None:
             base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -83,5 +86,10 @@ class FirmwareImageManager:
 
     def get_factory_firmware_path(self) -> Optional[str]:
         firmware_dir = os.path.join(self.firmware_dir, "factory")
-        info = self.get_firmware_info(firmware_dir, "Factory", "reset_to_factory")
+        info = self.get_firmware_info(firmware_dir, self.FACTORY_HARDWARE_VERSION, self.ACTION_RESET_TO_FACTORY)
         return info.file_path if info.exists else None
+    
+    def get_factory_firmware_version(self) -> str:
+        firmware_dir = os.path.join(self.firmware_dir, "factory")
+        info = self.get_firmware_info(firmware_dir, self.FACTORY_HARDWARE_VERSION, self.ACTION_RESET_TO_FACTORY)
+        return info.version if info.exists else "N/A"

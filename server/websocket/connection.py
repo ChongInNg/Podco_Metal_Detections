@@ -252,7 +252,7 @@ class Connection:
                 message=f"Factory Firmware image not found."
             )
             await self.conn.send(rsp.to_json())
-            Logger.error(f"Firmware image not found: {message.hardware_version}/{message.action}")
+            Logger.error(f"Factory Firmware image not found")
             return
 
         Logger.info(f"Found Factory firmware image: {firmware_image_path}")

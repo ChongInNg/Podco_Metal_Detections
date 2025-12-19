@@ -57,6 +57,9 @@ class SystemScreen(Screen):
         self.backup_folder_path = None
         self.copied_from_usb = False
         self.device_detector = DeviceDetector(mount_point=ConfigManager.instance().mount_point)
+
+        self.factory_firmware_version = "N/A"
+        self.factory_hardware_version = FirmwareImageManager.FACTORY_HARDWARE_VERSION
     
     def get_button_ids(self):
         if self.show_reset_button:
@@ -122,6 +125,8 @@ class SystemScreen(Screen):
         else:
             Logger.debug("No rollback firmware found")
 
+        self.factory_firmware_version = firmware_manager.get_factory_firmware_version()
+        Logger.debug(f"Factory firmware version: {self.factory_firmware_version}")
         Logger.debug(f"Firmware availability - Upgrade: {self.upgrade_available} ({self.upgrade_version}), Rollback: {self.rollback_available} ({self.rollback_version})")
 
     def check_usb_firmware_availability(self) -> bool:
@@ -566,6 +571,10 @@ class SystemScreen(Screen):
                 self.firmware_version = self.upgrade_version
             elif self.current_button == 'rollback_btn':
                 self.firmware_version = self.rollback_version
+            elif self.current_button == 'reset_btn':
+                self.firmware_version = self.factory_firmware_version
+                self.hardware_version = self.factory_hardware_version
+                self.show_reset_button = False
             self.progress_popup.update_status("Firmware update completed successfully.")
             Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
         else:
@@ -620,7 +629,6 @@ class SystemScreen(Screen):
 
     def handle_reset_to_factory_firmware_response(self, code: str, message: str):
         Logger.debug(f"Received reset to factory firmware response. code: {code}, message: {message}")
-
         if code == "OK":
             Logger.debug("Reset to factory firmware successful")
             self.progress_popup.update_status("Reseting device to bootloader")

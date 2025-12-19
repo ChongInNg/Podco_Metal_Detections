@@ -61,11 +61,17 @@ class FirmwareUpdateClient:
 
     def is_bootloader_opened(self) -> bool:
         try:
+            # import logging
+            # pymdfu_logger = logging.getLogger("pymdfu")
+            # # "pymdfu.MdfuHost"
+            # pymdfu_logger.setLevel(logging.DEBUG)
+            # logging.basicConfig(level=logging.DEBUG)
+            
             mac = MacSerialPort(
                 port=self.port,
                 baudrate=self.baudrate,
             )
-
+        
             transport = UartTransport(mac=mac, timeout=1)
             mdfu_host = Mdfu(transport=transport, retries=0)
             mdfu_host.open()
@@ -80,6 +86,7 @@ class FirmwareUpdateClient:
         finally:
             if mdfu_host:
                 mdfu_host.close()
+                mdfu_host = None
 
     @staticmethod
     def create_client(port: str, baudrate: int = 115200, timeout: float = 1.0) -> 'FirmwareUpdateClient':
