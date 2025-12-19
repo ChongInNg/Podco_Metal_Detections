@@ -577,7 +577,8 @@ class SystemScreen(Screen):
                 self.check_firmware_availability()
                 button_ids = self.get_button_ids()
                 self.current_button = button_ids[0]
-                self.set_focus_button(self.current_button)
+                Clock.schedule_once(lambda dt: self.set_focus_button(self.current_button),0)
+    
             self.progress_popup.update_status("Firmware update completed successfully.")
             Clock.schedule_once(lambda dt: self._finish_update(), 2.0)
         else:
