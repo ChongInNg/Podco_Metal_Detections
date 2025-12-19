@@ -66,8 +66,8 @@ class FirmwareUpdateClient:
                 baudrate=self.baudrate,
             )
 
-            transport = UartTransport(mac=mac, timeout=5)
-            mdfu_host = Mdfu(transport=transport, retries=5)
+            transport = UartTransport(mac=mac, timeout=1)
+            mdfu_host = Mdfu(transport=transport, retries=0)
             mdfu_host.open()
             client_info = mdfu_host.get_client_info()
 
