@@ -218,7 +218,7 @@ if __name__ == "__main__":
     ConfigManager.instance().read_config(config_path)
     Logger.instance().init(
         log_folder=f"{get_current_program_folder()}/../server/system_logs",
-        log_file_level=40, # only write the error log of server
+        log_file_level=20, # only write the error log of server
         max_bytes=1024*1024*50, # 50M for server.log file size
         backup_count=10, # 10 server.log file can keep
         print_log_level=20
