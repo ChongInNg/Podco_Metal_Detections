@@ -34,7 +34,7 @@ class FirmwareImageManager:
         self.base_dir = base_dir
         self.firmware_dir = os.path.join(base_dir, self.FIRMWARE_DIR_NAME)
 
-    def _get_firmware_dir(self, hardware_version: str, action: str) -> str:
+    def get_firmware_dir(self, hardware_version: str, action: str) -> str:
         return os.path.join(self.firmware_dir, hardware_version, action)
 
     def get_firmware_info(self, firmware_dir: str, hardware_version: str, action: str) -> FirmwareInfo:
@@ -67,17 +67,17 @@ class FirmwareImageManager:
         )
 
     def get_firmware_path(self, hardware_version: str, action: str) -> Optional[str]:
-        firmware_dir = self._get_firmware_dir(hardware_version, action)
+        firmware_dir = self.get_firmware_dir(hardware_version, action)
         info = self.get_firmware_info(firmware_dir, hardware_version, action)
         return info.file_path if info.exists else None
 
     def firmware_exists(self, hardware_version: str, action: str) -> bool:
-        firmware_dir = self._get_firmware_dir(hardware_version, action)
+        firmware_dir = self.get_firmware_dir(hardware_version, action)
         info = self.get_firmware_info(firmware_dir, hardware_version, action)
         return info.exists
 
     def get_firmware_version(self, hardware_version: str, action: str) -> str:
-        firmware_dir = self._get_firmware_dir(hardware_version, action)
+        firmware_dir = self.get_firmware_dir(hardware_version, action)
         info = self.get_firmware_info(firmware_dir, hardware_version, action)
         return info.version
 
