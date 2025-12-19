@@ -68,6 +68,7 @@ class FirmwareUpdateClient:
 
             transport = UartTransport(mac=mac, timeout=5)
             mdfu_host = Mdfu(transport=transport, retries=5)
+            mdfu_host.open()
             client_info = mdfu_host.get_client_info()
 
             Logger.info(f"Bootloader is accessible. Client info: {client_info}")
