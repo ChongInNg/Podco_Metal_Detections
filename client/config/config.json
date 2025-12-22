@@ -14,11 +14,11 @@
     "brightness": 100,
     "brightness_step": 10,
     "joystick": {
-        "up": 5,
+        "up": 26,
         "down": 6,
-        "left": 13,
-        "right": 19,
-        "center": 26
+        "left": 19,
+        "right": 5,
+        "center": 13
     },
     "mount_point": "/home/podco/mount_point",
     "src_folders": [
