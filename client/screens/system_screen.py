@@ -117,7 +117,7 @@ class SystemScreen(Screen):
         else:
             Logger.debug("No upgrade firmware found")
 
-        firmware_dir = firmware_manager.get_firmware_dir(self.hardware_version, FirmwareImageManager.ACTION_UPGRADE)
+        firmware_dir = firmware_manager.get_firmware_dir(self.hardware_version, FirmwareImageManager.ACTION_ROLLBACK)
         rollback_info = firmware_manager.get_firmware_info(firmware_dir, self.hardware_version, FirmwareImageManager.ACTION_ROLLBACK)
         if rollback_info and rollback_info.exists:
             self.rollback_available = True
