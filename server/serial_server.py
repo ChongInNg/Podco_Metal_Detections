@@ -12,6 +12,7 @@ NOTIFY_RAW_DATA_COMMAND:int = 0xAA
 GET_FIRMWARE_VERSION_COMMAND:int=0xFB
 GET_HARDWARE_VERSION_COMMAND:int=0xFC
 RESET_TO_BOOTLOADER_COMMAND:int=0xFA
+UNKNOW_COMMAND:int=0x11
 
 class CommandData:
     def __init__(self, command_type: int, data_length: int, data: bytes):
@@ -154,6 +155,10 @@ class SerialServer:
 
                 Logger.debug(f"command type hex: {hex(command_type)}, data_length: {data_length}")
                 data = self.serial.read(data_length)
+                if command_type == UNKNOW_COMMAND:
+                    Logger.warning(f"Received unknown command from serial, ignore it. command_data: {command_data.to_dict()}")
+                    continue
+
                 command_data = CommandData(command_type, data_length, data)
                 self.cmd_queue.put(command_data)
                 Logger.info(f"Read serial: {command_data.to_dict()}")
